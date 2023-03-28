@@ -2,11 +2,14 @@ import { NextFunction, Request, Response } from "express";
 import AppError from "../config/AppError";
 
 type ErrorResBody = {
-	status: "error";
+	status: "fail" | "error";
 	name: string;
 	message: string;
 };
-function createErrorResponseBody(err?: Error): ErrorResBody {
+function createErrorResponseBody(
+	err?: Error,
+	status?: "fail" | "error"
+): ErrorResBody {
 	if (!err) {
 		return {
 			status: "error",
@@ -15,7 +18,7 @@ function createErrorResponseBody(err?: Error): ErrorResBody {
 		};
 	}
 	return {
-		status: "error",
+		status: status || "error",
 		name: err.name || "Error",
 		message: err.message || "Sometihng went wrong!",
 	};
@@ -27,6 +30,17 @@ const errorHandler = (
 	res: Response,
 	_next: NextFunction
 ) => {
+	if (err.name === "JsonWebTokenError") {
+		console.log({ err });
+		return res.status(403).json(createErrorResponseBody(err, "fail"));
+	}
+
+	if (err.name === "ValidationError") {
+		console.log(err);
+
+		return res.status(400).json(createErrorResponseBody(err, "fail"));
+	}
+
 	if (err instanceof AppError) {
 		return res
 			.status(err.statusCode)

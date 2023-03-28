@@ -1,13 +1,13 @@
 import { model, Schema } from "mongoose";
 
-interface UserType {
+export interface IUser {
 	name: string;
 	email: string;
 	password: string;
-	avatar: string;
+	avatar?: string;
 }
 
-const userSchema = new Schema<UserType>({
+const userSchema = new Schema<IUser>({
 	name: {
 		type: String,
 		required: [true, "Name is required!"],
@@ -28,5 +28,5 @@ const userSchema = new Schema<UserType>({
 	},
 });
 
-const User = model<UserType>("User", userSchema);
+const User = model<IUser>("User", userSchema);
 export default User;

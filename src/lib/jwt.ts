@@ -1,5 +1,5 @@
-import { SignOptions } from "jsonwebtoken";
-import jwt from "jsonwebtoken";
+import { JwtPayload, SignOptions } from "jsonwebtoken";
+import jsonWebToken from "jsonwebtoken";
 
 interface IJsonWebToken {
 	createToken: (
@@ -7,6 +7,11 @@ interface IJsonWebToken {
 		secretKey: string,
 		signOptions?: SignOptions
 	) => string;
+
+	verifyToken: (
+		token: string,
+		secretKey: string
+	) => string | JwtPayload | object;
 }
 
 class JsonWebTokenImpl implements IJsonWebToken {
@@ -15,8 +20,13 @@ class JsonWebTokenImpl implements IJsonWebToken {
 		secretKey: string,
 		signOptions?: SignOptions | undefined
 	): string {
-		return jwt.sign(payload, secretKey, signOptions);
+		return jsonWebToken.sign(payload, secretKey, signOptions);
+	}
+
+	verifyToken(token: string, secretKey: string) {
+		return jsonWebToken.verify(token, secretKey);
 	}
 }
+const jwt = new JsonWebTokenImpl();
 
-export default new JsonWebTokenImpl();
+export default jwt;

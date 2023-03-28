@@ -1,8 +1,8 @@
-import bcrypt from "../lib/bcrypt";
-import { Response } from "express";
-import { SignOptions } from "jsonwebtoken";
+import bcrypt from "bcrypt";
+import type { Response, CookieOptions, Request } from "express";
 import AppError from "../config/AppError";
-import jwt from "../lib/jwt";
+import createToken from "../lib/createToken";
+import validateUser from "../lib/validateUser";
 import User from "../models/User";
 import { TypedRequestBody } from "../types";
 
@@ -25,12 +25,17 @@ export const handleRegister = async (
 		throw new AppError("User already existed with this email!", 400);
 	}
 
+	// *validate user data
+	const validatedResult = validateUser({ name, email, password });
+	if (validatedResult.error) {
+		throw validatedResult.error;
+	}
+
 	const SALT_ROUNDS = 10;
 	const encryptedPwd = await bcrypt.hash(password, SALT_ROUNDS);
 
-	const a: unknown = 1111;
 	const newUserDoc = await User.create({
-		name: a,
+		name,
 		email,
 		password: encryptedPwd,
 	});
@@ -73,14 +78,32 @@ export const handleLogin = async (
 		throw new AppError("Wrong Password!", 400);
 	}
 
-	const jwtSignOptions: SignOptions = {
-		expiresIn: "15min",
+	const payload = {
+		userInfo: { id: foundUser._id },
 	};
-	const accessToken = jwt.createToken(
-		{ userInfo: { id: foundUser._id } },
-		process.env.ACCESS_TOKEN_SECRET_KEY,
-		jwtSignOptions
-	);
+	const accessToken = createToken(payload, "access", "15m");
+
+	const cookieOptions: CookieOptions = {
+		httpOnly: true,
+		maxAge: 15 * 60 * 1000,
+		sameSite: "strict",
+		secure: true,
+	};
+	res.cookie("accessToken", accessToken, cookieOptions);
 
 	res.json({ status: "success", accessToken });
+};
+
+export const handleLogout = (req: Request, res: Response) => {
+	const cookies = req.cookies;
+	if (cookies) {
+		const cookieOptions: CookieOptions = {
+			httpOnly: true,
+			sameSite: "strict",
+			secure: true,
+		};
+		res.clearCookie("accessToken", cookieOptions);
+	}
+
+	res.json({ status: "success", message: "Logout successfully!" });
 };

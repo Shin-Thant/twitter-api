@@ -2,6 +2,7 @@ import "express-async-errors";
 import express from "express";
 import mongoose, { MongooseError } from "mongoose";
 import dotenv from "dotenv";
+import cookieParser from "cookie-parser";
 import errorHandler from "./middlewares/errorHandler";
 import connectDB from "./config/connectDB";
 import userRoutes from "./routes/userRoutes";
@@ -14,6 +15,7 @@ const app = express();
 connectDB();
 
 // middlewares
+app.use(cookieParser());
 app.use(express.json());
 
 // routes

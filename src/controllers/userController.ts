@@ -8,9 +8,10 @@ export const getUserById = async (req: Request<ParamsType>, res: Response) => {
 	if (!id) {
 		return;
 	}
+
 	const foundUser = await User.findOne({ _id: id }).lean().exec();
 	if (!foundUser) {
-		throw new AppError("User not found!", 404);
+		throw new AppError("User not found!", 400);
 	}
 
 	res.json(foundUser);
