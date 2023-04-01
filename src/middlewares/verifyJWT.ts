@@ -33,22 +33,32 @@ const verifyJWT = async (req: Request, res: Response, next: NextFunction) => {
 		throw new AppError("You are not authorized!", 401);
 	}
 
-	const payload = jwt.verify(
+	jwt.verify(
 		accessToken,
-		process.env.ACCESS_TOKEN_SECRET_KEY
+		process.env.ACCESS_TOKEN_SECRET_KEY,
+		async (err, payload) => {
+			if (err) {
+				throw err;
+			}
+			if (!payload) {
+				throw new AppError("Forbidden", 403);
+			}
+
+			if (!isJWTPayloadValid(payload)) {
+				throw new AppError("You are not authorized!", 401);
+			}
+
+			const foundUser = await User.findOne({
+				_id: payload.userInfo.id,
+			}).exec();
+			if (!foundUser) {
+				throw new AppError("Something went wrong!", 403);
+			}
+
+			req.user = foundUser;
+			next();
+		}
 	);
-
-	if (!isJWTPayloadValid(payload)) {
-		throw new AppError("You are not authorized!", 401);
-	}
-
-	const foundUser = await User.findOne({ _id: payload.userInfo.id }).exec();
-	if (!foundUser) {
-		throw new AppError("Something went wrong!", 403);
-	}
-
-	req.user = foundUser;
-	next();
 };
 
 export default verifyJWT;

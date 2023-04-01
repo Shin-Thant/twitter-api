@@ -5,8 +5,10 @@ import createToken from "../lib/createToken";
 import validateUser from "../lib/validateUser";
 import User from "../models/User";
 import { TypedRequestBody } from "../types";
+import findDuplicateWithUserNameAndEmail from "../util/findDuplicateUser";
 
 type RegisterReqBody = {
+	username?: string;
 	name?: string;
 	email?: string;
 	password?: string;
@@ -15,30 +17,27 @@ export const handleRegister = async (
 	req: TypedRequestBody<RegisterReqBody>,
 	res: Response
 ) => {
-	const { name, email, password } = req.body;
-	if (!name || !email || !password) {
+	const { username, name, email, password } = req.body;
+	if (!username || !name || !email || !password) {
 		throw new AppError("All fields are required!", 400);
 	}
 
-	const duplicateUser = await User.findOne({ email }).exec();
-	if (duplicateUser) {
+	const duplicates = await findDuplicateWithUserNameAndEmail(username, email);
+	if (duplicates.length > 0) {
 		throw new AppError("User already existed with this email!", 400);
 	}
 
 	// *validate user data
-	const validatedResult = validateUser({ name, email, password });
+	const validatedResult = validateUser({ username, name, email, password });
 	if (validatedResult.error) {
 		throw validatedResult.error;
 	}
 
 	const SALT_ROUNDS = 10;
 	const encryptedPwd = await bcrypt.hash(password, SALT_ROUNDS);
+	validatedResult.value.password = encryptedPwd;
 
-	const newUserDoc = await User.create({
-		name,
-		email,
-		password: encryptedPwd,
-	});
+	const newUserDoc = await User.create({ ...validatedResult.value });
 	if (!newUserDoc) {
 		throw new AppError("Something went wrong", 500);
 	}
