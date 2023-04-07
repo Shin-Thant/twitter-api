@@ -1,5 +1,8 @@
 import { model, Schema } from "mongoose";
 
+// TODO: add new field `bio` (optional, string, maxlength = 60)
+// TODO: add `followers`, `following` fields
+
 export interface IUser {
 	username: string;
 	name: string;
@@ -12,6 +15,7 @@ const userSchema = new Schema<IUser>({
 	username: {
 		type: String,
 		required: [true, "Username is required!"],
+		unique: true,
 	},
 	name: {
 		type: String,

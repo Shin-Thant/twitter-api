@@ -7,6 +7,7 @@ import errorHandler from "./middlewares/errorHandler";
 import connectDB from "./config/connectDB";
 import userRoutes from "./routes/userRoutes";
 import authRoutes from "./routes/authRoutes";
+import tweetRoutes from "./routes/tweetRoutes";
 
 dotenv.config();
 const app = express();
@@ -21,6 +22,7 @@ app.use(express.json());
 // routes
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/users", userRoutes);
+app.use("/api/v1/tweets", tweetRoutes);
 
 // error handler middleware
 app.use(errorHandler);
@@ -28,11 +30,11 @@ app.use(errorHandler);
 // start server
 const PORT: number = 3500 || process.env.PORT;
 mongoose.connection.once("open", () => {
-console.log("✨Successfully connected to MongoDB!");
+	console.log("✨ Successfully connected to MongoDB!");
 
-app.listen(PORT, () => {
-	console.log(`Server listening on port ${PORT}!`);
-});
+	app.listen(PORT, () => {
+		console.log(`Server listening on port ${PORT}!`);
+	});
 });
 
 mongoose.connection.on("error", (err: MongooseError) => {

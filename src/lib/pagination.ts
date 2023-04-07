@@ -1,4 +1,4 @@
-interface PaginationResult<Result> {
+interface IPaginationResult<Result> {
 	totalPages: number;
 	hasNextPage: boolean;
 	hasPrevpage: boolean;
@@ -7,7 +7,7 @@ interface PaginationResult<Result> {
 	data: Result;
 }
 
-interface Pagination {
+interface IPagination {
 	currentPage: number;
 	totalPages: number;
 	itemsPerPage: number;
@@ -17,10 +17,10 @@ interface Pagination {
 
 	createPaginationResult: <ResultType>(
 		results: ResultType
-	) => PaginationResult<ResultType>;
+	) => IPaginationResult<ResultType>;
 }
 
-export default class PaginationImpl implements Pagination {
+export default class PaginationImpl implements IPagination {
 	public currentPage: number;
 	public totalPages: number;
 	public itemsPerPage: number;
@@ -40,26 +40,12 @@ export default class PaginationImpl implements Pagination {
 		this.skip = (this.currentPage - 1) * this.itemsPerPage;
 
 		// *test logs
-		// console.log({
-		// 	itemsPerPage: this.itemsPerPage,
-		// 	totalPages: this.totalPages,
-		// 	currentPage: this.currentPage,
-		// 	skip: this.skip,
-		// });
-	}
-
-	public createPaginationResult<ResultType>(
-		result: ResultType
-	): PaginationResult<ResultType> {
-		// TODO: check is there any information that should be returned!
-		return {
-			totalPages: this.totalPages,
-			hasNextPage: this.currentPage !== this.totalPages,
-			hasPrevpage: this.currentPage !== 1,
-			currentPage: this.currentPage,
+		console.log({
 			itemsPerPage: this.itemsPerPage,
-			data: result,
-		};
+			totalPages: this.totalPages,
+			currentPage: this.currentPage,
+			skip: this.skip,
+		});
 	}
 
 	private validateItemsPerPage(itemsPerPage: number) {
@@ -88,5 +74,19 @@ export default class PaginationImpl implements Pagination {
 		}
 		const totalPages = Math.round(totalDocuments / itemsPerPage);
 		return totalPages < 1 ? 1 : totalPages;
+	}
+
+	public createPaginationResult<ResultType>(
+		result: ResultType
+	): IPaginationResult<ResultType> {
+		// TODO: check is there any information that should be returned!
+		return {
+			totalPages: this.totalPages,
+			hasNextPage: this.currentPage !== this.totalPages,
+			hasPrevpage: this.currentPage !== 1,
+			currentPage: this.currentPage,
+			itemsPerPage: this.itemsPerPage,
+			data: result,
+		};
 	}
 }

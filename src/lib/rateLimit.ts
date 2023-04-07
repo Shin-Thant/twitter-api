@@ -12,7 +12,7 @@ const rateLimitExceedHandler: RateLimitExceededEventHandler = (
 	});
 };
 
-const limiter = (maxCount: number, rememberTimeInMs: number) => {
+const rateLimiter = (maxCount: number, rememberTimeInMs: number) => {
 	return rateLimit({
 		max: maxCount,
 		windowMs: rememberTimeInMs,
@@ -20,4 +20,4 @@ const limiter = (maxCount: number, rememberTimeInMs: number) => {
 	});
 };
 
-export default limiter;
+export default rateLimiter;

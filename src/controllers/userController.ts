@@ -7,13 +7,13 @@ import { checkValuesString } from "../util/paginationHelper";
 import { UpdateReqBody } from "./types/userTypes";
 import { validateUserUpdateInput } from "../util/validateUserUpdateInput";
 
-type SearchQueryType = {
+type SearchQuery = {
 	name?: string;
 	currentPage?: string;
 	itemsPerPage?: string;
 };
 export const searchUsers = async (
-	req: TypedRequestQuery<SearchQueryType>,
+	req: TypedRequestQuery<SearchQuery>,
 	res: Response
 ) => {
 	const { name, currentPage, itemsPerPage } = req.query;
@@ -22,13 +22,14 @@ export const searchUsers = async (
 		throw new AppError("All fields is required!", 400);
 	}
 	if (checkValuesString(itemsPerPage, currentPage)) {
-		throw new AppError("Enter valid value", 400);
+		throw new AppError("Enter valid values", 400);
 	}
 
+	// TODO: change this regex (select name or username that include provided query string)
 	const REGEX_QUERY = { $regex: `^${name}`, $options: "i" };
 
 	const totalUsers = await User.countDocuments({
-		name: REGEX_QUERY,
+		$or: [{ name: REGEX_QUERY }, { username: REGEX_QUERY }],
 	});
 
 	const userPagination = new PaginationImpl(
@@ -37,11 +38,14 @@ export const searchUsers = async (
 		totalUsers
 	);
 
+	// TODO: add sorting features
+	// default sort = `createdAt`
 	const users = await User.find({
 		name: REGEX_QUERY,
 	})
 		.limit(userPagination.itemsPerPage)
 		.skip(userPagination.skip)
+		.sort("-createdAt")
 		.lean();
 
 	res.json(userPagination.createPaginationResult<typeof users>(users));
@@ -102,5 +106,20 @@ export const updateUserGeneralInfo = async (
 	user.avatar = value.avatar;
 	await user.save();
 
-	res.json({ message: `User updated successfully!` });
+	res.json(user);
+};
+
+export const deleteUser = async (req: Request<ParamsType>, res: Response) => {
+	const { userId } = req.params;
+	if (!userId) {
+		throw new AppError("User ID is required!", 400);
+	}
+
+	const user = await User.findById(userId).exec();
+	if (!user) {
+		throw new AppError("User not found!", 400);
+	}
+
+	await user.deleteOne();
+	res.json({ message: "User deleted successfully!" });
 };

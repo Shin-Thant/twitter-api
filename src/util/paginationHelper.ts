@@ -1,6 +1,3 @@
-export const checkValuesString = <I extends string, C extends string>(
-	itemsPerPage: I,
-	currentPage: C
-): boolean => {
-	return isNaN(Number(itemsPerPage)) || isNaN(Number(currentPage));
+export const checkValuesString = (...values: unknown[]): boolean => {
+	return values.some((val) => isNaN(Number(val)));
 };
