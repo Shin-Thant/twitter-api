@@ -7,6 +7,8 @@ import { checkValuesString } from "../util/paginationHelper";
 import { UpdateReqBody } from "./types/userTypes";
 import { validateUserUpdateInput } from "../util/validateUserUpdateInput";
 
+type Params = { userId?: string };
+
 type SearchQuery = {
 	name?: string;
 	currentPage?: string;
@@ -51,9 +53,7 @@ export const searchUsers = async (
 	res.json(userPagination.createPaginationResult<typeof users>(users));
 };
 
-type ParamsType = { userId?: string };
-
-export const getUserById = async (req: Request<ParamsType>, res: Response) => {
+export const getUserById = async (req: Request<Params>, res: Response) => {
 	const { userId } = req.params;
 	if (!userId) {
 		return;
@@ -69,7 +69,7 @@ export const getUserById = async (req: Request<ParamsType>, res: Response) => {
 
 // *update name, email and avatar
 export const updateUserGeneralInfo = async (
-	req: Request<ParamsType, object, UpdateReqBody>,
+	req: Request<Params, object, UpdateReqBody>,
 	res: Response
 ) => {
 	const { name, email, avatar } = req.body;
@@ -109,7 +109,7 @@ export const updateUserGeneralInfo = async (
 	res.json(user);
 };
 
-export const deleteUser = async (req: Request<ParamsType>, res: Response) => {
+export const deleteUser = async (req: Request<Params>, res: Response) => {
 	const { userId } = req.params;
 	if (!userId) {
 		throw new AppError("User ID is required!", 400);

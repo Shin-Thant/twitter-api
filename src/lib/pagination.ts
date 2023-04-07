@@ -1,5 +1,6 @@
 interface IPaginationResult<Result> {
 	totalPages: number;
+	totalDocs: number;
 	hasNextPage: boolean;
 	hasPrevpage: boolean;
 	currentPage: number;
@@ -13,8 +14,6 @@ interface IPagination {
 	itemsPerPage: number;
 	skip: number;
 
-	// validateItemsPerPage: (itemsPerPage: number) => number;
-
 	createPaginationResult: <ResultType>(
 		results: ResultType
 	) => IPaginationResult<ResultType>;
@@ -23,6 +22,7 @@ interface IPagination {
 export default class PaginationImpl implements IPagination {
 	public currentPage: number;
 	public totalPages: number;
+	public totalDocs: number;
 	public itemsPerPage: number;
 	public skip: number;
 
@@ -31,11 +31,9 @@ export default class PaginationImpl implements IPagination {
 		currentPage: number,
 		totalDocuments: number
 	) {
-		this.itemsPerPage = this.validateItemsPerPage(itemsPerPage);
-		this.totalPages = this.calculateTotalPages(
-			totalDocuments,
-			this.itemsPerPage
-		);
+		this.totalDocs = totalDocuments < 0 ? 0 : totalDocuments;
+		this.itemsPerPage = this.setItemsPerPage(itemsPerPage);
+		this.totalPages = this.calculateTotalPages();
 		this.currentPage = this.validateCurrentPageNumber(currentPage);
 		this.skip = (this.currentPage - 1) * this.itemsPerPage;
 
@@ -48,7 +46,7 @@ export default class PaginationImpl implements IPagination {
 		});
 	}
 
-	private validateItemsPerPage(itemsPerPage: number) {
+	private setItemsPerPage(itemsPerPage: number) {
 		const MIN_ITEMS_PER_PAGE = 10;
 		const MAX_ITEMS_PER_PAGE = 30;
 
@@ -68,20 +66,20 @@ export default class PaginationImpl implements IPagination {
 		return currentPage;
 	}
 
-	private calculateTotalPages(totalDocuments: number, itemsPerPage: number) {
-		if (totalDocuments < 0) {
+	private calculateTotalPages() {
+		if (this.totalDocs < 0) {
 			return 0;
 		}
-		const totalPages = Math.round(totalDocuments / itemsPerPage);
+		const totalPages = Math.round(this.totalDocs / this.itemsPerPage);
 		return totalPages < 1 ? 1 : totalPages;
 	}
 
 	public createPaginationResult<ResultType>(
 		result: ResultType
 	): IPaginationResult<ResultType> {
-		// TODO: check is there any information that should be returned!
 		return {
 			totalPages: this.totalPages,
+			totalDocs: this.totalDocs,
 			hasNextPage: this.currentPage !== this.totalPages,
 			hasPrevpage: this.currentPage !== 1,
 			currentPage: this.currentPage,

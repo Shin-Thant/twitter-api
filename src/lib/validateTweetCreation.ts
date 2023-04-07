@@ -14,13 +14,6 @@ const tweetJoiSchema = Joi.object<TweetType<string>>({
 		.error(new Error("Enter valid owner!")),
 });
 
-export interface TweetData {
-	type: "post" | "share";
-	body?: string;
-	origin?: string;
-	owner?: string;
-	likes?: string[];
-}
 const validateTweet = (tweet: TweetType<string>) => {
 	return tweetJoiSchema.validate(tweet);
 };

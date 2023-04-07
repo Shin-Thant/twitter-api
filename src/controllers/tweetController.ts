@@ -6,7 +6,7 @@ import { checkValuesString } from "../util/paginationHelper";
 import PaginationImpl from "../lib/pagination";
 import validateTweet from "../lib/validateTweetCreation";
 
-type ParamsType = { tweetId?: string };
+type Params = { tweetId?: string };
 
 type SearchQuery = { currentPage?: string; itemsPerPage?: string };
 export const getTweets = async (
@@ -40,7 +40,7 @@ export const getTweets = async (
 	res.json(pagination.createPaginationResult<typeof tweets>(tweets));
 };
 
-export const getTweetById = async (req: Request<ParamsType>, res: Response) => {
+export const getTweetById = async (req: Request<Params>, res: Response) => {
 	const { tweetId } = req.params;
 	if (!tweetId) {
 		throw new AppError("All fields are requried!", 400);
@@ -103,7 +103,7 @@ interface ISharedTweet extends INewTweet<"share"> {
 }
 // TODO: checks shareTweet works
 export const shareTweet = async (
-	req: Request<ParamsType, object, ISharedTweet>,
+	req: Request<Params, object, ISharedTweet>,
 	res: Response
 ) => {
 	const { tweetId } = req.params;
@@ -139,7 +139,7 @@ export const shareTweet = async (
 
 // TODO: test updateTweet
 export const updateTweet = async (
-	req: Request<ParamsType, object, { tweetBody?: string }>,
+	req: Request<Params, object, { tweetBody?: string }>,
 	res: Response
 ) => {
 	const { tweetId } = req.params;
@@ -160,7 +160,7 @@ export const updateTweet = async (
 };
 
 // TODO: update deleteTweet
-export const deleteTweet = async (req: Request<ParamsType>, res: Response) => {
+export const deleteTweet = async (req: Request<Params>, res: Response) => {
 	const { tweetId } = req.params;
 	if (!tweetId) {
 		throw new AppError("Tweet ID is requried!", 400);

@@ -18,14 +18,6 @@ interface ITextAndPhotos extends IText, IImages {}
 
 export type TweetInfo = IText | IImages | ITextAndPhotos;
 
-export interface ITweet {
-	type: "post" | "share";
-	body?: string;
-	origin?: Types.ObjectId;
-	owner?: Types.ObjectId;
-	likes?: Types.ObjectId[];
-}
-
 interface BasicTweetData<T extends string | Types.ObjectId> {
 	owner: T;
 	likes?: T[];
