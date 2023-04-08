@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import AppError from "../config/AppError";
 import User from "../models/User";
+import { createErrorResponseBody } from "./errorHandler";
 
 interface IPayload {
 	userInfo: {
@@ -37,26 +38,30 @@ const verifyJWT = async (req: Request, res: Response, next: NextFunction) => {
 		accessToken,
 		process.env.ACCESS_TOKEN_SECRET_KEY,
 		async (err, payload) => {
-			if (err) {
-				throw err;
-			}
-			if (!payload) {
-				throw new AppError("Forbidden", 403);
-			}
+			try {
+				if (err) {
+					throw err;
+				}
+				if (!payload) {
+					throw new AppError("Forbidden", 403);
+				}
 
-			if (!isJWTPayloadValid(payload)) {
-				throw new AppError("You are not authorized!", 401);
-			}
+				if (!isJWTPayloadValid(payload)) {
+					throw new AppError("You are not authorized!", 401);
+				}
 
-			const foundUser = await User.findOne({
-				_id: payload.userInfo.id,
-			}).exec();
-			if (!foundUser) {
-				throw new AppError("Something went wrong!", 403);
-			}
+				const foundUser = await User.findById(
+					payload.userInfo.id
+				).exec();
+				if (!foundUser) {
+					throw new AppError("Something went wrong!", 403);
+				}
 
-			req.user = foundUser;
-			next();
+				req.user = foundUser;
+				next();
+			} catch (err) {
+				next(err);
+			}
 		}
 	);
 };

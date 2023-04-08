@@ -7,11 +7,15 @@ const findDuplicateWithUserNameAndEmail = async (
 	const duplicates = await User.aggregate([
 		{
 			$match: {
-				username: {
-					$regex: `^${username}`,
-					$options: "i",
-				},
-				email,
+				$or: [
+					{
+						username: {
+							$regex: `^${username}`,
+							$options: "i",
+						},
+					},
+					{ email },
+				],
 			},
 		},
 		{
@@ -23,14 +27,6 @@ const findDuplicateWithUserNameAndEmail = async (
 			},
 		},
 	]);
-
-	// const duplicates = await User.findOne({
-	//     $or: [
-	//         {
-	//             username:
-	//         }
-	//     ]
-	// })
 
 	return duplicates;
 };

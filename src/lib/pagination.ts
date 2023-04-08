@@ -38,12 +38,12 @@ export default class PaginationImpl implements IPagination {
 		this.skip = (this.currentPage - 1) * this.itemsPerPage;
 
 		// *test logs
-		console.log({
-			itemsPerPage: this.itemsPerPage,
-			totalPages: this.totalPages,
-			currentPage: this.currentPage,
-			skip: this.skip,
-		});
+		// console.log({
+		// 	itemsPerPage: this.itemsPerPage,
+		// 	totalPages: this.totalPages,
+		// 	currentPage: this.currentPage,
+		// 	skip: this.skip,
+		// });
 	}
 
 	private setItemsPerPage(itemsPerPage: number) {

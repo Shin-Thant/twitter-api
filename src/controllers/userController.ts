@@ -41,14 +41,14 @@ export const searchUsers = async (
 	);
 
 	// TODO: add sorting features
-	// default sort = `createdAt`
 	const users = await User.find({
 		name: REGEX_QUERY,
 	})
 		.limit(userPagination.itemsPerPage)
 		.skip(userPagination.skip)
-		.sort("-createdAt")
-		.lean();
+		.sort("username") //! CHECK: `sort` necessary
+		.lean()
+		.exec();
 
 	res.json(userPagination.createPaginationResult<typeof users>(users));
 };

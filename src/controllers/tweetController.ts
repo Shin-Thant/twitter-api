@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import Tweet, { TweetType } from "../models/Tweet";
+import Tweet, { ICreatedTweet, ISharedTweet } from "../models/Tweet";
 import { TypedRequestBody, TypedRequestQuery } from "../types";
 import AppError from "../config/AppError";
 import { checkValuesString } from "../util/paginationHelper";
@@ -18,24 +18,24 @@ export const getTweets = async (
 		throw new AppError("All fields are requried!", 400);
 	}
 	if (checkValuesString(itemsPerPage, currentPage)) {
-		throw new AppError("Enter valid values", 400);
+		throw new AppError("Enter valid values!", 400);
 	}
 
 	const totalTweets = await Tweet.countDocuments({});
-	console.log({ totalTweets });
 
 	const pagination = new PaginationImpl(
 		parseInt(itemsPerPage),
 		parseInt(currentPage),
 		totalTweets
 	);
-	// console.log({ totalPages });
 
 	const tweets = await Tweet.find()
 		.limit(pagination.itemsPerPage)
 		.skip(pagination.skip)
 		.sort("-createdAt")
-		.populateRelations();
+		.populateRelations()
+		.lean()
+		.exec();
 
 	res.json(pagination.createPaginationResult<typeof tweets>(tweets));
 };
@@ -57,34 +57,25 @@ export const getTweetById = async (req: Request<Params>, res: Response) => {
 	res.json(tweet);
 };
 
-interface INewTweet<T extends "post" | "share"> {
-	type?: T;
+interface INewTweet {
 	body?: string;
 }
 
 export const createTweet = async (
-	req: TypedRequestBody<INewTweet<"post">>,
+	req: TypedRequestBody<INewTweet>,
 	res: Response
 ) => {
-	const { type, body } = req.body;
-	const { user } = req;
-	if (!type || !body || !user) {
+	const { body } = req.body;
+	const { user: owner } = req;
+	if (!body || !owner) {
 		throw new AppError("All fields are required!", 400);
 	}
 
-	if (type !== "post") {
-		throw new AppError("Invalid tweet type!", 400);
-	}
-
-	// TODO: test validation and creation actually works
-	// TODO: add ObjectId not string. check this works
-	const tweetData: TweetType<string> = {
-		type,
+	const tweetData: ICreatedTweet<string> = {
+		type: "post",
 		body,
-		owner: user._id.toString(),
+		owner: owner._id.toString(),
 	};
-	console.log({ id: user._id });
-
 	const { value, error } = validateTweet(tweetData);
 	if (error) {
 		throw error;
@@ -98,32 +89,26 @@ export const createTweet = async (
 	res.json(newTweet);
 };
 
-interface ISharedTweet extends INewTweet<"share"> {
-	origin?: string;
-}
-// TODO: checks shareTweet works
 export const shareTweet = async (
-	req: Request<Params, object, ISharedTweet>,
+	req: Request<Params, object, INewTweet>,
 	res: Response
 ) => {
-	const { tweetId } = req.params;
-	const { body, type, origin } = req.body;
-	// TODO: test this work
 	const { user: owner } = req;
+	const { tweetId } = req.params;
+	const { body } = req.body;
 
-	if (!tweetId || !type || !origin || !owner) {
+	if (!tweetId || !owner) {
 		throw new AppError("All fields are required!", 400);
 	}
-	if (type !== "share") {
-		throw new AppError("Invalid tweet type!", 400);
-	}
 
-	const tweetData: TweetType<string> = {
-		type,
-		origin,
-		body: body || "",
+	const tweetData: ISharedTweet<string> = {
+		type: "share",
+		origin: tweetId,
 		owner: owner._id.toString(),
 	};
+	if (body) {
+		tweetData.body = body;
+	}
 	const { value, error } = validateTweet(tweetData);
 	if (error) {
 		throw error;
@@ -133,42 +118,33 @@ export const shareTweet = async (
 	if (!newSharedTweet) {
 		throw new AppError("Some went wrong", 500);
 	}
-
 	res.json(newSharedTweet);
 };
 
-// TODO: test updateTweet
 export const updateTweet = async (
-	req: Request<Params, object, { tweetBody?: string }>,
+	req: Request<Params, object, { body?: string }>,
 	res: Response
 ) => {
-	const { tweetId } = req.params;
-	const { tweetBody } = req.body;
-	if (!tweetId || !tweetBody) {
-		throw new AppError("All fields are required!", 400);
+	const { tweet } = req;
+	const { body } = req.body;
+	if (!body) {
+		throw new AppError("Tweet body is required!", 400);
+	}
+	if (!tweet) {
+		throw new AppError("Invalid Tweet ID!", 400);
 	}
 
-	const foundTweet = await Tweet.findById(tweetId);
-	if (!foundTweet) {
-		throw new AppError("Invalid ID!", 400);
-	}
+	tweet.body = body;
+	await tweet.save();
 
-	foundTweet.body = tweetBody;
-	await foundTweet.save();
-
-	res.json(foundTweet);
+	res.json(tweet);
 };
 
-// TODO: update deleteTweet
 export const deleteTweet = async (req: Request<Params>, res: Response) => {
-	const { tweetId } = req.params;
-	if (!tweetId) {
-		throw new AppError("Tweet ID is requried!", 400);
+	const { tweet } = req;
+	if (!tweet) {
+		throw new AppError("Invalid Tweet ID!", 400);
 	}
-	const foundTweet = await Tweet.findById(tweetId);
-	if (!foundTweet) {
-		throw new AppError("Invalid ID!", 400);
-	}
-	await foundTweet.deleteOne();
+	await tweet.deleteOne();
 	res.json({ status: "success", message: "Tweet deleted successfully!" });
 };

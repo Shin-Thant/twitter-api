@@ -6,7 +6,7 @@ type ErrorResBody = {
 	name: string;
 	message: string;
 };
-function createErrorResponseBody(
+export function createErrorResponseBody(
 	err?: Error,
 	status?: "fail" | "error"
 ): ErrorResBody {
@@ -30,6 +30,10 @@ const errorHandler = (
 	res: Response,
 	_next: NextFunction
 ) => {
+	if (err.name === "TokenExpiredError") {
+		return res.status(401).json(createErrorResponseBody(err, "error"));
+	}
+
 	if (err.name === "JsonWebTokenError") {
 		console.log({ err });
 		return res.status(403).json(createErrorResponseBody(err, "fail"));

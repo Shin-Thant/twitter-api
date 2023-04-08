@@ -1,13 +1,15 @@
+import dotenv from "dotenv";
 import "express-async-errors";
+import cookieParser from "cookie-parser";
 import express from "express";
 import mongoose, { MongooseError } from "mongoose";
-import dotenv from "dotenv";
-import cookieParser from "cookie-parser";
 import errorHandler from "./middlewares/errorHandler";
-import connectDB from "./config/connectDB";
-import userRoutes from "./routes/userRoutes";
 import authRoutes from "./routes/authRoutes";
 import tweetRoutes from "./routes/tweetRoutes";
+import userRoutes from "./routes/userRoutes";
+import connectDB from "./config/connectDB";
+
+// TODO: use `hpp` package for http parameter pollution
 
 dotenv.config();
 const app = express();

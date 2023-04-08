@@ -78,7 +78,7 @@ export const handleLogin = async (
 	}
 
 	const payload = {
-		userInfo: { id: foundUser._id },
+		userInfo: { id: foundUser._id.toString() },
 	};
 	const accessToken = createToken(payload, "access", "15m");
 

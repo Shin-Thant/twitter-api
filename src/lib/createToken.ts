@@ -1,7 +1,7 @@
 import { SignOptions } from "jsonwebtoken";
-import jwt from "./jwt";
-type TokenType = "access" | "refresh";
+import jwt from "jsonwebtoken";
 
+type TokenType = "access" | "refresh";
 const getSecreTkey = (tokenType: TokenType): string => {
 	if (tokenType === "access") {
 		return process.env.ACCESS_TOKEN_SECRET_KEY;
@@ -20,7 +20,7 @@ const createToken = (
 		expiresIn,
 	};
 
-	return jwt.createToken(payload, secretKey, jwtSignOptions);
+	return jwt.sign(payload, secretKey, jwtSignOptions);
 };
 
 export default createToken;

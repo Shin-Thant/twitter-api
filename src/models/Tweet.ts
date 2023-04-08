@@ -2,7 +2,7 @@ import {
 	model,
 	QueryWithHelpers,
 	Schema,
-	Types,
+	ObjectId,
 	Model,
 	HydratedDocument,
 } from "mongoose";
@@ -18,17 +18,17 @@ interface ITextAndPhotos extends IText, IImages {}
 
 export type TweetInfo = IText | IImages | ITextAndPhotos;
 
-interface BasicTweetData<T extends string | Types.ObjectId> {
+interface BasicTweetData<T extends string | ObjectId> {
 	owner: T;
 	likes?: T[];
 }
-export interface ICreatedTweet<T extends string | Types.ObjectId>
+export interface ICreatedTweet<T extends string | ObjectId>
 	extends BasicTweetData<T> {
 	type: "post";
 	body: string;
 	origin?: T;
 }
-export interface ISharedTweet<T extends string | Types.ObjectId>
+export interface ISharedTweet<T extends string | ObjectId>
 	extends BasicTweetData<T> {
 	type: "share";
 	body?: string;
@@ -36,13 +36,13 @@ export interface ISharedTweet<T extends string | Types.ObjectId>
 }
 
 // TODO: check this works
-export type TweetType<T extends string | Types.ObjectId> =
+export type TweetType<T extends string | ObjectId> =
 	| ICreatedTweet<T>
 	| ISharedTweet<T>;
 
-type TweetDocType = TweetType<Types.ObjectId>;
+export type TweetDocType = TweetType<ObjectId>;
 
-interface TweetQueryHelpers {
+export interface TweetQueryHelpers {
 	populateRelations(): QueryWithHelpers<
 		HydratedDocument<TweetDocType>[],
 		HydratedDocument<TweetDocType>,
