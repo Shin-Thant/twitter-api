@@ -3,9 +3,10 @@ import AppError from "../config/AppError";
 import PaginationImpl from "../lib/pagination";
 import User from "../models/User";
 import { TypedRequestQuery } from "../types";
-import { checkValuesString } from "../util/paginationHelper";
+import PaginationHelperImpl from "../util/paginationHelper";
 import { UpdateReqBody } from "./types/userTypes";
 import { validateUserUpdateInput } from "../util/validateUserUpdateInput";
+import { isValuesNotNumber } from "../util/isValuesNotNumber";
 
 type Params = { userId?: string };
 
@@ -23,26 +24,26 @@ export const searchUsers = async (
 	if (!name || !currentPage || !itemsPerPage) {
 		throw new AppError("All fields is required!", 400);
 	}
-	if (checkValuesString(itemsPerPage, currentPage)) {
+	if (isValuesNotNumber(itemsPerPage, currentPage)) {
 		throw new AppError("Enter valid values", 400);
 	}
 
-	const REGEX_QUERY = { $regex: `.*${name}.*`, $options: "i" };
 	// \\b\\w*${name}\\w*\\b
+	const REGEX_OPTION = { $regex: `.*${name}.*`, $options: "i" };
+	const QUERY_FILTER = {
+		$or: [{ name: REGEX_OPTION }, { username: REGEX_OPTION }],
+	};
 
-	const totalUsers = await User.countDocuments({
-		$or: [{ name: REGEX_QUERY }, { username: REGEX_QUERY }],
-	});
+	const totalUsers = await User.countDocuments(QUERY_FILTER);
 
 	const userPagination = new PaginationImpl(
 		parseInt(itemsPerPage),
 		parseInt(currentPage),
-		totalUsers
+		totalUsers,
+		new PaginationHelperImpl()
 	);
 
-	const users = await User.find({
-		$or: [{ name: REGEX_QUERY }, { username: REGEX_QUERY }],
-	})
+	const users = await User.find(QUERY_FILTER)
 		.limit(userPagination.itemsPerPage)
 		.skip(userPagination.skip)
 		.sort("name")

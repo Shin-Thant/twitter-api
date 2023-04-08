@@ -2,12 +2,13 @@ import { Request, Response } from "express";
 import Tweet from "../models/Tweet";
 import { TypedRequestBody, TypedRequestQuery } from "../types";
 import AppError from "../config/AppError";
-import { checkValuesString } from "../util/paginationHelper";
+import PaginationHelperImpl from "../util/paginationHelper";
 import PaginationImpl from "../lib/pagination";
 import validateTweet, {
 	CreateTweetType,
 	ShareTweetType,
 } from "../lib/validateTweetCreation";
+import { isValuesNotNumber } from "../util/isValuesNotNumber";
 
 type Params = { tweetId?: string };
 
@@ -20,7 +21,7 @@ export const getTweets = async (
 	if (!currentPage || !itemsPerPage) {
 		throw new AppError("All fields are requried!", 400);
 	}
-	if (checkValuesString(itemsPerPage, currentPage)) {
+	if (isValuesNotNumber(itemsPerPage, currentPage)) {
 		throw new AppError("Enter valid values!", 400);
 	}
 
@@ -29,7 +30,8 @@ export const getTweets = async (
 	const pagination = new PaginationImpl(
 		parseInt(itemsPerPage),
 		parseInt(currentPage),
-		totalTweets
+		totalTweets,
+		new PaginationHelperImpl()
 	);
 
 	const tweets = await Tweet.find()
