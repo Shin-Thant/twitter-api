@@ -27,8 +27,8 @@ export const searchUsers = async (
 		throw new AppError("Enter valid values", 400);
 	}
 
-	// TODO: change this regex (select name or username that include provided query string)
-	const REGEX_QUERY = { $regex: `^${name}`, $options: "i" };
+	const REGEX_QUERY = { $regex: `.*${name}.*`, $options: "i" };
+	// \\b\\w*${name}\\w*\\b
 
 	const totalUsers = await User.countDocuments({
 		$or: [{ name: REGEX_QUERY }, { username: REGEX_QUERY }],
@@ -40,13 +40,12 @@ export const searchUsers = async (
 		totalUsers
 	);
 
-	// TODO: add sorting features
 	const users = await User.find({
-		name: REGEX_QUERY,
+		$or: [{ name: REGEX_QUERY }, { username: REGEX_QUERY }],
 	})
 		.limit(userPagination.itemsPerPage)
 		.skip(userPagination.skip)
-		.sort("username") //! CHECK: `sort` necessary
+		.sort("name")
 		.lean()
 		.exec();
 

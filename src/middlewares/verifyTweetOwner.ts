@@ -17,11 +17,11 @@ const verifyTweetOwner = async (
 	}
 
 	const foundTweet = await Tweet.findById(tweetId).exec();
-	if (!foundTweet) {
+	if (!foundTweet || !foundTweet.owner?._id) {
 		throw new AppError("Invalid ID!", 400);
 	}
 
-	if (foundTweet.owner.toString() !== owner._id.toString()) {
+	if (foundTweet.owner._id.toString() !== owner._id.toString()) {
 		throw new AppError("Unauthorized!", 401);
 	}
 

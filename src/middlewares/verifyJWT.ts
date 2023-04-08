@@ -2,7 +2,6 @@ import { NextFunction, Request, Response } from "express";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import AppError from "../config/AppError";
 import User from "../models/User";
-import { createErrorResponseBody } from "./errorHandler";
 
 interface IPayload {
 	userInfo: {

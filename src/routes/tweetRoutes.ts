@@ -12,8 +12,6 @@ import verifyTweetOwner from "../middlewares/verifyTweetOwner";
 
 const router = Router();
 
-// TODO: add `verifyJWT` after testing in `create tweet`, `share tweet`
-
 router.route("/").get(getTweets).post(verifyJWT, createTweet);
 
 router

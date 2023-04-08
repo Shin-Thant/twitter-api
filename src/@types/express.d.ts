@@ -1,32 +1,34 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
 import { Request } from "express";
-import { Document, Types } from "mongoose";
+import { Document, Types, Schema, ObjectId } from "mongoose";
 import { IUser } from "../models/User";
 import {
 	ICreatedTweet,
 	ISharedTweet,
-	TweetDocType,
+	ITweet,
 	TweetQueryHelpers,
-} from "../models/Tweet";
+} from "../models/types/tweetTypes";
 
-type UserDoc = Document<unknown, object, IUser> &
-	Omit<
-		IUser & {
-			_id: Types.ObjectId;
-		},
-		never
-	>;
+type UserDoc =
+	| Document<unknown, object, IUser> &
+			Omit<
+				IUser & {
+					_id: Types.ObjectId;
+				},
+				never
+			>;
 
-type TweetDoc = Document<unknown, TweetQueryHelpers, TweetDocType> &
-	Omit<
-		| (ICreatedTweet<Schema.Types.ObjectId> & {
-				_id: Types.ObjectId;
-		  })
-		| (ISharedTweet<Schema.Types.ObjectId> & {
-				_id: Types.ObjectId;
-		  }),
-		never
-	>;
+type TweetDoc =
+	| Document<unknown, TweetQueryHelpers, ITweet> &
+			Omit<
+				| (ICreatedTweet & {
+						_id: Types.ObjectId;
+				  })
+				| (ISharedTweet & {
+						_id: Types.ObjectId;
+				  }),
+				never
+			>;
 
 declare module "express" {
 	interface Request {

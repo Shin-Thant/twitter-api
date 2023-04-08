@@ -1,10 +1,13 @@
 import { Request, Response } from "express";
-import Tweet, { ICreatedTweet, ISharedTweet } from "../models/Tweet";
+import Tweet from "../models/Tweet";
 import { TypedRequestBody, TypedRequestQuery } from "../types";
 import AppError from "../config/AppError";
 import { checkValuesString } from "../util/paginationHelper";
 import PaginationImpl from "../lib/pagination";
-import validateTweet from "../lib/validateTweetCreation";
+import validateTweet, {
+	CreateTweetType,
+	ShareTweetType,
+} from "../lib/validateTweetCreation";
 
 type Params = { tweetId?: string };
 
@@ -33,7 +36,6 @@ export const getTweets = async (
 		.limit(pagination.itemsPerPage)
 		.skip(pagination.skip)
 		.sort("-createdAt")
-		.populateRelations()
 		.lean()
 		.exec();
 
@@ -71,7 +73,7 @@ export const createTweet = async (
 		throw new AppError("All fields are required!", 400);
 	}
 
-	const tweetData: ICreatedTweet<string> = {
+	const tweetData: CreateTweetType = {
 		type: "post",
 		body,
 		owner: owner._id.toString(),
@@ -101,7 +103,7 @@ export const shareTweet = async (
 		throw new AppError("All fields are required!", 400);
 	}
 
-	const tweetData: ISharedTweet<string> = {
+	const tweetData: ShareTweetType = {
 		type: "share",
 		origin: tweetId,
 		owner: owner._id.toString(),

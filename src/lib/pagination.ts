@@ -4,7 +4,7 @@ interface IPaginationResult<Result> {
 	hasNextPage: boolean;
 	hasPrevpage: boolean;
 	currentPage: number;
-	itemsPerPage: number;
+	limit: number;
 	data: Result;
 }
 
@@ -70,7 +70,7 @@ export default class PaginationImpl implements IPagination {
 		if (this.totalDocs < 0) {
 			return 0;
 		}
-		const totalPages = Math.round(this.totalDocs / this.itemsPerPage);
+		const totalPages = Math.ceil(this.totalDocs / this.itemsPerPage);
 		return totalPages < 1 ? 1 : totalPages;
 	}
 
@@ -83,7 +83,7 @@ export default class PaginationImpl implements IPagination {
 			hasNextPage: this.currentPage !== this.totalPages,
 			hasPrevpage: this.currentPage !== 1,
 			currentPage: this.currentPage,
-			itemsPerPage: this.itemsPerPage,
+			limit: this.itemsPerPage,
 			data: result,
 		};
 	}
