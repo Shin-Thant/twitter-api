@@ -5,10 +5,11 @@ import { UserDoc } from "../models/User";
 import { TypedRequestBody } from "../types";
 import { CommentDoc, LeanComment } from "../models/types/commentTypes";
 
+// TODO: create nested comment route
+// TODO: validate input using joi
 // TODO: add nested comment try getting its parent
-// TODO: remove the `creator` field, and use _id from req.user
 
-type Params = { commentId?: string };
+export type Params = { commentId?: string };
 
 export const getAllComments = async (req: Request, res: Response) => {
 	const comments = await Comment.find()

@@ -8,6 +8,7 @@ import {
 } from "../controllers/commentController";
 import verifyJWT from "../middlewares/verifyJWT";
 import verifyCommentOwner from "../middlewares/verifyCommentOwner";
+import { replyComment } from "../controllers/replyController";
 
 const router = Router();
 
@@ -20,5 +21,8 @@ router
 	.get(getCommentById)
 	.put(verifyJWT, verifyCommentOwner, updateComment)
 	.delete(verifyJWT, verifyCommentOwner, deleteComment);
+
+// TODO: test this works
+router.route("/:commentId/reply").post(verifyJWT, replyComment);
 
 export default router;
