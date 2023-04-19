@@ -1,7 +1,24 @@
 import { Router } from "express";
+import {
+	addNewComment,
+	deleteComment,
+	getAllComments,
+	getCommentById,
+	updateComment,
+} from "../controllers/commentController";
+import verifyJWT from "../middlewares/verifyJWT";
+import verifyCommentOwner from "../middlewares/verifyCommentOwner";
 
 const router = Router();
 
-router.route("/").post();
+// TODO: add comments routes to tweet routes
+
+router.route("/").get(getAllComments).post(verifyJWT, addNewComment);
+
+router
+	.route("/:commentId")
+	.get(getCommentById)
+	.put(verifyJWT, verifyCommentOwner, updateComment)
+	.delete(verifyJWT, verifyCommentOwner, deleteComment);
 
 export default router;

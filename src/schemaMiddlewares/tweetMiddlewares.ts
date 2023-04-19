@@ -1,13 +1,20 @@
 import { CallbackWithoutResultAndOptionalError } from "mongoose";
-import { PostQueryThis, QueryThis } from "../models/types/tweetTypes";
+import { PostQueryThis, QueryThis, TweetDoc } from "../models/types/tweetTypes";
+import { UserDoc } from "../models/User";
 
-export async function populateTweetAfterCreation(doc: PostQueryThis) {
-	await doc.populate({
+export async function populateTweetAfterCreation(this: PostQueryThis) {
+	await this.populate<{ origin: TweetDoc }>({
 		path: "origin",
 		populate: { path: "owner", select: "-email" },
 	});
-	await doc.populate({ path: "owner", select: "-email" });
-	await doc.populate({ path: "likes", select: "-email" });
+	await this.populate<{ owner: Omit<UserDoc, "email"> }>({
+		path: "owner",
+		select: "-email",
+	});
+	await this.populate<{ likes: Omit<UserDoc, "email"> }>({
+		path: "likes",
+		select: "-email",
+	});
 }
 
 export function preFindTweet(
@@ -24,5 +31,6 @@ export function populateTweetRelations(this: QueryThis) {
 		populate: { path: "owner", select: "-email" },
 	})
 		.populate({ path: "owner", select: "-email" })
-		.populate({ path: "likes", select: "-email" });
+		.populate({ path: "likes", select: "-email" })
+		.populate("comments");
 }

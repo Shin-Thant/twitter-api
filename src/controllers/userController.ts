@@ -4,8 +4,10 @@ import PaginationImpl from "../lib/pagination";
 import User from "../models/User";
 import { TypedRequestQuery } from "../types";
 import PaginationHelperImpl from "../util/paginationHelper";
-import { UpdateReqBody } from "./types/userTypes";
-import { validateUserUpdateInput } from "../util/validateUserUpdateInput";
+import {
+	UpdateReqBody,
+	validateUserUpdateInput,
+} from "../util/validateUserUpdateInput";
 import { isValuesNotNumber } from "../util/isValuesNotNumber";
 
 type Params = { userId?: string };

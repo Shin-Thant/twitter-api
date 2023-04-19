@@ -3,7 +3,7 @@ import type { Response, CookieOptions, Request } from "express";
 import AppError from "../config/AppError";
 import createToken from "../lib/createToken";
 import validateUser from "../lib/validateUserCreation";
-import User, { IUser } from "../models/User";
+import User, { UserSchema } from "../models/User";
 import { TypedRequestBody } from "../types";
 import findDuplicateWithUserNameAndEmail from "../util/findDuplicateUser";
 
@@ -43,7 +43,7 @@ export const handleRegister = async (
 	}
 
 	// turn document to object
-	const newUser: Partial<IUser> = newUserDoc.toObject<IUser>(); // to include virtual properties, add `{getters: true}` option
+	const newUser: Partial<UserSchema> = newUserDoc.toObject<UserSchema>(); // to include virtual properties, add `{getters: true}` option
 	delete newUser.password;
 	res.status(201).json(newUser);
 };

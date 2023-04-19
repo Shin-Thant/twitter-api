@@ -1,63 +1,44 @@
-/* eslint-disable no-mixed-spaces-and-tabs */
-import {
-	PopulatedDoc,
-	Document,
-	QueryWithHelpers,
-	HydratedDocument,
-	Model,
-	Schema,
-	FlatRecord,
-} from "mongoose";
-import { IUser } from "../User";
+import { HydratedDocument, Model, QueryWithHelpers, Types } from "mongoose";
+import { LeanUser, UserRef } from "../User";
+import { CommentRef, LeanComment } from "./commentTypes";
 
-//* ObjectId type or Populated document type
-type UserRef = PopulatedDoc<Document<Schema.Types.ObjectId> & IUser>;
-type TweetRef = PopulatedDoc<Document<Schema.Types.ObjectId> & ITweet>;
-
-// tweet data
-interface IBasicTweetData {
+export type TweetSchema = {
+	type: "post" | "share";
 	owner: UserRef;
-	likes?: UserRef[];
-}
-export interface ICreatedTweet extends IBasicTweetData {
-	type: "post";
-	body: string;
-	origin?: TweetRef;
-}
-export interface ISharedTweet extends IBasicTweetData {
-	type: "share";
 	body?: string;
-	origin: TweetRef;
-}
+	origin?: TweetRef;
+	likes?: UserRef[];
+	comments?: CommentRef[];
+};
 
-export type ITweet = ICreatedTweet | ISharedTweet;
+export interface LeanTweet extends TweetSchema {
+	_id: Types.ObjectId;
+	owner: LeanUser | Types.ObjectId;
+	origin?: LeanTweet | Types.ObjectId;
+	likes?: (LeanUser | Types.ObjectId)[];
+	comments?: (LeanComment | Types.ObjectId)[];
+}
+export type TweetDoc = HydratedDocument<TweetSchema>;
+export type TweetRef = LeanTweet | TweetDoc | Types.ObjectId;
 
 // query helper functions
 export interface TweetQueryHelpers {
-	populateRelations(): QueryWithHelpers<
-		HydratedDocument<ITweet>[],
-		HydratedDocument<ITweet>,
+	populateRelations(
+		this: QueryThis
+	): QueryWithHelpers<
+		HydratedDocument<TweetSchema>[],
+		HydratedDocument<TweetSchema>,
 		TweetQueryHelpers
 	>;
 }
 
 export type QueryThis = QueryWithHelpers<
 	any,
-	HydratedDocument<ITweet>,
+	HydratedDocument<TweetSchema>,
 	TweetQueryHelpers
 >;
 
-export type PostQueryThis = Document<unknown, object, FlatRecord<ITweet>> &
-	Omit<
-		| (FlatRecord<ICreatedTweet> & {
-				_id: Schema.Types.ObjectId;
-		  })
-		| (FlatRecord<ISharedTweet> & {
-				_id: Schema.Types.ObjectId;
-		  }),
-		never
-	> &
-	object;
+export type PostQueryThis = HydratedDocument<TweetSchema>;
 
 // model
-export type TweetModel = Model<ITweet, TweetQueryHelpers>;
+export type TweetModel = Model<TweetSchema, TweetQueryHelpers>;

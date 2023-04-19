@@ -1,9 +1,9 @@
-import { model, Schema } from "mongoose";
+import { HydratedDocument, model, Schema, Types } from "mongoose";
 
 // TODO: add new field `bio` (optional, string, maxlength = 60)
 // TODO: add `followers`, `following` fields
 
-export interface IUser {
+export interface UserSchema {
 	username: string;
 	name: string;
 	email: string;
@@ -11,7 +11,15 @@ export interface IUser {
 	avatar?: string;
 }
 
-const userSchema = new Schema<IUser>({
+export type LeanUser = UserSchema & { _id: Types.ObjectId };
+export type UserDoc = HydratedDocument<UserSchema>;
+export type UserRef =
+	| LeanUser
+	| UserDoc
+	| Omit<UserDoc, "email">
+	| Types.ObjectId;
+
+const userSchema = new Schema<UserSchema>({
 	username: {
 		type: String,
 		required: [true, "Username is required!"],
@@ -38,5 +46,5 @@ const userSchema = new Schema<IUser>({
 	},
 });
 
-const User = model<IUser>("User", userSchema);
+const User = model<UserSchema>("User", userSchema);
 export default User;

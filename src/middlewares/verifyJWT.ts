@@ -3,34 +3,21 @@ import jwt, { JwtPayload } from "jsonwebtoken";
 import AppError from "../config/AppError";
 import User from "../models/User";
 
-interface IPayload {
+interface ValidPayload {
 	userInfo: {
 		id: string;
 	};
 }
 
-function isJWTPayloadValid(payload: string | JwtPayload): payload is IPayload {
-	return (
-		!!payload &&
-		typeof payload === "object" &&
-		"userInfo" in payload &&
-		"id" in payload.userInfo
-	);
-}
-
 const verifyJWT = async (req: Request, res: Response, next: NextFunction) => {
 	const bearerToken = req.headers.authorization || req.headers.Authorization;
-	if (
-		!bearerToken ||
-		Array.isArray(bearerToken) ||
-		!bearerToken.startsWith("Bearer ")
-	) {
-		throw new AppError("You are not authorized!", 401);
+	if (!isValidBearerToken(bearerToken)) {
+		throw new AppError("Unauthorized!", 401);
 	}
 
 	const accessToken = bearerToken.split(" ")[1];
 	if (!accessToken) {
-		throw new AppError("You are not authorized!", 401);
+		throw new AppError("Unauthorized!", 401);
 	}
 
 	jwt.verify(
@@ -44,19 +31,14 @@ const verifyJWT = async (req: Request, res: Response, next: NextFunction) => {
 				if (!payload) {
 					throw new AppError("Forbidden", 403);
 				}
-
 				if (!isJWTPayloadValid(payload)) {
-					throw new AppError("You are not authorized!", 401);
+					throw new AppError("Unauthorized!", 401);
 				}
 
-				const foundUser = await User.findById(
-					payload.userInfo.id
-				).exec();
-				if (!foundUser) {
-					throw new AppError("Something went wrong!", 403);
-				}
-
+				const id = payload.userInfo.id;
+				const foundUser = await findUserWithID(id);
 				req.user = foundUser;
+
 				next();
 			} catch (err) {
 				next(err);
@@ -66,3 +48,32 @@ const verifyJWT = async (req: Request, res: Response, next: NextFunction) => {
 };
 
 export default verifyJWT;
+
+function isJWTPayloadValid(
+	payload: string | JwtPayload
+): payload is ValidPayload {
+	return (
+		!!payload &&
+		typeof payload === "object" &&
+		"userInfo" in payload &&
+		"id" in payload.userInfo
+	);
+}
+
+function isValidBearerToken(
+	bearerToken?: string | string[]
+): bearerToken is string {
+	return (
+		!!bearerToken &&
+		!Array.isArray(bearerToken) &&
+		bearerToken.startsWith("Bearer ")
+	);
+}
+
+async function findUserWithID(id: string) {
+	const user = await User.findById(id);
+	if (!user) {
+		throw new AppError("Forbidden!", 403);
+	}
+	return user;
+}

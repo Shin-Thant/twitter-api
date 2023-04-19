@@ -1,14 +1,20 @@
 import { Request, Response } from "express";
-import Tweet from "../models/Tweet";
-import { TypedRequestBody, TypedRequestQuery } from "../types";
+import { Types } from "mongoose";
 import AppError from "../config/AppError";
-import PaginationHelperImpl from "../util/paginationHelper";
 import PaginationImpl from "../lib/pagination";
 import validateTweet, {
 	CreateTweetType,
 	ShareTweetType,
 } from "../lib/validateTweetCreation";
+import Comment from "../models/Comment";
+import Tweet from "../models/Tweet";
+import { LeanTweet } from "../models/types/tweetTypes";
+import { TypedRequestBody, TypedRequestQuery } from "../types";
 import { isValuesNotNumber } from "../util/isValuesNotNumber";
+import PaginationHelperImpl from "../util/paginationHelper";
+import { CommentRef } from "../models/types/commentTypes";
+
+// TODO: create request handler for adding and remove likes
 
 type Params = { tweetId?: string };
 
@@ -38,8 +44,12 @@ export const getTweets = async (
 		.limit(pagination.itemsPerPage)
 		.skip(pagination.skip)
 		.sort("-createdAt")
-		.lean()
+		.lean<LeanTweet[]>()
 		.exec();
+
+	if (!(tweets[0].origin instanceof Types.ObjectId)) {
+		tweets[0].origin?.body;
+	}
 
 	res.json(pagination.createPaginationResult<typeof tweets>(tweets));
 };
@@ -51,13 +61,16 @@ export const getTweetById = async (req: Request<Params>, res: Response) => {
 	}
 
 	const tweet = await Tweet.findById(tweetId)
-		.populateRelations()
-		.lean()
+		.populate<{ comments: CommentRef[] }>("comments")
+		.lean<LeanTweet>()
 		.exec();
 
 	if (!tweet) {
 		throw new AppError("Invalid ID!", 400);
 	}
+	// if (!(tweet.origin instanceof Types.ObjectId)) {
+	// 	console.log("lean", tweet.origin?.origin);
+	// }
 	res.json(tweet);
 };
 
@@ -149,6 +162,7 @@ export const deleteTweet = async (req: Request<Params>, res: Response) => {
 	if (!tweet) {
 		throw new AppError("Invalid Tweet ID!", 400);
 	}
+	await Comment.deleteMany({ tweet: tweet._id });
 	await tweet.deleteOne();
 	res.json({ status: "success", message: "Tweet deleted successfully!" });
 };

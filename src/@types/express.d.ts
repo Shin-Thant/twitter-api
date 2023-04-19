@@ -1,38 +1,18 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
 import { Request } from "express";
-import { Document, Types, Schema, ObjectId } from "mongoose";
-import { IUser } from "../models/User";
-import {
-	ICreatedTweet,
-	ISharedTweet,
-	ITweet,
-	TweetQueryHelpers,
-} from "../models/types/tweetTypes";
+import { HydratedDocument } from "mongoose";
+import { UserSchema } from "../models/User";
+import { TweetSchema } from "../models/types/tweetTypes";
+import { CommentSchema } from "../models/types/commentTypes";
 
-type UserDoc =
-	| Document<unknown, object, IUser> &
-			Omit<
-				IUser & {
-					_id: Types.ObjectId;
-				},
-				never
-			>;
-
-type TweetDoc =
-	| Document<unknown, TweetQueryHelpers, ITweet> &
-			Omit<
-				| (ICreatedTweet & {
-						_id: Types.ObjectId;
-				  })
-				| (ISharedTweet & {
-						_id: Types.ObjectId;
-				  }),
-				never
-			>;
+type User = HydratedDocument<UserSchema>;
+type Tweet = HydratedDocument<TweetSchema>;
+type Comment = HydratedDocument<CommentSchema>;
 
 declare module "express" {
 	interface Request {
-		user?: UserDoc;
-		tweet?: TweetDoc;
+		user?: User;
+		tweet?: Tweet;
+		comment?: Comment;
 	}
 }

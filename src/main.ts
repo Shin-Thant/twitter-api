@@ -7,6 +7,7 @@ import errorHandler from "./middlewares/errorHandler";
 import authRoutes from "./routes/authRoutes";
 import tweetRoutes from "./routes/tweetRoutes";
 import userRoutes from "./routes/userRoutes";
+import commentRoutes from "./routes/commentRoutes";
 import connectDB from "./config/connectDB";
 
 // TODO: use `hpp` package for http parameter pollution
@@ -25,6 +26,7 @@ app.use(express.json());
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/users", userRoutes);
 app.use("/api/v1/tweets", tweetRoutes);
+app.use("/api/v1/comments", commentRoutes);
 
 // error handler middleware
 app.use(errorHandler);

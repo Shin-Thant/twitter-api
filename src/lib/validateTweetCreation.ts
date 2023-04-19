@@ -1,7 +1,7 @@
 import Joi from "joi";
-import { ITweet } from "../models/types/tweetTypes";
+import { TweetSchema } from "../models/types/tweetTypes";
 
-const tweetJoiSchema = Joi.object<ITweet>({
+const tweetJoiSchema = Joi.object<TweetSchema>({
 	type: Joi.string()
 		.trim()
 		.required()

@@ -1,37 +1,46 @@
-import { model, ObjectId, Schema } from "mongoose";
+import { model, Schema } from "mongoose";
+import { CommentModel, CommentSchema } from "./types/commentTypes";
 
-interface IComment {
-	text: string;
-	user: ObjectId;
-	tweet: ObjectId;
-	origin: ObjectId;
-}
-
-const commentSchema = new Schema<IComment>(
+const commentSchema = new Schema<CommentSchema, CommentModel>(
 	{
-		text: {
+		body: {
 			type: String,
-			required: [true, "Comment text is required!"],
+			required: [true, "Comment body is required!"],
 		},
-		user: {
+		creator: {
 			type: Schema.Types.ObjectId,
 			ref: "User",
-			required: [true, "User ID is required!"],
+			required: [true, "Creator ID is required!"],
 		},
 		tweet: {
 			type: Schema.Types.ObjectId,
 			ref: "Tweet",
-			required: [true, "Tweet ID is required!"],
 		},
-		origin: {
+		parent: {
 			type: Schema.Types.ObjectId,
 			ref: "Comment",
 		},
 	},
 	{
 		timestamps: true,
+		toJSON: { virtuals: true },
+		toObject: { virtuals: true },
 	}
 );
 
-const Comment = model<IComment>("Comment", commentSchema);
+commentSchema.virtual("comments", {
+	ref: "Comment",
+	localField: "_id",
+	foreignField: "parent",
+});
+
+// TODO: create middleware for populating nested comments later with optimal knowledge
+// commentSchema.pre("find", function () {
+// 	console.log("find all");
+// });
+// commentSchema.pre("findOne", function () {
+// 	console.log("find one");
+// });
+
+const Comment = model<CommentSchema>("Comment", commentSchema);
 export default Comment;

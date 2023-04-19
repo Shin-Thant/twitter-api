@@ -1,5 +1,6 @@
 import Joi from "joi";
-import { UpdateReqBody } from "../controllers/types/userTypes";
+
+export type UpdateReqBody = { name?: string; email?: string; avatar?: string };
 
 const userUpdateSchema = Joi.object<Required<UpdateReqBody>>({
 	name: Joi.string()
