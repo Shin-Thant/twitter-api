@@ -21,7 +21,20 @@ export function preFindTweet(
 	this: QueryThis,
 	next: CallbackWithoutResultAndOptionalError
 ) {
-	this.populateRelations();
+	// this.populateRelations();
+	this.populate<{ origin: TweetDoc }>({
+		path: "origin",
+		populate: { path: "owner", select: "-email" },
+	})
+		.populate<{ owner: Omit<UserDoc, "email"> }>({
+			path: "owner",
+			select: "-email",
+		})
+		.populate<{ likes: Omit<UserDoc, "email"> }>({
+			path: "likes",
+			select: "-email",
+		});
+
 	next();
 }
 

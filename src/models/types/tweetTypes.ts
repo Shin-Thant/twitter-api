@@ -1,4 +1,9 @@
-import { HydratedDocument, Model, QueryWithHelpers, Types } from "mongoose";
+import {
+	HydratedDocument,
+	Model,
+	Query,
+	Types,
+} from "mongoose";
 import { LeanUser, UserRef } from "../User";
 import { CommentRef, LeanComment } from "./commentTypes";
 
@@ -21,24 +26,9 @@ export interface LeanTweet extends TweetSchema {
 export type TweetDoc = HydratedDocument<TweetSchema>;
 export type TweetRef = LeanTweet | TweetDoc | Types.ObjectId;
 
-// query helper functions
-export interface TweetQueryHelpers {
-	populateRelations(
-		this: QueryThis
-	): QueryWithHelpers<
-		HydratedDocument<TweetSchema>[],
-		HydratedDocument<TweetSchema>,
-		TweetQueryHelpers
-	>;
-}
-
-export type QueryThis = QueryWithHelpers<
-	any,
-	HydratedDocument<TweetSchema>,
-	TweetQueryHelpers
->;
+export type QueryThis = Query<any, HydratedDocument<TweetSchema>>;
 
 export type PostQueryThis = HydratedDocument<TweetSchema>;
 
 // model
-export type TweetModel = Model<TweetSchema, TweetQueryHelpers>;
+export type TweetModel = Model<TweetSchema>;

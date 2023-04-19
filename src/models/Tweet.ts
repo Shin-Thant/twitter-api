@@ -1,17 +1,11 @@
 import { Schema, model } from "mongoose";
 import {
 	populateTweetAfterCreation,
-	populateTweetRelations,
 	preFindTweet,
 } from "../schemaMiddlewares/tweetMiddlewares";
-import { TweetModel, TweetQueryHelpers, TweetSchema } from "./types/tweetTypes";
+import { TweetModel, TweetSchema } from "./types/tweetTypes";
 
-const tweetSchema = new Schema<
-	TweetSchema,
-	TweetModel,
-	object,
-	TweetQueryHelpers
->(
+const tweetSchema = new Schema<TweetSchema, TweetModel>(
 	{
 		type: {
 			type: String,
@@ -50,8 +44,6 @@ tweetSchema.post("save", populateTweetAfterCreation);
 
 tweetSchema.pre("findOne", preFindTweet);
 tweetSchema.pre("find", preFindTweet);
-
-tweetSchema.query.populateRelations = populateTweetRelations;
 
 const Tweet = model<TweetSchema, TweetModel>("Tweet", tweetSchema);
 export default Tweet;
