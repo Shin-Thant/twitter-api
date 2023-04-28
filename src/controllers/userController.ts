@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import AppError from "../config/AppError";
 import PaginationImpl from "../lib/pagination";
 import User from "../models/User";
-import { TypedRequestQuery } from "../types";
+import { TypedRequestQuery } from "../types/requestTypes";
 import PaginationHelperImpl from "../util/paginationHelper";
 import {
 	UpdateReqBody,

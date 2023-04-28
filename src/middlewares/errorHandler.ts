@@ -1,28 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import AppError from "../config/AppError";
-
-type ErrorResBody = {
-	status: "fail" | "error";
-	name: string;
-	message: string;
-};
-export function createErrorResponseBody(
-	err?: Error,
-	status?: "fail" | "error"
-): ErrorResBody {
-	if (!err) {
-		return {
-			status: "error",
-			name: "Error",
-			message: "Something went wrong!",
-		};
-	}
-	return {
-		status: status || "error",
-		name: err.name || "Error",
-		message: err.message || "Sometihng went wrong!",
-	};
-}
+import createErrorResponseBody from "../util/createErrorResponseBody";
 
 const errorHandler = (
 	err: Error | AppError,
@@ -30,15 +8,18 @@ const errorHandler = (
 	res: Response,
 	_next: NextFunction
 ) => {
+	// token expired error
 	if (err.name === "TokenExpiredError") {
 		return res.status(401).json(createErrorResponseBody(err, "error"));
 	}
 
+	// jwt error
 	if (err.name === "JsonWebTokenError") {
 		console.log({ err });
 		return res.status(403).json(createErrorResponseBody(err, "fail"));
 	}
 
+	// joi validation error
 	if (err.name === "ValidationError") {
 		console.log(err);
 

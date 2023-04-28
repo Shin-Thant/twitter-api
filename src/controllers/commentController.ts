@@ -2,45 +2,94 @@ import { Request, Response } from "express";
 import AppError from "../config/AppError";
 import Comment from "../models/Comment";
 import { UserDoc } from "../models/User";
-import { TypedRequestBody } from "../types";
 import { CommentDoc, LeanComment } from "../models/types/commentTypes";
+import { TweetParams } from "./tweetController";
+import { TypedRequestBody } from "../types/requestTypes";
+import santitizeCommentData from "../lib/validateCommentCreation";
+import Tweet from "../models/Tweet";
+import { isValidObjectId } from "mongoose";
+
+// TODO: test routes are still working
 
 // TODO: create nested comment route
 // TODO: validate input using joi
 // TODO: add nested comment try getting its parent
 
-export type Params = { commentId?: string };
-
+//* test route
 export const getAllComments = async (req: Request, res: Response) => {
-	const comments = await Comment.find()
-		.populate<{ comments: CommentDoc[] }>({
-			path: "comments",
-			populate: { path: "creator", select: "-email" },
-		})
-		.populate<{ creator: Omit<UserDoc, "email"> }>({
-			path: "creator",
-			select: "-email",
-		});
+	const comments = await Comment.find().lean();
 	res.json(comments);
 };
 
-export const getCommentById = async (req: Request<Params>, res: Response) => {
+export type CommentParams = { commentId?: string };
+
+export const getTweetComments = async (
+	req: Request<TweetParams>,
+	res: Response
+) => {
+	const { tweetId } = req.params;
+	if (!tweetId) {
+		throw new AppError("Tweet ID is requried!", 400);
+	}
+
+	const comments = await Comment.find({
+		tweet: tweetId,
+		parent: { $exists: false },
+	})
+		.sort("-createdAt")
+		.lean();
+	res.json(comments);
+};
+
+type NewComment = { body?: string; tweetId?: string };
+
+export const addNewComment = async (
+	req: Request<Omit<TweetParams, "commentId">, object, NewComment>,
+	res: Response
+) => {
+	const { user: creator } = req;
+	const { body, tweetId } = req.body;
+	if (!body || !creator || !tweetId) {
+		throw new AppError("All fields are required!", 400);
+	}
+
+	if (!isValidObjectId(tweetId)) {
+		throw new AppError("Invalid Tweet ID!", 400);
+	}
+	const foundTweet = await Tweet.findById(tweetId);
+	if (!foundTweet) {
+		throw new AppError("Invalid Tweet ID!", 400);
+	}
+
+	const commentData = {
+		body,
+		creator: creator._id.toString(),
+		tweet: tweetId,
+	};
+	const { value: data, error: inputErr } = santitizeCommentData(commentData);
+	if (inputErr) {
+		throw inputErr;
+	}
+
+	const newComment = await Comment.create(data);
+	if (!newComment) {
+		throw new AppError("Something went wrong!", 500);
+	}
+
+	await newComment.populate({ path: "creator", select: "-email" });
+	res.json(newComment);
+};
+
+export const getCommentById = async (
+	req: Request<CommentParams>,
+	res: Response
+) => {
 	const { commentId } = req.params;
 	if (!commentId) {
 		throw new AppError("Comment ID is required!", 400);
 	}
 
-	const foundComment = await Comment.findById(commentId)
-		.populate<{ comments: CommentDoc[] }>({
-			path: "comments",
-			populate: { path: "creator", select: "-email" },
-		})
-		.populate<{ creator: Omit<UserDoc, "email"> }>({
-			path: "creator",
-			select: "-email",
-		})
-		.lean<LeanComment>()
-		.exec();
+	const foundComment = await Comment.findById(commentId).exec();
 
 	if (!foundComment) {
 		throw new AppError("Invalid ID!", 400);
@@ -48,34 +97,11 @@ export const getCommentById = async (req: Request<Params>, res: Response) => {
 	res.json(foundComment);
 };
 
-type NewComment = { body?: string; tweet?: string };
-
-export const addNewComment = async (
-	req: TypedRequestBody<NewComment>,
-	res: Response
-) => {
-	const { user: creator } = req;
-	const { body, tweet } = req.body;
-	if (!body || !tweet || !creator) {
-		throw new AppError("All fields are required!", 400);
-	}
-
-	// TODO: validate input data
-	const commentData = { body, creator: creator._id, tweet };
-	const newComment = await Comment.create(commentData);
-	if (!newComment) {
-		throw new AppError("Something went wrong!", 500);
-	}
-
-	await newComment.populate("creator");
-	res.json(newComment);
-};
-
 type UpdateBody = {
 	body?: string;
 };
 export const updateComment = async (
-	req: Request<Params, UpdateBody>,
+	req: TypedRequestBody<UpdateBody>,
 	res: Response
 ) => {
 	const { comment } = req;
@@ -93,13 +119,12 @@ export const updateComment = async (
 	res.json(comment);
 };
 
-export const deleteComment = async (req: Request<Params>, res: Response) => {
+export const deleteComment = async (req: Request, res: Response) => {
 	const { comment } = req;
 	if (!comment) {
 		throw new AppError("Unauthorized!", 401);
 	}
 
-	await Comment.deleteMany({ parent: comment._id });
 	await comment.deleteOne();
 	res.json({ message: "Comment deleted successfully!" });
 };

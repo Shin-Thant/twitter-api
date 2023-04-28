@@ -1,3 +1,5 @@
+import AppError from "../config/AppError";
+
 export interface PaginationHelper {
 	validateItemsPerPage(itemsPerPage: number): number;
 	validateCurrentPageNumber(currentPage: number): number;
@@ -29,8 +31,11 @@ export default class PaginationHelperImpl implements PaginationHelper {
 		totalDocs: number,
 		itemsPerPage: number
 	): number {
-		if (totalDocs < 0) {
+		if (totalDocs < 1) {
 			return 0;
+		}
+		if (itemsPerPage < 1) {
+			throw new AppError("Invalid value!", 500);
 		}
 		const totalPages = Math.ceil(totalDocs / itemsPerPage);
 		return totalPages < 1 ? 1 : totalPages;

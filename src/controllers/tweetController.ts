@@ -2,21 +2,21 @@ import { Request, Response } from "express";
 import { Types } from "mongoose";
 import AppError from "../config/AppError";
 import PaginationImpl from "../lib/pagination";
-import validateTweet, {
-	CreateTweetType,
-	ShareTweetType,
+import santitizeTweetData, {
+	CreateTweet,
+	ShareTweet,
 } from "../lib/validateTweetCreation";
 import Comment from "../models/Comment";
 import Tweet from "../models/Tweet";
 import { LeanTweet } from "../models/types/tweetTypes";
-import { TypedRequestBody, TypedRequestQuery } from "../types";
+import { TypedRequestBody, TypedRequestQuery } from "../types/requestTypes";
 import { isValuesNotNumber } from "../util/isValuesNotNumber";
 import PaginationHelperImpl from "../util/paginationHelper";
 import { CommentRef } from "../models/types/commentTypes";
 
 // TODO: create request handler for adding and remove likes
 
-type Params = { tweetId?: string };
+export type TweetParams = { tweetId?: string };
 
 type SearchQuery = { currentPage?: string; itemsPerPage?: string };
 export const getTweets = async (
@@ -47,14 +47,13 @@ export const getTweets = async (
 		.lean<LeanTweet[]>()
 		.exec();
 
-	if (!(tweets[0].origin instanceof Types.ObjectId)) {
-		tweets[0].origin?.body;
-	}
-
 	res.json(pagination.createPaginationResult<typeof tweets>(tweets));
 };
 
-export const getTweetById = async (req: Request<Params>, res: Response) => {
+export const getTweetById = async (
+	req: Request<TweetParams>,
+	res: Response
+) => {
 	const { tweetId } = req.params;
 	if (!tweetId) {
 		throw new AppError("All fields are requried!", 400);
@@ -62,7 +61,6 @@ export const getTweetById = async (req: Request<Params>, res: Response) => {
 
 	const tweet = await Tweet.findById(tweetId)
 		.populate<{ comments: CommentRef[] }>("comments")
-		.lean<LeanTweet>()
 		.exec();
 
 	if (!tweet) {
@@ -88,12 +86,12 @@ export const createTweet = async (
 		throw new AppError("All fields are required!", 400);
 	}
 
-	const tweetData: CreateTweetType = {
+	const tweetData: CreateTweet = {
 		type: "post",
 		body,
 		owner: owner._id.toString(),
 	};
-	const { value, error } = validateTweet(tweetData);
+	const { value, error } = santitizeTweetData(tweetData);
 	if (error) {
 		throw error;
 	}
@@ -107,7 +105,7 @@ export const createTweet = async (
 };
 
 export const shareTweet = async (
-	req: Request<Params, object, INewTweet>,
+	req: Request<TweetParams, object, INewTweet>,
 	res: Response
 ) => {
 	const { user: owner } = req;
@@ -118,7 +116,7 @@ export const shareTweet = async (
 		throw new AppError("All fields are required!", 400);
 	}
 
-	const tweetData: ShareTweetType = {
+	const tweetData: ShareTweet = {
 		type: "share",
 		origin: tweetId,
 		owner: owner._id.toString(),
@@ -126,7 +124,7 @@ export const shareTweet = async (
 	if (body) {
 		tweetData.body = body;
 	}
-	const { value, error } = validateTweet(tweetData);
+	const { value, error } = santitizeTweetData(tweetData);
 	if (error) {
 		throw error;
 	}
@@ -139,7 +137,7 @@ export const shareTweet = async (
 };
 
 export const updateTweet = async (
-	req: Request<Params, object, { body?: string }>,
+	req: Request<TweetParams, object, { body?: string }>,
 	res: Response
 ) => {
 	const { tweet } = req;
@@ -157,7 +155,7 @@ export const updateTweet = async (
 	res.json(tweet);
 };
 
-export const deleteTweet = async (req: Request<Params>, res: Response) => {
+export const deleteTweet = async (req: Request<TweetParams>, res: Response) => {
 	const { tweet } = req;
 	if (!tweet) {
 		throw new AppError("Invalid Tweet ID!", 400);

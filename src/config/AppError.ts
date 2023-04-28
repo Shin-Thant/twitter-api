@@ -1,6 +1,18 @@
-export default class AppError extends Error {
+export interface IAppError extends Error {
+	statusCode: number;
+	isOperational: boolean;
+	createAppErrorResponseBody: createAppErrorResponseBody;
+}
+type createAppErrorResponseBody = () => {
+	status: "fail" | "error";
+	name: string;
+	message: string;
+};
+
+export default class AppError extends Error implements IAppError {
 	public statusCode: number;
-	private status: "fail" | "error";
+	public isOperational = true;
+	private _status: "fail" | "error";
 
 	constructor(
 		message: string,
@@ -11,7 +23,7 @@ export default class AppError extends Error {
 		this.name = "AppError";
 
 		this.statusCode = statusCode;
-		this.status = status
+		this._status = status
 			? status
 			: statusCode.toString().startsWith("4")
 			? "fail"
@@ -21,8 +33,8 @@ export default class AppError extends Error {
 
 	public createAppErrorResponseBody() {
 		return {
-			status: this.status,
-			name: "App Error!",
+			status: this._status,
+			name: this.name,
 			message: this.message,
 		};
 	}

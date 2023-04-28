@@ -1,7 +1,22 @@
 import Joi from "joi";
 import { TweetSchema } from "../models/types/tweetTypes";
 
-const tweetJoiSchema = Joi.object<TweetSchema>({
+type Overrides = "origin" | "likes" | "comments" | "owner";
+interface IBasicTweet extends Omit<TweetSchema, Overrides> {
+	body?: string;
+	owner: string;
+}
+export interface CreateTweet extends IBasicTweet {
+	body: string;
+	type: "post";
+}
+export interface ShareTweet extends IBasicTweet {
+	type: "share";
+	origin: string;
+}
+type NewTweet = CreateTweet | ShareTweet;
+
+const tweetSchema = Joi.object<NewTweet>({
 	type: Joi.string()
 		.trim()
 		.required()
@@ -14,23 +29,8 @@ const tweetJoiSchema = Joi.object<TweetSchema>({
 		.error(new Error("Enter valid owner!")),
 });
 
-interface BasicTweetData {
-	owner: string;
-}
-export interface CreateTweetType extends BasicTweetData {
-	type: "post";
-	body: string;
-	origin?: string;
-}
-export interface ShareTweetType extends BasicTweetData {
-	type: "share";
-	body?: string;
-	origin: string;
-}
-type NewTweet = CreateTweetType | ShareTweetType;
-
-const validateTweet = (tweet: NewTweet) => {
-	return tweetJoiSchema.validate(tweet);
+const santitizeTweetData = (tweet: NewTweet) => {
+	return tweetSchema.validate(tweet);
 };
 
-export default validateTweet;
+export default santitizeTweetData;

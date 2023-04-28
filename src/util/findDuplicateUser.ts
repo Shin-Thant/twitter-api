@@ -1,6 +1,6 @@
 import User from "../models/User";
 
-const findDuplicateWithUserNameAndEmail = async (
+const findDuplicateWithUsernameAndEmail = async (
 	username: string,
 	email: string
 ) => {
@@ -31,4 +31,4 @@ const findDuplicateWithUserNameAndEmail = async (
 	return duplicates;
 };
 
-export default findDuplicateWithUserNameAndEmail;
+export default findDuplicateWithUsernameAndEmail;

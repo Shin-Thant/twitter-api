@@ -1,5 +1,4 @@
 import { Request } from "express";
-import { ParsedUrlQuery, ParsedUrlQueryInput } from "querystring";
 
 export interface TypedRequestBody<T> extends Request {
 	body: T;

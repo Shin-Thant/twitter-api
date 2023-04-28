@@ -2,10 +2,10 @@ import bcrypt from "bcrypt";
 import type { Response, CookieOptions, Request } from "express";
 import AppError from "../config/AppError";
 import createToken from "../lib/createToken";
-import validateUser from "../lib/validateUserCreation";
+import santitizeUserData from "../lib/validateUserCreation";
 import User, { UserSchema } from "../models/User";
-import { TypedRequestBody } from "../types";
-import findDuplicateWithUserNameAndEmail from "../util/findDuplicateUser";
+import { TypedRequestBody } from "../types/requestTypes";
+import findDuplicateWithUsernameAndEmail from "../util/findDuplicateUser";
 
 type RegisterReqBody = {
 	username?: string;
@@ -22,13 +22,18 @@ export const handleRegister = async (
 		throw new AppError("All fields are required!", 400);
 	}
 
-	const duplicates = await findDuplicateWithUserNameAndEmail(username, email);
+	const duplicates = await findDuplicateWithUsernameAndEmail(username, email);
 	if (duplicates.length > 0) {
 		throw new AppError("User already existed with this email!", 400);
 	}
 
 	// *validate user data
-	const validatedResult = validateUser({ username, name, email, password });
+	const validatedResult = santitizeUserData({
+		username,
+		name,
+		email,
+		password,
+	});
 	if (validatedResult.error) {
 		throw validatedResult.error;
 	}
@@ -80,7 +85,7 @@ export const handleLogin = async (
 	const payload = {
 		userInfo: { id: foundUser._id.toString() },
 	};
-	const accessToken = createToken(payload, "access", "15m");
+	const accessToken = createToken(payload, "access");
 
 	const cookieOptions: CookieOptions = {
 		httpOnly: true,

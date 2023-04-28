@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import AppError from "../config/AppError";
 import User from "../models/User";
+import { getSecretKey } from "../lib/createToken";
 
 interface ValidPayload {
 	userInfo: {
@@ -20,31 +21,32 @@ const verifyJWT = async (req: Request, res: Response, next: NextFunction) => {
 		throw new AppError("Unauthorized!", 401);
 	}
 
-	jwt.verify(
-		accessToken,
-		process.env.ACCESS_TOKEN_SECRET_KEY,
-		async (err, payload) => {
-			try {
-				if (err) {
-					throw err;
-				}
-				if (!payload) {
-					throw new AppError("Forbidden", 403);
-				}
-				if (!isJWTPayloadValid(payload)) {
-					throw new AppError("Unauthorized!", 401);
-				}
-
-				const id = payload.userInfo.id;
-				const foundUser = await findUserWithID(id);
-				req.user = foundUser;
-
-				next();
-			} catch (err) {
-				next(err);
+	const secretKey = getSecretKey("access");
+	jwt.verify(accessToken, secretKey, async (err, payload) => {
+		try {
+			if (err) {
+				throw err;
 			}
+			if (!payload) {
+				throw new AppError("Forbidden", 403);
+			}
+			if (!isJWTPayloadValid(payload)) {
+				console.log("invalid payload!");
+				throw new AppError("Unauthorized!", 401);
+			}
+
+			const id = payload.userInfo.id;
+			const foundUser = await findUserWithID(id);
+			if (!foundUser) {
+				throw new AppError("Forbidden", 403);
+			}
+			req.user = foundUser;
+
+			next();
+		} catch (err) {
+			next(err);
 		}
-	);
+	});
 };
 
 export default verifyJWT;
@@ -72,8 +74,5 @@ function isValidBearerToken(
 
 async function findUserWithID(id: string) {
 	const user = await User.findById(id);
-	if (!user) {
-		throw new AppError("Forbidden!", 403);
-	}
 	return user;
 }

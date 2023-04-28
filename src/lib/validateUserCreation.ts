@@ -1,7 +1,7 @@
 import joi from "joi";
 import { UserSchema } from "../models/User";
 
-const userJoiSchema = joi.object<UserSchema>({
+const userSchema = joi.object<UserSchema>({
 	username: joi
 		.string()
 		.trim()
@@ -28,8 +28,8 @@ const userJoiSchema = joi.object<UserSchema>({
 	avatar: joi.string().trim().error(new Error("Enter valid avatar!")),
 });
 
-const validateUser = (user: UserSchema) => {
-	return userJoiSchema.validate(user);
+const santitizeUserData = (user: UserSchema) => {
+	return userSchema.validate(user);
 };
 
-export default validateUser;
+export default santitizeUserData;

@@ -1,13 +1,14 @@
+import AppError from "../config/AppError";
 import { PaginationHelper } from "../util/paginationHelper";
 
-interface IPaginationResult<Result> {
+export interface PaginationResult<T> {
 	totalPages: number;
 	totalDocs: number;
 	hasNextPage: boolean;
 	hasPrevpage: boolean;
 	currentPage: number;
 	limit: number;
-	data: Result;
+	data: T;
 }
 
 interface IPagination {
@@ -16,9 +17,7 @@ interface IPagination {
 	itemsPerPage: number;
 	skip: number;
 
-	createPaginationResult: <ResultType>(
-		results: ResultType
-	) => IPaginationResult<ResultType>;
+	createPaginationResult<T extends []>(results: T): PaginationResult<T>;
 }
 
 export default class PaginationImpl implements IPagination {
@@ -52,9 +51,11 @@ export default class PaginationImpl implements IPagination {
 		// });
 	}
 
-	public createPaginationResult<ResultType>(
-		result: ResultType
-	): IPaginationResult<ResultType> {
+	public createPaginationResult<T>(result: T): PaginationResult<T> {
+		if (!Array.isArray(result)) {
+			throw new AppError("Data must be array!", 500);
+		}
+
 		return {
 			totalPages: this.totalPages,
 			totalDocs: this.totalDocs,

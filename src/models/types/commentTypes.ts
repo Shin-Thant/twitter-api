@@ -1,13 +1,13 @@
 import { HydratedDocument, Model, Types } from "mongoose";
 import { LeanUser, UserRef } from "../User";
 
-export interface CommentSchema {
+export type CommentSchema = {
 	body: string;
 	creator: UserRef;
 	tweet: Types.ObjectId;
 	parent?: CommentRef;
 	comments?: CommentRef[];
-}
+};
 
 export interface LeanComment extends CommentSchema {
 	_id: Types.ObjectId;

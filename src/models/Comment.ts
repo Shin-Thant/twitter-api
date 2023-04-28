@@ -1,5 +1,9 @@
-import { model, Schema } from "mongoose";
+import { Document, HydratedDocument, model, Schema } from "mongoose";
 import { CommentModel, CommentSchema } from "./types/commentTypes";
+import {
+	deleteAllNestedComments,
+	populateCommentRelations,
+} from "../schemaMiddlewares/commentMiddlewares";
 
 const commentSchema = new Schema<CommentSchema, CommentModel>(
 	{
@@ -34,13 +38,15 @@ commentSchema.virtual("comments", {
 	foreignField: "parent",
 });
 
-// TODO: create middleware for populating nested comments later with optimal knowledge
-// commentSchema.pre("find", function () {
-// 	console.log("find all");
-// });
-// commentSchema.pre("findOne", function () {
-// 	console.log("find one");
-// });
+// TODO: catch the error when happens
+commentSchema.pre("find", populateCommentRelations);
+commentSchema.pre("findOne", populateCommentRelations);
+
+commentSchema.pre(
+	"deleteOne",
+	{ document: true, query: false },
+	deleteAllNestedComments
+);
 
 const Comment = model<CommentSchema>("Comment", commentSchema);
 export default Comment;
