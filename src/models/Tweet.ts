@@ -1,11 +1,16 @@
 import { Schema, model } from "mongoose";
 import {
 	populateTweetAfterCreation,
-	preFindTweet,
+	populateTweetRelations,
 } from "../schemaMiddlewares/tweetMiddlewares";
-import { TweetModel, TweetSchema } from "./types/tweetTypes";
+import { TweetModel, TweetQueryHelpers, TweetSchema } from "./types/tweetTypes";
 
-const tweetSchema = new Schema<TweetSchema, TweetModel>(
+const tweetSchema = new Schema<
+	TweetSchema,
+	TweetModel,
+	object,
+	TweetQueryHelpers
+>(
 	{
 		type: {
 			type: String,
@@ -34,16 +39,19 @@ const tweetSchema = new Schema<TweetSchema, TweetModel>(
 		toObject: { virtuals: true },
 	}
 );
+
+// virtuals
 tweetSchema.virtual("comments", {
 	ref: "Comment",
 	localField: "_id",
 	foreignField: "tweet",
 });
 
+// middlewares
 tweetSchema.post("save", populateTweetAfterCreation);
 
-tweetSchema.pre("findOne", preFindTweet);
-tweetSchema.pre("find", preFindTweet);
+// query helpers
+tweetSchema.query.populateRelations = populateTweetRelations;
 
 const Tweet = model<TweetSchema, TweetModel>("Tweet", tweetSchema);
 export default Tweet;

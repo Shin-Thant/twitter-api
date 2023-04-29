@@ -1,7 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import AppError from "../config/AppError";
 import Tweet from "../models/Tweet";
-import { UserDoc } from "../models/User";
 
 const verifyTweetOwner = async (
 	req: Request<{ tweetId?: string }>,
@@ -18,12 +17,7 @@ const verifyTweetOwner = async (
 		throw new AppError("Tweet ID is requried!", 400);
 	}
 
-	const foundTweet = await Tweet.findById(tweetId)
-		.populate<{ owner: Omit<UserDoc, "email"> }>({
-			path: "owner",
-			select: "-email",
-		})
-		.exec();
+	const foundTweet = await Tweet.findById(tweetId).exec();
 	if (!foundTweet) {
 		throw new AppError("Invalid ID!", 400);
 	}

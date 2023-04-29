@@ -72,7 +72,6 @@ export const addNewComment = async (
 		throw new AppError("Something went wrong!", 500);
 	}
 
-	await newComment.populate({ path: "creator", select: "-email" });
 	res.json(newComment);
 };
 

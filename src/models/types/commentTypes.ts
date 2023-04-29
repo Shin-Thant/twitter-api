@@ -26,10 +26,10 @@ export type CommentDoc = HydratedDocument<CommentSchema>;
 export type CommentRef = LeanComment | CommentDoc | Types.ObjectId;
 
 export interface CommentQueryHelpers {
-	populateRelations: populateRelations;
+	populateRelations: PopulateCommmentRelations;
 }
 
-export type populateRelations = (
+export type PopulateCommmentRelations = (
 	this: CommentQueryHelperThis,
 	options?: { populateComments: boolean }
 ) => QueryWithHelpers<any, CommentDoc, CommentQueryHelpers>;
@@ -39,5 +39,7 @@ export type CommentQueryHelperThis = Query<
 	CommentDoc,
 	CommentQueryHelpers
 >;
+
+export type CommentPostThis = CommentDoc;
 
 export type CommentModel = Model<CommentSchema, CommentQueryHelpers>;

@@ -11,15 +11,14 @@ import { LeanTweet } from "../models/types/tweetTypes";
 import { TypedRequestBody, TypedRequestQuery } from "../types/requestTypes";
 import { isValuesNotNumber } from "../util/isValuesNotNumber";
 import PaginationHelperImpl from "../util/paginationHelper";
-import { CommentRef } from "../models/types/commentTypes";
 
 // TODO: create request handler for adding and remove likes
 
 export type TweetParams = { tweetId?: string };
 
-type SearchQuery = { currentPage?: string; itemsPerPage?: string };
+type TweetQueryString = { currentPage?: string; itemsPerPage?: string };
 export const getTweets = async (
-	req: TypedRequestQuery<SearchQuery>,
+	req: TypedRequestQuery<TweetQueryString>,
 	res: Response
 ) => {
 	const { currentPage, itemsPerPage } = req.query;
@@ -40,6 +39,7 @@ export const getTweets = async (
 	);
 
 	const tweets = await Tweet.find()
+		.populateRelations()
 		.limit(pagination.itemsPerPage)
 		.skip(pagination.skip)
 		.sort("-createdAt")
@@ -59,7 +59,7 @@ export const getTweetById = async (
 	}
 
 	const tweet = await Tweet.findById(tweetId)
-		.populate<{ comments: CommentRef[] }>("comments")
+		.populateRelations({ populateComments: true })
 		.exec();
 
 	if (!tweet) {

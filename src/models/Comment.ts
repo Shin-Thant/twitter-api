@@ -6,6 +6,7 @@ import {
 } from "./types/commentTypes";
 import {
 	deleteAllNestedComments,
+	populateCommentAfterCreation,
 	populateCommentRelations,
 } from "../schemaMiddlewares/commentMiddlewares";
 
@@ -47,17 +48,15 @@ commentSchema.virtual("comments", {
 	foreignField: "parent",
 });
 
-// TODO: catch the error when happens
-// commentSchema.pre("find", populateCommentRelations);
-// commentSchema.pre("findOne", populateCommentRelations);
-
+// middlewares
 commentSchema.pre(
 	"deleteOne",
 	{ document: true, query: false },
 	deleteAllNestedComments
 );
+commentSchema.post("save", populateCommentAfterCreation);
 
-// TODO: continue query helper
+// query helpers
 commentSchema.query.populateRelations = populateCommentRelations;
 
 const Comment = model<CommentSchema, CommentModel>("Comment", commentSchema);

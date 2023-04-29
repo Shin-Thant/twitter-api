@@ -42,6 +42,5 @@ export const replyComment = async (
 		throw new AppError("Something went wrong!", 500);
 	}
 
-	await newReply.populate({ path: "creator", select: "-email" });
 	res.json(newReply);
 };
