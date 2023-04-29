@@ -1,11 +1,20 @@
-import { Document, HydratedDocument, model, Schema } from "mongoose";
-import { CommentModel, CommentSchema } from "./types/commentTypes";
+import { model, Schema } from "mongoose";
+import {
+	CommentModel,
+	CommentQueryHelpers,
+	CommentSchema,
+} from "./types/commentTypes";
 import {
 	deleteAllNestedComments,
 	populateCommentRelations,
 } from "../schemaMiddlewares/commentMiddlewares";
 
-const commentSchema = new Schema<CommentSchema, CommentModel>(
+const commentSchema = new Schema<
+	CommentSchema,
+	CommentModel,
+	object,
+	CommentQueryHelpers
+>(
 	{
 		body: {
 			type: String,
@@ -39,8 +48,8 @@ commentSchema.virtual("comments", {
 });
 
 // TODO: catch the error when happens
-commentSchema.pre("find", populateCommentRelations);
-commentSchema.pre("findOne", populateCommentRelations);
+// commentSchema.pre("find", populateCommentRelations);
+// commentSchema.pre("findOne", populateCommentRelations);
 
 commentSchema.pre(
 	"deleteOne",
@@ -48,5 +57,8 @@ commentSchema.pre(
 	deleteAllNestedComments
 );
 
-const Comment = model<CommentSchema>("Comment", commentSchema);
+// TODO: continue query helper
+commentSchema.query.populateRelations = populateCommentRelations;
+
+const Comment = model<CommentSchema, CommentModel>("Comment", commentSchema);
 export default Comment;

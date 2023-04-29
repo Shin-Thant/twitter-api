@@ -1,5 +1,4 @@
 import { Request, Response } from "express";
-import { Types } from "mongoose";
 import AppError from "../config/AppError";
 import PaginationImpl from "../lib/pagination";
 import santitizeTweetData, {

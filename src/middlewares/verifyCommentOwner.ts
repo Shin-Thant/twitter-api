@@ -1,6 +1,5 @@
 import { NextFunction, Request, Response } from "express";
 import AppError from "../config/AppError";
-import { UserDoc } from "../models/User";
 import Comment from "../models/Comment";
 import { CommentParams } from "../controllers/commentController";
 import { isValidObjectId } from "mongoose";
@@ -23,13 +22,7 @@ const verifyCommentOwner = async (
 		throw new AppError("Invalid ID!", 400);
 	}
 
-	const foundComment = await Comment.findById(commentId)
-		.populate<{ creator: Omit<UserDoc, "email"> }>({
-			path: "creator",
-			select: "-email",
-		})
-		.exec();
-
+	const foundComment = await Comment.findById(commentId).exec();
 	if (!foundComment) {
 		throw new AppError("Invalid ID!", 400);
 	}

@@ -1,13 +1,11 @@
-import mongoose, {
-	CallbackWithoutResultAndOptionalError,
-	Schema,
-} from "mongoose";
+import mongoose from "mongoose";
 import { connectDB, disconnectDB } from "../config/database";
 import supertest from "supertest";
 import app from "../app/app";
 import Comment from "../models/Comment";
 import createToken from "../lib/createToken";
 import User from "../models/User";
+import { CommentQueryHelperThis } from "../models/types/commentTypes";
 
 async function getRandomComment(query?: object) {
 	return await Comment.findOne(query);
@@ -31,8 +29,8 @@ function createObjectId() {
 
 // mock comment schema middleware
 jest.mock("../schemaMiddlewares/commentMiddlewares", () => ({
-	populateCommentRelations: (next: CallbackWithoutResultAndOptionalError) => {
-		next();
+	populateCommentRelations(this: CommentQueryHelperThis) {
+		return this.populate("creator");
 	},
 	deleteAllNestedComments: () => {
 		throw new Error("something");
@@ -48,28 +46,7 @@ describe("Comment Middlewares", () => {
 	});
 
 	describe("schema middlewares", () => {
-		describe("populate comments in find", () => {
-			describe("when throw Error", () => {
-				it("should return status 500 and error response", async () => {
-					// mock populate()
-					jest.spyOn(Comment, "populate").mockImplementation(() => {
-						throw new Error("something");
-					});
-
-					const { body } = await supertest(app)
-						.get("/api/v1/comments/all")
-						.expect(500);
-
-					expect(body).toEqual({
-						status: "error",
-						name: "Error",
-						message: "something",
-					});
-				});
-			});
-		});
-
-		describe("populate comments in findOne", () => {
+		describe("populateCommentRelations", () => {
 			describe("when throw Error", () => {
 				it("should return status 500 and error response", async () => {
 					// mock populate()

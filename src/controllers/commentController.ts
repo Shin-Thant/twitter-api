@@ -1,23 +1,18 @@
 import { Request, Response } from "express";
-import AppError from "../config/AppError";
-import Comment from "../models/Comment";
-import { UserDoc } from "../models/User";
-import { CommentDoc, LeanComment } from "../models/types/commentTypes";
-import { TweetParams } from "./tweetController";
-import { TypedRequestBody } from "../types/requestTypes";
-import santitizeCommentData from "../lib/validateCommentCreation";
-import Tweet from "../models/Tweet";
 import { isValidObjectId } from "mongoose";
-
-// TODO: test routes are still working
-
-// TODO: create nested comment route
-// TODO: validate input using joi
-// TODO: add nested comment try getting its parent
+import { TypedRequestBody } from "../types/requestTypes";
+import { TweetParams } from "./tweetController";
+import AppError from "../config/AppError";
+import santitizeCommentData from "../lib/validateCommentCreation";
+import Comment from "../models/Comment";
+import Tweet from "../models/Tweet";
+import { LeanTweet } from "../models/types/tweetTypes";
 
 //* test route
 export const getAllComments = async (req: Request, res: Response) => {
-	const comments = await Comment.find().lean();
+	const comments = await Comment.find()
+		.populateRelations({ populateComments: true })
+		.lean();
 	res.json(comments);
 };
 
@@ -36,6 +31,7 @@ export const getTweetComments = async (
 		tweet: tweetId,
 		parent: { $exists: false },
 	})
+		.populateRelations({ populateComments: true })
 		.sort("-createdAt")
 		.lean();
 	res.json(comments);
@@ -56,7 +52,7 @@ export const addNewComment = async (
 	if (!isValidObjectId(tweetId)) {
 		throw new AppError("Invalid Tweet ID!", 400);
 	}
-	const foundTweet = await Tweet.findById(tweetId);
+	const foundTweet = await Tweet.findById(tweetId).lean<LeanTweet>().exec();
 	if (!foundTweet) {
 		throw new AppError("Invalid Tweet ID!", 400);
 	}
@@ -89,7 +85,9 @@ export const getCommentById = async (
 		throw new AppError("Comment ID is required!", 400);
 	}
 
-	const foundComment = await Comment.findById(commentId).exec();
+	const foundComment = await Comment.findById(commentId)
+		.populateRelations({ populateComments: true })
+		.exec();
 
 	if (!foundComment) {
 		throw new AppError("Invalid ID!", 400);

@@ -1,22 +1,28 @@
-import { Document, Query } from "mongoose";
-import { CommentSchema, CommentDoc } from "../models/types/commentTypes";
+import { Document } from "mongoose";
+import {
+	CommentSchema,
+	CommentDoc,
+	populateRelations,
+} from "../models/types/commentTypes";
 import { CallbackWithoutResultAndOptionalError } from "mongoose";
 import Comment from "../models/Comment";
 import { UserDoc } from "../models/User";
 
-export async function populateCommentRelations(
-	this: Query<CommentDoc | CommentDoc[], CommentDoc>,
-	next: CallbackWithoutResultAndOptionalError
-) {
-	this.populate<{ comments: CommentDoc[] }>({
-		path: "comments",
-		populate: { path: "creator", select: "-email" },
-	}).populate<{ creator: Omit<UserDoc, "email"> }>({
+export const populateCommentRelations: populateRelations = function (options?: {
+	populateComments: boolean;
+}) {
+	const result = this.populate<{ creator: Omit<UserDoc, "email"> }>({
 		path: "creator",
 		select: "-email",
 	});
-	next();
-}
+	if (options?.populateComments) {
+		result.populate<{ comments: CommentDoc[] }>({
+			path: "comments",
+			populate: { path: "creator", select: "-email" },
+		});
+	}
+	return result;
+};
 
 export async function deleteAllNestedComments(
 	this: Document<CommentSchema>,
