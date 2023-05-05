@@ -1,4 +1,5 @@
 import rateLimit, { RateLimitExceededEventHandler } from "express-rate-limit";
+import AppError from "../config/AppError";
 
 const rateLimitExceedHandler: RateLimitExceededEventHandler = (
 	req,
@@ -6,10 +7,10 @@ const rateLimitExceedHandler: RateLimitExceededEventHandler = (
 	next,
 	options
 ) => {
-	res.status(options.statusCode).json({
-		status: "fail",
-		message: options.message,
-	});
+	const exceedLimitErr = new AppError(options.message, options.statusCode);
+	res.status(options.statusCode).json(
+		exceedLimitErr.createAppErrorResponseBody()
+	);
 };
 
 const rateLimiter = (maxCount: number, rememberTimeInMs: number) => {

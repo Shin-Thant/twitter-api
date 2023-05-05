@@ -7,7 +7,6 @@ import { connectDB } from "./config/database";
 // TODO: use `hpp` package for http parameter pollution
 
 dotenv.config();
-const PORT: number = 3500 || process.env.PORT;
 // const app = express();
 
 // connect to database
@@ -17,6 +16,8 @@ connectDB();
 mongoose.connection.once("open", () => {
 	console.log("✨ Successfully connected to MongoDB!");
 });
+
+const PORT: number = 3500 || process.env.PORT;
 app.listen(PORT, () => {
 	console.log(`Server listening on port ${PORT}!`);
 });

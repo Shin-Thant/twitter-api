@@ -6,6 +6,8 @@ import {
 } from "../models/types/tweetTypes";
 
 export async function populateTweetAfterCreation(this: TweetPostThis) {
+	console.log("pop");
+
 	await this.populate<{ origin: TweetDoc }>({
 		path: "origin",
 		populate: { path: "owner", select: "-email" },

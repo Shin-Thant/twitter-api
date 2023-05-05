@@ -2,17 +2,20 @@ import "express-async-errors";
 import express from "express";
 import cookieParser from "cookie-parser";
 import hpp from "hpp";
+import cors from "cors";
 import errorHandler from "../middlewares/errorHandler";
 import authRoutes from "../routes/authRoutes";
 import tweetRoutes from "../routes/tweetRoutes";
 import userRoutes from "../routes/userRoutes";
 import replyRoutes from "../routes/replyRoutes";
 import commentRoutes from "../routes/commentRoutes";
+import corsOptions from "../config/corsOptions";
 
 const app = express();
 
 // middlewares
 app.use(hpp());
+app.use(cors(corsOptions));
 app.use(cookieParser());
 app.use(express.json());
 

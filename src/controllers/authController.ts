@@ -3,7 +3,7 @@ import type { Response, CookieOptions, Request } from "express";
 import AppError from "../config/AppError";
 import createToken from "../lib/createToken";
 import santitizeUserData from "../lib/validateUserCreation";
-import User, { UserSchema } from "../models/User";
+import User from "../models/User";
 import { TypedRequestBody } from "../types/requestTypes";
 import findDuplicateWithUsernameAndEmail from "../util/findDuplicateUser";
 
@@ -23,8 +23,11 @@ export const handleRegister = async (
 	}
 
 	const duplicates = await findDuplicateWithUsernameAndEmail(username, email);
-	if (duplicates.length > 0) {
-		throw new AppError("User already existed with this email!", 400);
+	if (duplicates.duplicateEmail) {
+		throw new AppError("Email already used!", 400);
+	}
+	if (duplicates.duplicateUsername) {
+		throw new AppError("Username already taken!", 400);
 	}
 
 	// *validate user data
@@ -42,15 +45,14 @@ export const handleRegister = async (
 	const encryptedPwd = await bcrypt.hash(password, SALT_ROUNDS);
 	validatedResult.value.password = encryptedPwd;
 
-	const newUserDoc = await User.create({ ...validatedResult.value });
-	if (!newUserDoc) {
+	const newUser = await User.create({ ...validatedResult.value });
+	if (!newUser) {
 		throw new AppError("Something went wrong", 500);
 	}
 
 	// turn document to object
-	const newUser: Partial<UserSchema> = newUserDoc.toObject<UserSchema>(); // to include virtual properties, add `{getters: true}` option
-	delete newUser.password;
-	res.status(201).json(newUser);
+	const user = await User.findById(newUser._id);
+	res.status(201).json(user);
 };
 
 type LoginReqBody = {
@@ -95,7 +97,8 @@ export const handleLogin = async (
 	};
 	res.cookie("accessToken", accessToken, cookieOptions);
 
-	res.json({ status: "success", accessToken });
+	const user = await User.findById(foundUser._id);
+	res.json({ accessToken, user });
 };
 
 export const handleLogout = (req: Request, res: Response) => {
@@ -109,5 +112,5 @@ export const handleLogout = (req: Request, res: Response) => {
 		res.clearCookie("accessToken", cookieOptions);
 	}
 
-	res.json({ status: "success", message: "Logout successfully!" });
+	res.json({ message: "Logout successfully!" });
 };

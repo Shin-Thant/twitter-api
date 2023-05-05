@@ -1,6 +1,7 @@
-import {Router} from "express";
+import { Router } from "express";
 import {
 	deleteUser,
+	getMe,
 	getUserById,
 	searchUsers,
 	updateUserGeneralInfo,
@@ -10,6 +11,9 @@ import verifyJWT from "../middlewares/verifyJWT";
 const router = Router();
 
 router.get("/", searchUsers);
+
+router.get("/me", verifyJWT, getMe);
+
 router
 	.route("/:userId")
 	.get(getUserById)

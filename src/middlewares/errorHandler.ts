@@ -10,19 +10,22 @@ const errorHandler = (
 ) => {
 	// token expired error
 	if (err.name === "TokenExpiredError") {
-		return res.status(401).json(createErrorResponseBody(err, "error"));
+		return res.status(403).json(createErrorResponseBody(err, "error"));
 	}
 
 	// jwt error
 	if (err.name === "JsonWebTokenError") {
-		console.log({ err });
-		return res.status(403).json(createErrorResponseBody(err, "fail"));
+		console.log("invalid!!!");
+
+		const invalidTokenErr = new Error("Invalid token!");
+		return res
+			.status(403)
+			.json(createErrorResponseBody(invalidTokenErr, "error"));
 	}
 
 	// joi validation error
 	if (err.name === "ValidationError") {
 		console.log(err);
-
 		return res.status(400).json(createErrorResponseBody(err, "fail"));
 	}
 

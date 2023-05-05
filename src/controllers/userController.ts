@@ -10,6 +10,14 @@ import {
 } from "../util/validateUserUpdateInput";
 import { isValuesNotNumber } from "../util/isValuesNotNumber";
 
+export const getMe = async (req: Request, res: Response) => {
+	const { user } = req;
+	if (!user) {
+		throw new AppError("No user!", 403);
+	}
+	res.json(user);
+};
+
 type Params = { userId?: string };
 
 type SearchQuery = {
@@ -69,14 +77,14 @@ export const getUserById = async (req: Request<Params>, res: Response) => {
 	res.json(foundUser);
 };
 
-// *update name, email and avatar
+// TODO: test this
 export const updateUserGeneralInfo = async (
 	req: Request<Params, object, UpdateReqBody>,
 	res: Response
 ) => {
-	const { name, email, avatar } = req.body;
+	const { name, avatar } = req.body;
 	const { userId } = req.params;
-	if (!userId || !name || !email) {
+	if (!userId || !name) {
 		throw new AppError("All fields are required!", 400);
 	}
 
@@ -85,7 +93,7 @@ export const updateUserGeneralInfo = async (
 		throw new AppError("Invalid user id!", 400);
 	}
 
-	const inputs = { name, email, avatar: avatar || "" };
+	const inputs = { name, avatar: avatar || "" };
 	const { value, error } = validateUserUpdateInput(inputs);
 	if (error) {
 		throw error;
@@ -104,7 +112,6 @@ export const updateUserGeneralInfo = async (
 
 	// update user
 	user.name = value.name;
-	user.email = value.email;
 	user.avatar = value.avatar;
 	await user.save();
 

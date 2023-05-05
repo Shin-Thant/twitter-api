@@ -8,7 +8,7 @@ import {
 	deleteAllNestedComments,
 	populateCommentAfterCreation,
 	populateCommentRelations,
-} from "../schemaMiddlewares/commentMiddlewares";
+} from "../schemaHelpers/commentHelpers";
 
 const commentSchema = new Schema<
 	CommentSchema,

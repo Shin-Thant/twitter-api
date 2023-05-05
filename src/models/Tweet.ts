@@ -2,7 +2,7 @@ import { Schema, model } from "mongoose";
 import {
 	populateTweetAfterCreation,
 	populateTweetRelations,
-} from "../schemaMiddlewares/tweetMiddlewares";
+} from "../schemaHelpers/tweetHelpers";
 import { TweetModel, TweetQueryHelpers, TweetSchema } from "./types/tweetTypes";
 
 const tweetSchema = new Schema<

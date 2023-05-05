@@ -4,13 +4,14 @@ import { UserSchema } from "../models/User";
 const userSchema = joi.object<UserSchema>({
 	username: joi
 		.string()
+		.max(15)
 		.trim()
 		.required()
 		.error(new Error("Enter valid username!")),
 	name: joi
 		.string()
 		.trim()
-		.max(20)
+		.max(25)
 		.required()
 		.error(new Error("Enter valid name!")),
 	email: joi
