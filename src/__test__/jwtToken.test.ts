@@ -133,7 +133,7 @@ describe("JWT token", () => {
 				runVerifyJWT(mockRequest as Request);
 
 				const arg: JsonWebTokenError = mockFn.mock.calls[0][0];
-				const expectedErr = new JsonWebTokenError("Invalid token!");
+				const expectedErr = new JsonWebTokenError("jwt malformed");
 
 				expect(nextFunction).toHaveBeenCalledWith(expectedErr);
 				expect(arg.name).toBe(expectedErr.name);
@@ -142,7 +142,7 @@ describe("JWT token", () => {
 		});
 
 		describe("given token without payload", () => {
-			it("should return status 403 and `Invalid token!` message", () => {
+			it("should return status 401 and `Unauthorized!` message", () => {
 				const token = jwt.sign({}, getSecretKey("access"));
 
 				mockRequest = {
@@ -153,16 +153,17 @@ describe("JWT token", () => {
 				runVerifyJWT(mockRequest as Request);
 
 				const arg: AppError = mockFn.mock.calls[0][0];
-				const expectedErr = new AppError("Invalid token!", 403);
+				const expectedErr = new AppError("Unauthorized!", 401);
 
 				expect(nextFunction).toHaveBeenCalledWith(expectedErr);
 				expect(arg.statusCode).toBe(expectedErr.statusCode);
+				expect(arg.name).toBe(expectedErr.name);
 				expect(arg.message).toBe(expectedErr.message);
 			});
 		});
 
 		describe("given token with invalid payload", () => {
-			it("should return status 403", () => {
+			it("should return status 401 and `Unauthorized!` message", () => {
 				const token = createToken(
 					{ payload: "invalid payload" },
 					"access"
@@ -174,10 +175,11 @@ describe("JWT token", () => {
 				runVerifyJWT(mockRequest as Request);
 
 				const arg: AppError = mockFn.mock.calls[0][0];
-				const expectedErr = new AppError("Invalid token!", 403);
+				const expectedErr = new AppError("Unauthorized!", 401);
 
 				expect(nextFunction).toHaveBeenCalledWith(expectedErr);
 				expect(arg.statusCode).toBe(expectedErr.statusCode);
+				expect(arg.name).toBe(expectedErr.name);
 				expect(arg.message).toBe(expectedErr.message);
 			});
 		});
@@ -201,7 +203,7 @@ describe("JWT token", () => {
 		});
 
 		describe("given expired token", () => {
-			it("shouold return status 403 and `Token expired!` message", async () => {
+			it("shouold return status 403 and `jwt expired!` message", async () => {
 				const user = await getRandomUser();
 				const token = jwt.sign(
 					{ userInfo: { id: user?._id?.toString() } },
@@ -236,7 +238,7 @@ describe("JWT token", () => {
 				runVerifyJWT(mockRequest as Request);
 
 				const arg: TokenExpiredError = mockFn.mock.calls[0][0];
-				const expectedErr = new JsonWebTokenError("Invalid token!");
+				const expectedErr = new JsonWebTokenError("invalid signature");
 
 				expect(nextFunction).toHaveBeenCalledWith(expectedErr);
 				expect(arg.name).toBe(expectedErr.name);

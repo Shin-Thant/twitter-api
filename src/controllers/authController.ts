@@ -1,11 +1,15 @@
 import bcrypt from "bcrypt";
-import type { Response, CookieOptions, Request } from "express";
+import type { CookieOptions, Request, Response } from "express";
+import jwt from "jsonwebtoken";
 import AppError from "../config/AppError";
-import createToken from "../lib/createToken";
+import createToken, { getSecretKey } from "../lib/createToken";
 import santitizeUserData from "../lib/validateUserCreation";
 import User from "../models/User";
 import { TypedRequestBody } from "../types/requestTypes";
 import findDuplicateWithUsernameAndEmail from "../util/findDuplicateUser";
+import { isJWTPayloadValid } from "../util/jwtVerifyHelpers";
+import verifyToken from "../lib/verifyToken";
+import { isValidObjectId } from "mongoose";
 
 type RegisterReqBody = {
 	username?: string;
@@ -73,7 +77,7 @@ export const handleLogin = async (
 		.lean()
 		.exec();
 	if (!foundUser) {
-		throw new AppError("Invalid email or password!", 400);
+		throw new AppError("Invalid email!", 400);
 	}
 
 	const isPasswordMatched = await bcrypt.compare(
@@ -88,18 +92,64 @@ export const handleLogin = async (
 		userInfo: { id: foundUser._id.toString() },
 	};
 	const accessToken = createToken(payload, "access");
+	const refreshToken = createToken(payload, "refresh");
 
+	const maxAgeInMilliseconds = 7 * 24 * 60 * 60 * 1000; // 7 days
 	const cookieOptions: CookieOptions = {
 		httpOnly: true,
-		maxAge: 15 * 60 * 1000,
+		maxAge: maxAgeInMilliseconds,
 		sameSite: "strict",
 		secure: true,
 	};
-	res.cookie("accessToken", accessToken, cookieOptions);
+	res.cookie("token", refreshToken, cookieOptions);
 
 	const user = await User.findById(foundUser._id);
 	res.json({ accessToken, user });
 };
+
+// TODO: test this
+// TODO: refactor this
+export const handleRefreshToken = async (req: Request, res: Response) => {
+	const cookies = req.cookies;
+
+	if (!isCookieValid(cookies)) {
+		console.log("cookie error");
+		throw new AppError("Unauthorized!", 401);
+	}
+
+	const refreshToken = cookies.token;
+	const secretKey = getSecretKey("refresh");
+	const payload = verifyToken(refreshToken, secretKey);
+
+	const userId = payload.userInfo.id;
+	if (!isValidObjectId(userId)) {
+		throw new AppError("Unauthorized!", 401);
+	}
+	const foundUser = await User.findById(userId).lean().exec();
+
+	if (!foundUser) {
+		console.log("user not found!");
+		throw new AppError("Unauthorized!", 401);
+	}
+
+	// Caution: Don't use `payload` received from verification for new access token's payload. It will cause error.
+	const accessToken = createToken(
+		{ userInfo: { id: foundUser._id.toString() } },
+		"access"
+	);
+	res.json({ accessToken });
+};
+
+type ValidCookie = { token: string };
+function isCookieValid(cookies: unknown): cookies is ValidCookie {
+	return (
+		!!cookies &&
+		typeof cookies === "object" &&
+		"token" in cookies &&
+		typeof cookies.token === "string" &&
+		!!cookies.token
+	);
+}
 
 export const handleLogout = (req: Request, res: Response) => {
 	const cookies = req.cookies;
@@ -109,7 +159,7 @@ export const handleLogout = (req: Request, res: Response) => {
 			sameSite: "strict",
 			secure: true,
 		};
-		res.clearCookie("accessToken", cookieOptions);
+		res.clearCookie("token", cookieOptions);
 	}
 
 	res.json({ message: "Logout successfully!" });

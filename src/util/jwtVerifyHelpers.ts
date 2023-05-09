@@ -6,7 +6,7 @@ export interface ValidPayload {
 	};
 }
 export function isJWTPayloadValid(
-	payload?: string | JwtPayload
+	payload: string | JwtPayload | undefined
 ): payload is ValidPayload {
 	return (
 		!!payload &&
@@ -14,15 +14,5 @@ export function isJWTPayloadValid(
 		"userInfo" in payload &&
 		typeof payload.userInfo === "object" &&
 		"id" in payload.userInfo
-	);
-}
-
-export function isValidBearerToken(
-	bearerToken?: string | string[]
-): bearerToken is string {
-	return (
-		!!bearerToken &&
-		!Array.isArray(bearerToken) &&
-		bearerToken.startsWith("Bearer ")
 	);
 }

@@ -13,7 +13,7 @@ import { isValuesNotNumber } from "../util/isValuesNotNumber";
 export const getMe = async (req: Request, res: Response) => {
 	const { user } = req;
 	if (!user) {
-		throw new AppError("No user!", 403);
+		throw new AppError("No user!", 400);
 	}
 	res.json(user);
 };

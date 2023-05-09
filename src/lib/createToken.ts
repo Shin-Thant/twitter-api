@@ -1,6 +1,10 @@
 import jwt from "jsonwebtoken";
 import AppError from "../config/AppError";
 
+type TokenType = "access" | "refresh";
+
+// TODO: write test that check payload is a object containing `userInfo: {id: string}`
+
 const createToken = (payload: object, tokenType: TokenType): string => {
 	if (Object.keys(payload).length < 1) {
 		throw new AppError("Invalid jwt payload!", 500);
@@ -18,7 +22,6 @@ const createToken = (payload: object, tokenType: TokenType): string => {
 	});
 };
 
-type TokenType = "access" | "refresh";
 export const getSecretKey = (tokenType: TokenType): string => {
 	if (tokenType === "access") {
 		return (

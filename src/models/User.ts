@@ -42,7 +42,6 @@ const userSchema = new Schema<UserSchema>({
 	},
 	avatar: {
 		type: String,
-		// reuired: [true, "User avatar is required!"],
 	},
 });
 
