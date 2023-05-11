@@ -1,20 +1,24 @@
 import { Request, Response } from "express";
 import AppError from "../config/AppError";
+import isObjectId from "../lib/isObjectId";
 import PaginationImpl from "../lib/pagination";
 import User from "../models/User";
 import { TypedRequestQuery } from "../types/requestTypes";
+import { isValuesNotNumber } from "../util/isValuesNotNumber";
 import PaginationHelperImpl from "../util/paginationHelper";
 import {
 	UpdateReqBody,
 	validateUserUpdateInput,
 } from "../util/validateUserUpdateInput";
-import { isValuesNotNumber } from "../util/isValuesNotNumber";
+import { UserDoc } from "../models/types/userTypes";
 
 export const getMe = async (req: Request, res: Response) => {
 	const { user } = req;
 	if (!user) {
 		throw new AppError("No user!", 400);
 	}
+	await user.populate({ path: "following", select: "-following" });
+	await user.populate({ path: "followers", select: "-following" });
 	res.json(user);
 };
 
@@ -54,6 +58,7 @@ export const searchUsers = async (
 	);
 
 	const users = await User.find(QUERY_FILTER)
+		.select("-following")
 		.limit(userPagination.itemsPerPage)
 		.skip(userPagination.skip)
 		.sort("name")
@@ -69,7 +74,10 @@ export const getUserById = async (req: Request<Params>, res: Response) => {
 		return;
 	}
 
-	const foundUser = await User.findOne({ _id: userId }).lean().exec();
+	const foundUser = await User.findOne({ _id: userId })
+		.select("-following")
+		.lean()
+		.exec();
 	if (!foundUser) {
 		throw new AppError("User not found!", 400);
 	}
@@ -77,7 +85,108 @@ export const getUserById = async (req: Request<Params>, res: Response) => {
 	res.json(foundUser);
 };
 
-// TODO: test this
+export const getUserFollowing = async (req: Request<Params>, res: Response) => {
+	const { userId } = req.params;
+	if (!userId) {
+		throw new AppError("User ID is required!", 400);
+	}
+
+	const foundUser = await User.findById(userId)
+		.populate<{ following: UserDoc[] }>({
+			path: "following",
+			select: "-following",
+		})
+		.exec();
+	if (!foundUser) {
+		throw new AppError("Invalid ID!", 400);
+	}
+
+	res.json(foundUser.following);
+};
+
+export const getUserFollowers = async (req: Request<Params>, res: Response) => {
+	const { userId } = req.params;
+	if (!userId) {
+		throw new AppError("User ID is required!", 400);
+	}
+
+	const foundUser = await User.findById(userId)
+		.populate<{ followers: UserDoc[] }>("followers")
+		.exec();
+	if (!foundUser) {
+		throw new AppError("Invalid ID!", 400);
+	}
+
+	res.json(foundUser.followers);
+};
+
+type FollowParam = {
+	userId?: string;
+};
+export const followUser = async (req: Request<FollowParam>, res: Response) => {
+	const { user: currentUser } = req;
+	const { userId } = req.params;
+
+	if (!currentUser || !userId) {
+		throw new AppError("All fields are required!", 400);
+	}
+
+	const foundUser = await validateFollowId(
+		currentUser._id.toString(),
+		userId
+	);
+
+	if (currentUser.following.indexOf(userId) !== -1) {
+		throw new AppError("Already followed!", 400);
+	}
+
+	// updates
+	currentUser.following.push(userId);
+	currentUser.counts.following += 1;
+	await currentUser.save();
+
+	foundUser.counts.followers += 1;
+	await foundUser.save();
+
+	res.json({ message: `Followed ${foundUser.username}!` });
+};
+
+export const unfollowUser = async (
+	req: Request<FollowParam>,
+	res: Response
+) => {
+	const { user } = req;
+	const { userId } = req.params;
+	if (!user || !userId) {
+		throw new AppError("All fields are required!", 400);
+	}
+
+	const foundUser = await validateFollowId(user._id.toString(), userId);
+
+	const index = user.following.indexOf(userId);
+	if (index === -1) {
+		throw new AppError("Invalid user!", 400);
+	}
+
+	user.following.splice(index, index + 1);
+	await user.save();
+	res.json({ message: `Unfollowed ${foundUser.username}!` });
+};
+
+async function validateFollowId(loginedUserId: string, userId: string) {
+	if (!isObjectId(userId)) {
+		throw new AppError("Invalid user!", 400);
+	}
+	if (loginedUserId === userId) {
+		throw new AppError("Bad request!", 400);
+	}
+	const foundUser = await User.findById(userId).exec();
+	if (!foundUser) {
+		throw new AppError("Invalid user!", 400);
+	}
+	return foundUser;
+}
+
 export const updateUserGeneralInfo = async (
 	req: Request<Params, object, UpdateReqBody>,
 	res: Response
@@ -130,5 +239,13 @@ export const deleteUser = async (req: Request<Params>, res: Response) => {
 	}
 
 	await user.deleteOne();
+
+	// TODO: test this work
+	const result = await User.updateMany(
+		{ _id: { $in: user.following } },
+		{ $inc: { "counts.followers": -1 } }
+	).exec();
+	console.log(result);
+
 	res.json({ message: "User deleted successfully!" });
 };

@@ -1,15 +1,13 @@
 import bcrypt from "bcrypt";
 import type { CookieOptions, Request, Response } from "express";
-import jwt from "jsonwebtoken";
 import AppError from "../config/AppError";
 import createToken, { getSecretKey } from "../lib/createToken";
 import santitizeUserData from "../lib/validateUserCreation";
 import User from "../models/User";
 import { TypedRequestBody } from "../types/requestTypes";
 import findDuplicateWithUsernameAndEmail from "../util/findDuplicateUser";
-import { isJWTPayloadValid } from "../util/jwtVerifyHelpers";
 import verifyToken from "../lib/verifyToken";
-import { isValidObjectId } from "mongoose";
+import isObjectId from "../lib/isObjectId";
 
 type RegisterReqBody = {
 	username?: string;
@@ -54,8 +52,10 @@ export const handleRegister = async (
 		throw new AppError("Something went wrong", 500);
 	}
 
-	// turn document to object
-	const user = await User.findById(newUser._id);
+	const user = await User.findById(newUser._id)
+		.select(["-following", "-followers"])
+		.lean()
+		.exec();
 	res.status(201).json(user);
 };
 
@@ -103,7 +103,10 @@ export const handleLogin = async (
 	};
 	res.cookie("token", refreshToken, cookieOptions);
 
-	const user = await User.findById(foundUser._id);
+	const user = await User.findById(foundUser._id)
+		.populate("followers")
+		.lean()
+		.exec();
 	res.json({ accessToken, user });
 };
 
@@ -122,7 +125,7 @@ export const handleRefreshToken = async (req: Request, res: Response) => {
 	const payload = verifyToken(refreshToken, secretKey);
 
 	const userId = payload.userInfo.id;
-	if (!isValidObjectId(userId)) {
+	if (!isObjectId(userId)) {
 		throw new AppError("Unauthorized!", 401);
 	}
 	const foundUser = await User.findById(userId).lean().exec();

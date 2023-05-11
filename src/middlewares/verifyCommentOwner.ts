@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import AppError from "../config/AppError";
 import Comment from "../models/Comment";
 import { CommentParams } from "../controllers/commentController";
-import { isValidObjectId } from "mongoose";
+import isObjectId from "../lib/isObjectId";
 
 const verifyCommentOwner = async (
 	req: Request<CommentParams>,
@@ -18,7 +18,7 @@ const verifyCommentOwner = async (
 	if (!commentId) {
 		throw new AppError("Comment ID is requried!", 400);
 	}
-	if (!isValidObjectId(commentId)) {
+	if (!isObjectId(commentId)) {
 		throw new AppError("Invalid ID!", 400);
 	}
 

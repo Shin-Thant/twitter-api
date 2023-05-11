@@ -1,7 +1,6 @@
-/* eslint-disable no-mixed-spaces-and-tabs */
 import { Request } from "express";
 import { HydratedDocument } from "mongoose";
-import { UserSchema } from "../models/User";
+import { UserSchema } from "../models/types/userTypes";
 import { TweetSchema } from "../models/types/tweetTypes";
 import { CommentSchema } from "../models/types/commentTypes";
 

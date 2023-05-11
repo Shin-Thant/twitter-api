@@ -13,13 +13,13 @@ dotenv.config();
 connectDB();
 
 // start server
+const PORT: number = 3500 || process.env.PORT;
 mongoose.connection.once("open", () => {
 	console.log("✨ Successfully connected to MongoDB!");
-});
 
-const PORT: number = 3500 || process.env.PORT;
-app.listen(PORT, () => {
-	console.log(`Server listening on port ${PORT}!`);
+	app.listen(PORT, () => {
+		console.log(`Server listening on port ${PORT}!`);
+	});
 });
 
 mongoose.connection.on("error", (err: MongooseError) => {

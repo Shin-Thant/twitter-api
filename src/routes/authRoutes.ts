@@ -11,6 +11,7 @@ const router = Router();
 
 // *limit auth requests
 const REMEMBER_TIME_IN_MILLISECONDS = 15 * 60 * 1000;
+// TODO: apply this middleware only a few of routes. not all.
 // router.use(rateLimiter(3, REMEMBER_TIME_IN_MILLISECONDS));
 
 router.post("/register", handleRegister);

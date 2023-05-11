@@ -1,7 +1,9 @@
 import joi from "joi";
-import { UserSchema } from "../models/User";
+import { UserSchema } from "../models/types/userTypes";
 
-const userSchema = joi.object<UserSchema>({
+type NewUser = Omit<UserSchema, "following" | "followers" | "counts">;
+
+const userSchema = joi.object<NewUser>({
 	username: joi
 		.string()
 		.max(15)
@@ -29,7 +31,7 @@ const userSchema = joi.object<UserSchema>({
 	avatar: joi.string().trim().error(new Error("Enter valid avatar!")),
 });
 
-const santitizeUserData = (user: UserSchema) => {
+const santitizeUserData = (user: NewUser) => {
 	return userSchema.validate(user);
 };
 
