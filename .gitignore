@@ -2,8 +2,6 @@ node_modules
 
 .env
 
-dist
-
 progress.md
 
 db_playground.mongodb
