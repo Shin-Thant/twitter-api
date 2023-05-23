@@ -159,7 +159,7 @@ export const handleLogout = (req: Request, res: Response) => {
 	if (cookies) {
 		const cookieOptions: CookieOptions = {
 			httpOnly: true,
-			sameSite: "strict",
+			sameSite: "none",
 			secure: true,
 		};
 		res.clearCookie("token", cookieOptions);
