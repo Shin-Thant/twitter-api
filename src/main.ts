@@ -1,6 +1,5 @@
 process.on("uncaughtException", (err) => {
-	console.log("Uncaught Exception!", { err }); // development only
-	// console.log("Uncaught Exception!"); // production
+	console.log("Uncaught Exception!"); // production
 	console.log("Shutting down...");
 	process.exit(1);
 });
@@ -27,8 +26,7 @@ mongoose.connection.once("open", () => {
 });
 
 mongoose.connection.on("error", (err: MongooseError) => {
-	console.log({ name: err.name, message: err.message }); // development only
-	// console.log("db err!"); // production
+	console.log("db err!"); // production
 	console.log("Shutting down...");
 	server.close(() => {
 		process.exit(1);
@@ -43,8 +41,7 @@ mongoose.connection.on("disconnected", () => {
 });
 
 process.on("unhandledRejection", (err) => {
-	console.log("Unhandled Rejection!", { err }); // development only
-	// console.log("Unhandled Rejection!"); // production
+	console.log("Unhandled Rejection!"); // production
 	console.log("Shutting down...");
 	server.close(() => {
 		process.exit(1);
