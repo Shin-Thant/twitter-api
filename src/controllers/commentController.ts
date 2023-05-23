@@ -1,5 +1,4 @@
 import { Request, Response } from "express";
-import { isValidObjectId } from "mongoose";
 import { TypedRequestBody } from "../types/requestTypes";
 import { TweetParams } from "./tweetController";
 import AppError from "../config/AppError";
@@ -7,6 +6,7 @@ import santitizeCommentData from "../lib/validateCommentCreation";
 import Comment from "../models/Comment";
 import Tweet from "../models/Tweet";
 import { LeanTweet } from "../models/types/tweetTypes";
+import isObjectId from "../lib/isObjectId";
 
 //* test route
 export const getAllComments = async (req: Request, res: Response) => {
@@ -49,7 +49,7 @@ export const addNewComment = async (
 		throw new AppError("All fields are required!", 400);
 	}
 
-	if (!isValidObjectId(tweetId)) {
+	if (!isObjectId(tweetId)) {
 		throw new AppError("Invalid Tweet ID!", 400);
 	}
 	const foundTweet = await Tweet.findById(tweetId).lean<LeanTweet>().exec();

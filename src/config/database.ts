@@ -1,8 +1,8 @@
 import mongoose from "mongoose";
 
 export async function connectDB() {
-	// await connect(process.env.DATABASE_URI);
-	await mongoose.connect("mongodb://127.0.0.1:27017/Twitter");
+	await mongoose.connect(process.env.DATABASE_URI);
+	// await mongoose.connect(process.env.LOCAL_DATABASE_URI);
 }
 
 export async function disconnectDB() {

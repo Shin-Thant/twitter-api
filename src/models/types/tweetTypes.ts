@@ -5,7 +5,7 @@ import {
 	QueryWithHelpers,
 	Types,
 } from "mongoose";
-import { LeanUser, UserRef } from "../User";
+import { LeanUser, UserRef } from "./userTypes";
 import { CommentRef, LeanComment } from "./commentTypes";
 
 export type TweetSchema = {

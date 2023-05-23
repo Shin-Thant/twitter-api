@@ -7,7 +7,7 @@ import {
 } from "../models/types/commentTypes";
 import { CallbackWithoutResultAndOptionalError } from "mongoose";
 import Comment from "../models/Comment";
-import { UserDoc } from "../models/User";
+import { UserDoc } from "../models/types/userTypes";
 
 export async function populateCommentAfterCreation(this: CommentPostThis) {
 	await this.populate({ path: "creator", select: "-email" });

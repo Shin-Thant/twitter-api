@@ -9,6 +9,8 @@ const errorHandler = (
 	_next: NextFunction
 ) => {
 	if (err.name === "CastError") {
+		console.log({ err });
+
 		const badRequest = new Error("Bad Request!");
 		return res
 			.status(400)

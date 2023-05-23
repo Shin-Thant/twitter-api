@@ -5,7 +5,7 @@ import {
 	QueryWithHelpers,
 	Types,
 } from "mongoose";
-import { LeanUser, UserRef } from "../User";
+import { LeanUser, UserRef } from "./userTypes";
 
 export type CommentSchema = {
 	body: string;

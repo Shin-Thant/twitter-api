@@ -4,7 +4,9 @@
 	"description": "",
 	"main": "./dist/main.js",
 	"scripts": {
-		"dev": "concurrently \"tsc -w\" \"nodemon -q -w dist dist/main.js",
+		"start": "node ./dist/main.js",
+		"build": "tsc",
+		"dev": "concurrently \"tsc -w\" \"nodemon -q -w dist dist/main.js\"",
 		"test": "jest --detectOpenHandles"
 	},
 	"keywords": [],

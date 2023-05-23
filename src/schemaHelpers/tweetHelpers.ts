@@ -1,4 +1,4 @@
-import { UserDoc } from "../models/User";
+import { UserDoc } from "../models/types/userTypes";
 import {
 	TweetPostThis,
 	TweetDoc,
