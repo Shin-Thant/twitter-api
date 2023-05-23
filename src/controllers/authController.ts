@@ -98,7 +98,7 @@ export const handleLogin = async (
 	const cookieOptions: CookieOptions = {
 		httpOnly: true,
 		maxAge: maxAgeInMilliseconds,
-		sameSite: "strict",
+		sameSite: "none",
 		secure: true,
 	};
 	res.cookie("token", refreshToken, cookieOptions);
