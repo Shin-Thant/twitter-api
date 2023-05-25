@@ -152,7 +152,7 @@ describe("Comment Middlewares", () => {
 			});
 
 			describe("given wrong owner", () => {
-				it("should throw status 400 and AppError", async () => {
+				it("should throw status 401 and AppError", async () => {
 					const user = await getRandomUser();
 					if (!user) {
 						return;

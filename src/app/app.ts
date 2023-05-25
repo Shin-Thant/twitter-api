@@ -1,5 +1,6 @@
 import "express-async-errors";
 import express from "express";
+import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
 import hpp from "hpp";
 import cors from "cors";
@@ -11,6 +12,7 @@ import replyRoutes from "../routes/replyRoutes";
 import commentRoutes from "../routes/commentRoutes";
 import corsOptions from "../config/corsOptions";
 
+dotenv.config();
 const app = express();
 
 // middlewares
