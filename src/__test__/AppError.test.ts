@@ -45,7 +45,6 @@ describe("AppError when called", () => {
 		it("should return error response object", () => {
 			const returnValue = {
 				status: "fail",
-				name: "AppError",
 				message: "app error",
 			} as const;
 

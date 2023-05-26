@@ -82,7 +82,7 @@ export const handleLogin = async (
 		.lean()
 		.exec();
 	if (!foundUser) {
-		throw new AppError("Invalid email!", 400);
+		throw new AppError("Invalid email or password!", 400);
 	}
 
 	const isPasswordMatched = await bcrypt.compare(
@@ -90,7 +90,7 @@ export const handleLogin = async (
 		foundUser.password
 	);
 	if (!isPasswordMatched) {
-		throw new AppError("Wrong Password!", 400);
+		throw new AppError("Invalid email or password!", 400);
 	}
 
 	const payload = {

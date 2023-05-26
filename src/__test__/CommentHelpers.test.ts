@@ -53,7 +53,6 @@ describe("Comment Middlewares", () => {
 
 					expect(body).toEqual({
 						status: "error",
-						name: "Error",
 						message: "something",
 					});
 				});
@@ -114,7 +113,6 @@ describe("Comment Middlewares", () => {
 
 				expect(body).toEqual({
 					status: "error",
-					name: "Error",
 					message: "something",
 				});
 			});
@@ -145,7 +143,6 @@ describe("Comment Middlewares", () => {
 
 					expect(body).toEqual({
 						status: "fail",
-						name: "AppError",
 						message: "Invalid ID!",
 					});
 				});
@@ -171,7 +168,6 @@ describe("Comment Middlewares", () => {
 
 					expect(body).toEqual({
 						status: "fail",
-						name: "AppError",
 						message: "Unauthorized!",
 					});
 				});

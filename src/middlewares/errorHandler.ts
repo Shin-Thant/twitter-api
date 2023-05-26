@@ -4,7 +4,7 @@ import createErrorResponseBody from "../util/createErrorResponseBody";
 
 const errorHandler = (
 	err: Error | AppError,
-	req: Request,
+	_req: Request,
 	res: Response,
 	_next: NextFunction
 ) => {
@@ -14,7 +14,7 @@ const errorHandler = (
 		const badRequest = new Error("Bad Request!");
 		return res
 			.status(400)
-			.json(createErrorResponseBody(badRequest, "error"));
+			.json(createErrorResponseBody(badRequest, "fail"));
 	}
 
 	// token expired error
@@ -28,13 +28,10 @@ const errorHandler = (
 	// jwt error
 	if (err.name === "JsonWebTokenError") {
 		console.log("invalid!!!");
-		const invalidTokenErr = new AppError(
-			"Unauthorized!",
-			401
-		).createAppErrorResponseBody();
+		const invalidTokenErr = new AppError("Unauthorized!", 401);
 		return res
 			.status(401)
-			.json(createErrorResponseBody(invalidTokenErr, "fail"));
+			.json(invalidTokenErr.createAppErrorResponseBody());
 	}
 
 	// joi validation error

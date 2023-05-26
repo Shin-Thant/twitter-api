@@ -42,7 +42,6 @@ describe("Tweet Helpers and Middlewares", () => {
 
 					expect(body).toEqual({
 						status: "error",
-						name: "Error",
 						message: "Something!",
 					});
 				});

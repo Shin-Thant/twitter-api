@@ -4,7 +4,6 @@ process.on("uncaughtException", () => {
 	process.exit(1);
 });
 
-import "express-async-errors";
 import mongoose from "mongoose";
 import app from "./app/app";
 import { connectDB } from "./config/database";
