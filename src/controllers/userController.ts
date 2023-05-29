@@ -50,12 +50,12 @@ export const searchUsers = async (
 
 	const totalUsers = await User.countDocuments(QUERY_FILTER);
 
-	const userPagination = new PaginationImpl(
-		parseInt(itemsPerPage),
-		parseInt(currentPage),
-		totalUsers,
-		new PaginationHelperImpl()
-	);
+	const userPagination = new PaginationImpl({
+		itemsPerPage: parseInt(itemsPerPage),
+		currentPage: parseInt(currentPage),
+		totalDocs: totalUsers,
+		helper: new PaginationHelperImpl(),
+	});
 
 	const users = await User.find(QUERY_FILTER)
 		.select("-following")

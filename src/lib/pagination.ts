@@ -1,13 +1,12 @@
-import AppError from "../config/AppError";
 import { PaginationHelper } from "../util/paginationHelper";
 
 export interface PaginationResult<T> {
 	totalPages: number;
 	totalDocs: number;
 	hasNextPage: boolean;
-	hasPrevpage: boolean;
+	hasPrevPage: boolean;
 	currentPage: number;
-	limit: number;
+	itemsPerPage: number;
 	data: T;
 }
 
@@ -20,6 +19,12 @@ interface IPagination {
 	createPaginationResult<T extends []>(results: T): PaginationResult<T>;
 }
 
+export type ConstructorParam = {
+	itemsPerPage: number;
+	currentPage: number;
+	totalDocs: number;
+	helper: PaginationHelper;
+};
 export default class PaginationImpl implements IPagination {
 	public currentPage: number;
 	public totalPages: number;
@@ -27,42 +32,35 @@ export default class PaginationImpl implements IPagination {
 	public itemsPerPage: number;
 	public skip: number;
 
-	constructor(
-		itemsPerPage: number,
-		currentPage: number,
-		totalDocuments: number,
-		helper: PaginationHelper
-	) {
-		this.totalDocs = totalDocuments < 0 ? 0 : totalDocuments;
+	constructor({
+		itemsPerPage,
+		currentPage,
+		totalDocs,
+		helper,
+	}: ConstructorParam) {
+		this.totalDocs = totalDocs < 0 ? 0 : totalDocs;
 		this.itemsPerPage = helper.validateItemsPerPage(itemsPerPage);
-		this.currentPage = helper.validateCurrentPageNumber(currentPage);
 		this.totalPages = helper.calculateTotalPages(
 			this.totalDocs,
 			this.itemsPerPage
 		);
+		this.currentPage = helper.validateCurrentPageNumber(
+			currentPage,
+			this.totalPages
+		);
 		this.skip = (this.currentPage - 1) * this.itemsPerPage;
-
-		// *test logs
-		// console.log({
-		// 	itemsPerPage: this.itemsPerPage,
-		// 	totalPages: this.totalPages,
-		// 	currentPage: this.currentPage,
-		// 	skip: this.skip,
-		// });
 	}
 
-	public createPaginationResult<T>(result: T): PaginationResult<T> {
-		if (!Array.isArray(result)) {
-			throw new AppError("Data must be array!", 500);
-		}
-
+	public createPaginationResult<T extends []>(
+		result: T
+	): PaginationResult<T> {
 		return {
 			totalPages: this.totalPages,
 			totalDocs: this.totalDocs,
-			hasNextPage: this.currentPage !== this.totalPages,
-			hasPrevpage: this.currentPage !== 1,
+			hasNextPage: this.currentPage < this.totalPages,
+			hasPrevPage: this.currentPage > 1,
 			currentPage: this.currentPage,
-			limit: this.itemsPerPage,
+			itemsPerPage: this.itemsPerPage,
 			data: result,
 		};
 	}

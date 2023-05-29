@@ -31,19 +31,17 @@ export const getTweets = async (
 
 	const totalTweets = await Tweet.countDocuments({});
 
-	const pagination = new PaginationImpl(
-		parseInt(itemsPerPage),
-		parseInt(currentPage),
-		totalTweets,
-		new PaginationHelperImpl()
-	);
+	const pagination = new PaginationImpl({
+		itemsPerPage: parseInt(itemsPerPage),
+		currentPage: parseInt(currentPage),
+		totalDocs: totalTweets,
+		helper: new PaginationHelperImpl(),
+	});
 
 	const tweets = await Tweet.find()
 		.populateRelations()
-		.limit(pagination.itemsPerPage)
-		.skip(pagination.skip)
+		.limit(pagination.itemsPerPage * pagination.currentPage)
 		.sort("-createdAt")
-		.lean<LeanTweet[]>()
 		.exec();
 
 	res.json(pagination.createPaginationResult<typeof tweets>(tweets));
