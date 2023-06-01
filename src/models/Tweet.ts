@@ -5,6 +5,8 @@ import {
 } from "../schemaHelpers/tweetHelpers";
 import { TweetModel, TweetQueryHelpers, TweetSchema } from "./types/tweetTypes";
 
+// TODO: update model to add shares count
+
 const tweetSchema = new Schema<
 	TweetSchema,
 	TweetModel,
@@ -32,6 +34,10 @@ const tweetSchema = new Schema<
 				ref: "User",
 			},
 		],
+		shares: {
+			type: Number,
+			default: 0,
+		},
 	},
 	{
 		timestamps: true,

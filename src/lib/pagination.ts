@@ -1,3 +1,5 @@
+import { TweetSchema } from "../models/types/tweetTypes";
+import { UserSchema } from "../models/types/userTypes";
 import { PaginationHelper } from "../util/paginationHelper";
 
 export interface PaginationResult<T> {
@@ -16,7 +18,9 @@ interface IPagination {
 	itemsPerPage: number;
 	skip: number;
 
-	createPaginationResult<T extends []>(results: T): PaginationResult<T>;
+	createPaginationResult<T extends (UserSchema | TweetSchema)[]>(
+		results: T
+	): PaginationResult<T>;
 }
 
 export type ConstructorParam = {
@@ -51,7 +55,7 @@ export default class PaginationImpl implements IPagination {
 		this.skip = (this.currentPage - 1) * this.itemsPerPage;
 	}
 
-	public createPaginationResult<T extends []>(
+	public createPaginationResult<T extends (UserSchema | TweetSchema)[]>(
 		result: T
 	): PaginationResult<T> {
 		return {

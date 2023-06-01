@@ -4,4 +4,4 @@ node_modules
 
 progress.md
 
-db_playground.mongodb
+*.mongodb

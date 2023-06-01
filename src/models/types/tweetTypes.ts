@@ -14,6 +14,7 @@ export type TweetSchema = {
 	body?: string;
 	origin?: TweetRef;
 	likes?: UserRef[];
+	shares: number;
 	comments?: CommentRef[];
 };
 

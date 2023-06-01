@@ -129,7 +129,8 @@ export const handleRefreshToken = async (req: Request, res: Response) => {
 	const foundUser = await User.findById(userId).lean().exec();
 
 	if (!foundUser) {
-		console.log("user not found!");
+		console.log("refresh: user not found!");
+		clearTokenCookie(res);
 		throw new AppError("Unauthorized!", 401);
 	}
 
