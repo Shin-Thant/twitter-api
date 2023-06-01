@@ -1,7 +1,7 @@
 import Joi from "joi";
 import { TweetSchema } from "../models/types/tweetTypes";
 
-type Overrides = "origin" | "likes" | "comments" | "owner";
+type Overrides = "origin" | "likes" | "comments" | "owner" | "shares";
 interface IBasicTweet extends Omit<TweetSchema, Overrides> {
 	body?: string;
 	owner: string;

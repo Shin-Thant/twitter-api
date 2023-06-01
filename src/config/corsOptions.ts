@@ -1,6 +1,11 @@
 import { CorsOptions } from "cors";
 
-const allowedOrigins = ["http://localhost:3000", "http://localhost:5173", 'https://twitter-app-client-nzb1q862c-shin-thant.vercel.app'];
+const allowedOrigins = [
+	"http://192.168.99.99:5173",
+	"http://localhost:3000",
+	"http://localhost:5173",
+	"https://twitter-app-client-nzb1q862c-shin-thant.vercel.app",
+];
 
 const corsOptions: CorsOptions = {
 	origin(origin, cb) {
