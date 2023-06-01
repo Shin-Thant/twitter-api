@@ -1,13 +1,18 @@
 import bcrypt from "bcrypt";
-import type { CookieOptions, Request, Response } from "express";
+import type { Request, Response } from "express";
 import AppError from "../config/AppError";
 import createToken, { getSecretKey } from "../lib/createToken";
+import {
+	clearTokenCookie,
+	isValidCookie,
+	setTokenCookie,
+} from "../lib/handleTokenCookie";
+import isObjectId from "../lib/isObjectId";
 import santitizeUserData from "../lib/validateUserCreation";
+import verifyToken from "../lib/verifyToken";
 import User from "../models/User";
 import { TypedRequestBody } from "../types/requestTypes";
 import findDuplicateWithUsernameAndEmail from "../util/findDuplicateUser";
-import verifyToken from "../lib/verifyToken";
-import isObjectId from "../lib/isObjectId";
 
 type RegisterReqBody = {
 	username?: string;
@@ -77,7 +82,7 @@ export const handleLogin = async (
 		.lean()
 		.exec();
 	if (!foundUser) {
-		throw new AppError("Invalid email!", 400);
+		throw new AppError("Invalid email or password!", 400);
 	}
 
 	const isPasswordMatched = await bcrypt.compare(
@@ -85,7 +90,7 @@ export const handleLogin = async (
 		foundUser.password
 	);
 	if (!isPasswordMatched) {
-		throw new AppError("Wrong Password!", 400);
+		throw new AppError("Invalid email or password!", 400);
 	}
 
 	const payload = {
@@ -94,14 +99,7 @@ export const handleLogin = async (
 	const accessToken = createToken(payload, "access");
 	const refreshToken = createToken(payload, "refresh");
 
-	const maxAgeInMilliseconds = 7 * 24 * 60 * 60 * 1000; // 7 days
-	const cookieOptions: CookieOptions = {
-		httpOnly: true,
-		maxAge: maxAgeInMilliseconds,
-		sameSite: "none",
-		secure: true,
-	};
-	res.cookie("token", refreshToken, cookieOptions);
+	setTokenCookie(res, refreshToken);
 
 	const user = await User.findById(foundUser._id)
 		.populate("followers")
@@ -115,7 +113,7 @@ export const handleLogin = async (
 export const handleRefreshToken = async (req: Request, res: Response) => {
 	const cookies = req.cookies;
 
-	if (!isCookieValid(cookies)) {
+	if (!isValidCookie(cookies)) {
 		console.log("cookie error");
 		throw new AppError("Unauthorized!", 401);
 	}
@@ -143,26 +141,10 @@ export const handleRefreshToken = async (req: Request, res: Response) => {
 	res.json({ accessToken });
 };
 
-type ValidCookie = { token: string };
-function isCookieValid(cookies: unknown): cookies is ValidCookie {
-	return (
-		!!cookies &&
-		typeof cookies === "object" &&
-		"token" in cookies &&
-		typeof cookies.token === "string" &&
-		!!cookies.token
-	);
-}
-
 export const handleLogout = (req: Request, res: Response) => {
 	const cookies = req.cookies;
 	if (cookies) {
-		const cookieOptions: CookieOptions = {
-			httpOnly: true,
-			sameSite: "none",
-			secure: true,
-		};
-		res.clearCookie("token", cookieOptions);
+		clearTokenCookie(res);
 	}
 
 	res.json({ message: "Logout successfully!" });

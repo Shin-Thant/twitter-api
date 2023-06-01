@@ -53,7 +53,6 @@ describe("Comment Middlewares", () => {
 
 					expect(body).toEqual({
 						status: "error",
-						name: "Error",
 						message: "something",
 					});
 				});
@@ -114,7 +113,6 @@ describe("Comment Middlewares", () => {
 
 				expect(body).toEqual({
 					status: "error",
-					name: "Error",
 					message: "something",
 				});
 			});
@@ -145,14 +143,13 @@ describe("Comment Middlewares", () => {
 
 					expect(body).toEqual({
 						status: "fail",
-						name: "AppError",
 						message: "Invalid ID!",
 					});
 				});
 			});
 
 			describe("given wrong owner", () => {
-				it("should throw status 400 and AppError", async () => {
+				it("should throw status 401 and AppError", async () => {
 					const user = await getRandomUser();
 					if (!user) {
 						return;
@@ -171,7 +168,6 @@ describe("Comment Middlewares", () => {
 
 					expect(body).toEqual({
 						status: "fail",
-						name: "AppError",
 						message: "Unauthorized!",
 					});
 				});

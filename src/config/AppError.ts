@@ -3,9 +3,9 @@ export interface IAppError extends Error {
 	isOperational: boolean;
 	createAppErrorResponseBody: createAppErrorResponseBody;
 }
-type createAppErrorResponseBody = () => {
+type createAppErrorResponseBody = () => ErrorResponseBody;
+export type ErrorResponseBody = {
 	status: "fail" | "error";
-	name: string;
 	message: string;
 };
 
@@ -34,7 +34,6 @@ export default class AppError extends Error implements IAppError {
 	public createAppErrorResponseBody() {
 		return {
 			status: this._status,
-			name: this.name,
 			message: this.message,
 		};
 	}

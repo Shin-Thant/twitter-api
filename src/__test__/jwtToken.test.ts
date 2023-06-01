@@ -196,7 +196,6 @@ describe("JWT token", () => {
 
 				expect(body).toEqual({
 					status: "fail",
-					name: "AppError",
 					message: "Forbidden!",
 				});
 			});

@@ -4,13 +4,9 @@ process.on("uncaughtException", () => {
 	process.exit(1);
 });
 
-import dotenv from "dotenv";
-import "express-async-errors";
 import mongoose from "mongoose";
 import app from "./app/app";
 import { connectDB } from "./config/database";
-
-dotenv.config();
 
 // connect to database
 connectDB();
