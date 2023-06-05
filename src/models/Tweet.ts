@@ -34,10 +34,12 @@ const tweetSchema = new Schema<
 				ref: "User",
 			},
 		],
-		shares: {
-			type: Number,
-			default: 0,
-		},
+		shares: [
+			{
+				type: Schema.Types.ObjectId,
+				ref: "user",
+			},
+		],
 	},
 	{
 		timestamps: true,
@@ -54,6 +56,7 @@ tweetSchema.virtual("comments", {
 });
 
 // middlewares
+// TODO: change this middleware into method
 tweetSchema.post("save", populateTweetAfterCreation);
 
 // query helpers

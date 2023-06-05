@@ -27,7 +27,7 @@ export default class PaginationHelperImpl implements PaginationHelper {
 		if (currentPage < this._FIRST_PAGE_NO) {
 			return this._FIRST_PAGE_NO;
 		}
-		if (currentPage > totalPages) {
+		if (currentPage > totalPages && totalPages !== 0) {
 			return totalPages;
 		}
 		return currentPage;
