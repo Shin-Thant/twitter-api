@@ -28,7 +28,7 @@ export const populateTweetRelations: PopulateTweetRelations = function (
 		populate: { path: "owner", select: "-email" },
 	}).populate({ path: "owner", select: "-email" });
 
-	if (options?.populateUser) {
+	if (options?.populateLikes) {
 		result.populate({ path: "likes", select: "-email" });
 	}
 

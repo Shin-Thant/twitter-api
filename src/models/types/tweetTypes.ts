@@ -46,7 +46,10 @@ export interface TweetQueryHelpers {
 	populateRelations: PopulateTweetRelations;
 }
 
-type Options = { populateComments?: boolean; populateUser?: boolean };
+type Options = {
+	populateComments?: boolean;
+	populateLikes?: boolean;
+};
 export type PopulateTweetRelations = (
 	this: TweetQueryThis,
 	options?: Options
