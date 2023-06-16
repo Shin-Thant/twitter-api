@@ -1,29 +1,29 @@
 process.on("uncaughtException", () => {
-	console.log("Uncaught Exception!"); // production
-	console.log("Shutting down...");
+	logger.error("Uncaught Exception!"); // production
+	logger.error("Shutting down...");
 	process.exit(1);
 });
 
 import mongoose from "mongoose";
 import app from "./app/app";
 import { connectDB } from "./config/database";
+import logger from "./util/logger";
 
-// connect to database
-connectDB();
+const PORT: number = 3500 || process.env.PORT;
 
 // start server
-const PORT: number = 3500 || process.env.PORT;
-const server = app.listen(PORT, () => {
-	console.log(`Server listening on port ${PORT}!`);
+const server = app.listen(PORT, async () => {
+	logger.info(`Server listening on port ${PORT}!`);
+	await connectDB();
 });
 
 mongoose.connection.once("open", () => {
-	console.log("✨ Successfully connected to MongoDB!");
+	logger.info("✨ Successfully connected to DB!");
 });
 
 mongoose.connection.on("error", () => {
-	console.log("db err!"); // production
-	console.log("Shutting down...");
+	logger.error("db err!"); // production
+	logger.error("Shutting down...");
 	server.close(() => {
 		process.exit(1);
 	});
@@ -37,8 +37,8 @@ mongoose.connection.on("disconnected", () => {
 });
 
 process.on("unhandledRejection", () => {
-	console.log("Unhandled Rejection!"); // production
-	console.log("Shutting down...");
+	logger.error("Unhandled Rejection!"); // production
+	logger.error("Shutting down...");
 	server.close(() => {
 		process.exit(1);
 	});

@@ -315,3 +315,5 @@ describe("Pagination when called", () => {
 		});
 	});
 });
+
+// TODO: wirte test for totalPages is 0 and currentPage is 1

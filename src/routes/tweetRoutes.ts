@@ -1,19 +1,16 @@
 import { Router } from "express";
-import verifyJWT from "../middlewares/verifyJWT";
+import { getTweetComments } from "../controllers/commentController";
 import {
 	createTweet,
 	deleteTweet,
 	getTweetById,
 	getTweets,
+	handleLikes,
 	shareTweet,
 	updateTweet,
 } from "../controllers/tweetController";
+import verifyJWT from "../middlewares/verifyJWT";
 import verifyTweetOwner from "../middlewares/verifyTweetOwner";
-import commentRoutes from "./commentRoutes";
-import {
-	addNewComment,
-	getTweetComments,
-} from "../controllers/commentController";
 
 const router = Router();
 
@@ -24,6 +21,8 @@ router
 	.get(getTweetById)
 	.patch(verifyJWT, verifyTweetOwner, updateTweet)
 	.delete(verifyJWT, verifyTweetOwner, deleteTweet);
+
+router.route("/:tweetId/like").patch(verifyJWT, handleLikes);
 
 router.route("/:tweetId/share").post(verifyJWT, shareTweet);
 

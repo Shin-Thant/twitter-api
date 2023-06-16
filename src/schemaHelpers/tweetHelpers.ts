@@ -6,8 +6,6 @@ import {
 } from "../models/types/tweetTypes";
 
 export async function populateTweetAfterCreation(this: TweetPostThis) {
-	console.log("pop");
-
 	await this.populate<{ origin: TweetDoc }>({
 		path: "origin",
 		populate: { path: "owner", select: "-email" },
@@ -22,20 +20,23 @@ export async function populateTweetAfterCreation(this: TweetPostThis) {
 	});
 }
 
-export const populateTweetRelations: PopulateTweetRelations =
-	function (options?: { populateComments: boolean }) {
-		const result = this.populate({
-			path: "origin",
-			populate: { path: "owner", select: "-email" },
-		})
-			.populate({ path: "owner", select: "-email" })
-			.populate({ path: "likes", select: "-email" });
+export const populateTweetRelations: PopulateTweetRelations = function (
+	options
+) {
+	const result = this.populate({
+		path: "origin",
+		populate: { path: "owner", select: "-email" },
+	}).populate({ path: "owner", select: "-email" });
 
-		if (options?.populateComments) {
-			result.populate({
-				path: "comments",
-				populate: { path: "creator", select: "-email" },
-			});
-		}
-		return result;
-	};
+	if (options?.populateLikes) {
+		result.populate({ path: "likes", select: "-email" });
+	}
+
+	if (options?.populateComments) {
+		result.populate({
+			path: "comments",
+			populate: { path: "creator", select: "-email" },
+		});
+	}
+	return result;
+};

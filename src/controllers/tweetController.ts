@@ -7,10 +7,10 @@ import santitizeTweetData, {
 } from "../lib/validateTweetCreation";
 import Comment from "../models/Comment";
 import Tweet from "../models/Tweet";
-import { LeanTweet } from "../models/types/tweetTypes";
 import { TypedRequestBody, TypedRequestQuery } from "../types/requestTypes";
 import { isValuesNotNumber } from "../util/isValuesNotNumber";
 import PaginationHelperImpl from "../util/paginationHelper";
+import { UnpopulatedTweet } from "../models/types/tweetTypes";
 
 // TODO: create request handler for adding and remove likes
 
@@ -39,7 +39,7 @@ export const getTweets = async (
 	});
 
 	const tweets = await Tweet.find()
-		.populateRelations()
+		.populateRelations({ populateComments: true })
 		.limit(pagination.itemsPerPage * pagination.currentPage)
 		.sort("-createdAt")
 		.exec();
@@ -63,9 +63,6 @@ export const getTweetById = async (
 	if (!tweet) {
 		throw new AppError("Invalid ID!", 400);
 	}
-	// if (!(tweet.origin instanceof Types.ObjectId)) {
-	// 	console.log("lean", tweet.origin?.origin);
-	// }
 	res.json(tweet);
 };
 
@@ -113,6 +110,11 @@ export const shareTweet = async (
 		throw new AppError("All fields are required!", 400);
 	}
 
+	const originTweet = await Tweet.findById(tweetId).exec();
+	if (!originTweet) {
+		throw new AppError("Invalid tweet ID!", 400);
+	}
+
 	const tweetData: ShareTweet = {
 		type: "share",
 		origin: tweetId,
@@ -130,6 +132,10 @@ export const shareTweet = async (
 	if (!newSharedTweet) {
 		throw new AppError("Some went wrong", 500);
 	}
+
+	originTweet.shares.push(owner._id);
+	await originTweet.save();
+
 	res.json(newSharedTweet);
 };
 
@@ -149,6 +155,36 @@ export const updateTweet = async (
 	tweet.body = body;
 	await tweet.save();
 
+	res.json(tweet);
+};
+
+export const handleLikes = async (req: Request<TweetParams>, res: Response) => {
+	const { user } = req;
+	const { tweetId } = req.params;
+	if (!user) {
+		throw new AppError("Unauthorized!", 400);
+	}
+	if (!tweetId) {
+		throw new AppError("Tweet ID required!", 400);
+	}
+
+	const tweet = await Tweet.findById<UnpopulatedTweet>(tweetId).exec();
+	if (!tweet) {
+		throw new AppError("Invalid tweet ID!", 400);
+	}
+
+	const isLiked = tweet.likes.includes(user._id);
+
+	if (!isLiked) {
+		// add like
+		tweet.likes.push(user._id);
+	} else {
+		// remove like
+		tweet.likes = tweet.likes.filter(
+			(userId) => userId.toString() !== user._id.toString()
+		);
+	}
+	await tweet.save();
 	res.json(tweet);
 };
 
