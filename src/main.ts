@@ -1,6 +1,6 @@
-process.on("uncaughtException", () => {
-	logger.error("Uncaught Exception!"); // production
-	logger.error("Shutting down...");
+process.on("uncaughtException", (e) => {
+	console.log("Uncaught Exception!", e); // production
+	console.log("Shutting down...");
 	process.exit(1);
 });
 
