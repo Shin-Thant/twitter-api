@@ -96,16 +96,12 @@ describe("Comment Middlewares", () => {
 		describe("deleteAllNestedComments", () => {
 			it("should return status 500 and error response", async () => {
 				const comment = await getRandomComment();
-				if (!comment) {
-					console.log("no comment!");
-					return;
-				}
 
 				const bearerToken = createBearerToken(
-					comment.creator._id.toString()
+					comment?.creator?._id?.toString() as string
 				);
 
-				const url = `/api/v1/comments/${comment._id.toString()}`;
+				const url = `/api/v1/comments/${comment?._id.toString()}`;
 				const { body } = await supertest(app)
 					.delete(url)
 					.set("Authorization", bearerToken)
@@ -124,13 +120,9 @@ describe("Comment Middlewares", () => {
 			describe("given invalid comment id", () => {
 				it("should throw status 400 and AppError", async () => {
 					const comment = await getRandomComment();
-					if (!comment) {
-						console.log("no comment!");
-						return;
-					}
 
 					const bearerToken = createBearerToken(
-						comment.creator._id.toString()
+						comment?.creator?._id?.toString() as string
 					);
 
 					const commentId = createObjectId();
@@ -150,15 +142,17 @@ describe("Comment Middlewares", () => {
 
 			describe("given wrong owner", () => {
 				it("should throw status 401 and AppError", async () => {
-					const user = await getRandomUser();
-					if (!user) {
-						return;
-					}
-					const comment = await getRandomComment({
-						creator: { $ne: user._id.toString() },
+					const comment = await getRandomComment();
+
+					const user = await getRandomUser({
+						_id: {
+							$ne: comment?.creator,
+						},
 					});
 
-					const bearerToken = createBearerToken(user._id.toString());
+					const bearerToken = createBearerToken(
+						user?._id?.toString() as string
+					);
 
 					const url = `/api/v1/comments/${comment?._id.toString()}`;
 					const { body } = await supertest(app)

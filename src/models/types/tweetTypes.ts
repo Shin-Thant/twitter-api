@@ -15,7 +15,7 @@ export type TweetSchema = {
 	body?: string;
 	origin?: TweetRef;
 	likes: UserRef[];
-	shares: UserRef[];
+	shares: TweetRef[];
 	comments?: CommentRef[];
 };
 
@@ -23,12 +23,14 @@ export interface PopulatedTweet extends TweetSchema {
 	origin: TweetDoc | LeanTweet;
 	owner: UserDoc | LeanUser;
 	likes: (UserDoc | LeanUser)[];
+	shares: (LeanTweet | TweetDoc)[];
 	comments: (CommentDoc | LeanComment)[];
 }
 export interface UnpopulatedTweet extends TweetSchema, Document {
 	origin: Types.ObjectId;
 	owner: Types.ObjectId;
 	likes: Types.ObjectId[];
+	shares: Types.ObjectId[];
 	comments: Types.ObjectId[];
 }
 
@@ -49,6 +51,7 @@ export interface TweetQueryHelpers {
 type Options = {
 	populateComments?: boolean;
 	populateLikes?: boolean;
+	populateShares?: boolean;
 };
 export type PopulateTweetRelations = (
 	this: TweetQueryThis,

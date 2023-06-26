@@ -1,13 +1,15 @@
-import mongoose from "mongoose";
+import mongoose, { FilterQuery } from "mongoose";
 import createToken from "../../lib/createToken";
 import Comment from "../../models/Comment";
 import Tweet from "../../models/Tweet";
 import User from "../../models/User";
+import { UserDoc } from "../../models/types/userTypes";
+import { CommentDoc } from "../../models/types/commentTypes";
 
-export async function getRandomComment(query?: object) {
+export async function getRandomComment(query?: FilterQuery<CommentDoc>) {
 	return await Comment.findOne(query);
 }
-export async function getRandomUser(query?: object) {
+export async function getRandomUser(query?: FilterQuery<UserDoc>) {
 	return await User.findOne(query);
 }
 export async function getRandomTweet() {

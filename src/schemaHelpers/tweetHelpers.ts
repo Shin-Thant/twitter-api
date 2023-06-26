@@ -38,5 +38,11 @@ export const populateTweetRelations: PopulateTweetRelations = function (
 			populate: { path: "creator", select: "-email" },
 		});
 	}
+	if (options?.populateShares) {
+		result.populate({
+			path: "shares",
+			select: ["_id", "origin", "body", "owner", "type"],
+		});
+	}
 	return result;
 };

@@ -10,11 +10,9 @@ const errorHandler = (
 	res: Response,
 	_next: NextFunction
 ) => {
-	logger.error(err);
+	logger.error(err, err.message);
 
 	if (err.name === "CastError") {
-		// logger.error(err);
-
 		const badRequest = new Error("Bad Request!");
 		return res
 			.status(400)
@@ -31,7 +29,6 @@ const errorHandler = (
 
 	// jwt error
 	if (err.name === "JsonWebTokenError") {
-		console.log("invalid!!!");
 		const invalidTokenErr = new AppError("Unauthorized!", 401);
 		return res
 			.status(401)
@@ -55,11 +52,5 @@ const errorHandler = (
 	// *this condition always has to be behind the `AppError` condition because `AppError` inherit `Error`
 	res.status(500).json(createErrorResponseBody(err));
 };
-
-// *handler each error with separate functions
-/*
-	validation error
-	cast error
-*/
 
 export default errorHandler;

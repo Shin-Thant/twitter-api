@@ -14,8 +14,6 @@ import { UnpopulatedTweet } from "../models/types/tweetTypes";
 import { CreateTweetInput } from "../schema/tweetSchema";
 import { UserDoc } from "../models/types/userTypes";
 
-// TODO: create request handler for adding and remove likes
-
 export type TweetParams = { tweetId?: string };
 
 type TweetQueryString = { currentPage?: string; itemsPerPage?: string };
@@ -41,7 +39,7 @@ export const getTweets = async (
 	});
 
 	const tweets = await Tweet.find()
-		.populateRelations({ populateComments: true })
+		.populateRelations({ populateComments: true, populateShares: true })
 		.limit(pagination.itemsPerPage * pagination.currentPage)
 		.sort("-createdAt")
 		.exec();
@@ -101,7 +99,7 @@ export const shareTweet = async (
 		throw new AppError("All fields are required!", 400);
 	}
 
-	const originTweet = await Tweet.findById(tweetId).exec();
+	const originTweet = await Tweet.findById<UnpopulatedTweet>(tweetId).exec();
 	if (!originTweet) {
 		throw new AppError("Invalid tweet ID!", 400);
 	}
@@ -119,12 +117,14 @@ export const shareTweet = async (
 		throw error;
 	}
 
+	// create share tweet
 	const newSharedTweet = await Tweet.create(value);
 	if (!newSharedTweet) {
 		throw new AppError("Some went wrong", 500);
 	}
 
-	originTweet.shares.push(owner._id);
+	// update original tweet
+	originTweet.shares.push(newSharedTweet._id);
 	await originTweet.save();
 
 	res.json(newSharedTweet);
