@@ -11,6 +11,8 @@ import { TypedRequestBody, TypedRequestQuery } from "../types/requestTypes";
 import { isValuesNotNumber } from "../util/isValuesNotNumber";
 import PaginationHelperImpl from "../util/paginationHelper";
 import { UnpopulatedTweet } from "../models/types/tweetTypes";
+import { CreateTweetInput } from "../schema/tweetSchema";
+import { UserDoc } from "../models/types/userTypes";
 
 // TODO: create request handler for adding and remove likes
 
@@ -66,31 +68,20 @@ export const getTweetById = async (
 	res.json(tweet);
 };
 
-interface INewTweet {
-	body?: string;
-}
-
 export const createTweet = async (
-	req: TypedRequestBody<INewTweet>,
+	req: TypedRequestBody<CreateTweetInput>,
 	res: Response
 ) => {
 	const { body } = req.body;
-	const { user: owner } = req;
-	if (!body || !owner) {
-		throw new AppError("All fields are required!", 400);
-	}
+	const owner = req.user as UserDoc;
 
 	const tweetData: CreateTweet = {
 		type: "post",
 		body,
 		owner: owner._id.toString(),
 	};
-	const { value, error } = santitizeTweetData(tweetData);
-	if (error) {
-		throw error;
-	}
 
-	const newTweet = await Tweet.create(value);
+	const newTweet = await Tweet.create(tweetData);
 	if (!newTweet) {
 		throw new AppError("Something went wrong!", 500);
 	}
@@ -99,7 +90,7 @@ export const createTweet = async (
 };
 
 export const shareTweet = async (
-	req: Request<TweetParams, object, INewTweet>,
+	req: Request<TweetParams, object, CreateTweetInput>,
 	res: Response
 ) => {
 	const { user: owner } = req;

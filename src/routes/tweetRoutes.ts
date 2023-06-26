@@ -11,10 +11,15 @@ import {
 } from "../controllers/tweetController";
 import verifyJWT from "../middlewares/verifyJWT";
 import verifyTweetOwner from "../middlewares/verifyTweetOwner";
+import validateResource from "../middlewares/validateResource";
+import { createTweetSchema } from "../schema/tweetSchema";
 
 const router = Router();
 
-router.route("/").get(getTweets).post(verifyJWT, createTweet);
+router
+	.route("/")
+	.get(getTweets)
+	.post(verifyJWT, validateResource(createTweetSchema), createTweet);
 
 router
 	.route("/:tweetId")

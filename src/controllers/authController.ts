@@ -13,21 +13,13 @@ import verifyToken from "../lib/verifyToken";
 import User from "../models/User";
 import { TypedRequestBody } from "../types/requestTypes";
 import findDuplicateWithUsernameAndEmail from "../util/findDuplicateUser";
+import { RegisterInput } from "../schema/authSchema";
 
-type RegisterReqBody = {
-	username?: string;
-	name?: string;
-	email?: string;
-	password?: string;
-};
 export const handleRegister = async (
-	req: TypedRequestBody<RegisterReqBody>,
+	req: TypedRequestBody<RegisterInput>,
 	res: Response
 ) => {
-	const { username, name, email, password } = req.body;
-	if (!username || !name || !email || !password) {
-		throw new AppError("All fields are required!", 400);
-	}
+	const { username, email, password } = req.body;
 
 	const duplicates = await findDuplicateWithUsernameAndEmail(username, email);
 	if (duplicates.duplicateEmail) {
@@ -37,22 +29,10 @@ export const handleRegister = async (
 		throw new AppError("Username already taken!", 400);
 	}
 
-	// *validate user data
-	const validatedResult = santitizeUserData({
-		username,
-		name,
-		email,
-		password,
-	});
-	if (validatedResult.error) {
-		throw validatedResult.error;
-	}
-
 	const SALT_ROUNDS = 10;
 	const encryptedPwd = await bcrypt.hash(password, SALT_ROUNDS);
-	validatedResult.value.password = encryptedPwd;
 
-	const newUser = await User.create({ ...validatedResult.value });
+	const newUser = await User.create({ ...req.body, password: encryptedPwd });
 	if (!newUser) {
 		throw new AppError("Something went wrong", 500);
 	}
