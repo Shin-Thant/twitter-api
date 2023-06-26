@@ -23,21 +23,41 @@ describe("/auth", () => {
 		describe("given invalid request body", () => {
 			it("should return status 400 and a message", async () => {
 				const requestBodyArr = [
-					{},
-					{ email: "hello@gmail.com" },
-					{ password: "hello@gmail.com" },
+					{
+						body: { email: "hello@gmail.com" },
+						errMessage: '"body.password" is required',
+					},
+					{
+						body: { password: "hello@gmail.com" },
+						errMessage: '"body.email" is required',
+					},
+					{
+						body: { email: 10, password: "hi" },
+						errMessage: "Email must be string!",
+					},
+					{
+						body: { email: "hello", password: "hi" },
+						errMessage: "Invalid email!",
+					},
+					{
+						body: { email: "hello@gmail", password: "hi" },
+						errMessage: "Invalid email!",
+					},
+					{
+						body: { email: "hello@gmail.com", password: 10 },
+						errMessage: "Password must be string!",
+					},
 				];
-				const responseBody = {
-					message: "All fields are required!",
-					status: "fail",
-				};
 
-				for (const reqBody of requestBodyArr) {
+				for (const item of requestBodyArr) {
 					const { body } = await supertest(app)
 						.post("/api/v1/auth/login")
-						.send(reqBody)
+						.send(item.body)
 						.expect(400);
-					expect(body).toEqual(responseBody);
+					expect(body).toEqual({
+						status: "fail",
+						message: item.errMessage,
+					});
 				}
 			});
 		});
@@ -110,12 +130,13 @@ describe("/auth", () => {
 						name: user.name,
 						username: user.username,
 						email: user.email,
-						avatar: user.avatar,
+						...(user.avatar ? { avatar: user.avatar } : {}),
 						following: user.following,
 						followers: user.followers,
 						counts: user.counts,
 						updatedAt: expect.any(String),
 						createdAt: expect.any(String),
+						__v: expect.any(Number),
 					},
 				});
 			});

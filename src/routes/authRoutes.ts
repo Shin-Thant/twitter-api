@@ -7,6 +7,8 @@ import {
 } from "../controllers/authController";
 import rateLimiter from "../lib/rateLimit";
 import verifyJWT from "../middlewares/verifyJWT";
+import validateResource from "../middlewares/validateResource";
+import { loginUserSchema, registerUserSchema } from "../schema/authSchema";
 
 const router = Router();
 
@@ -15,8 +17,18 @@ const AUTH_REMEMBER_TIME_IN_MILLISECONDS = 15 * 60 * 1000;
 const authRateLimiter = () =>
 	rateLimiter(3, AUTH_REMEMBER_TIME_IN_MILLISECONDS);
 
-router.post("/register", authRateLimiter(), handleRegister);
-router.post("/login", authRateLimiter(), handleLogin);
+router.post(
+	"/register",
+	authRateLimiter(),
+	validateResource(registerUserSchema),
+	handleRegister
+);
+router.post(
+	"/login",
+	authRateLimiter(),
+	validateResource(loginUserSchema),
+	handleLogin
+);
 router.post("/logout", authRateLimiter(), verifyJWT, handleLogout);
 
 const REFRESH_REMEMBER_TIME_IN_MILLISECONDS = 60 * 1000;

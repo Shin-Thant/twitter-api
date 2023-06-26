@@ -1,10 +1,11 @@
 import { NextFunction, Request, Response } from "express";
 import AppError from "../config/AppError";
 import createErrorResponseBody from "../util/createErrorResponseBody";
+import Joi from "joi";
 import logger from "../util/logger";
 
 const errorHandler = (
-	err: Error | AppError,
+	err: Error | AppError | Joi.ValidationError,
 	_req: Request,
 	res: Response,
 	_next: NextFunction
@@ -36,6 +37,7 @@ const errorHandler = (
 
 	// joi validation error
 	if (err.name === "ValidationError") {
+		logger.error("joi error");
 		return res.status(400).json(createErrorResponseBody(err, "fail"));
 	}
 
@@ -44,6 +46,8 @@ const errorHandler = (
 			.status(err.statusCode)
 			.json(err.createAppErrorResponseBody());
 	}
+
+	console.log("s", err.name);
 
 	// *this condition always has to be behind the `AppError` condition because `AppError` inherit `Error`
 	res.status(500).json(createErrorResponseBody(err));
