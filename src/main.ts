@@ -18,7 +18,7 @@ const server = app.listen(PORT, async () => {
 });
 
 mongoose.connection.once("open", () => {
-	logger.info("✨ Successfully connected to DB!");
+	logger.info("Successfully connected to DB!");
 });
 
 mongoose.connection.on("error", () => {

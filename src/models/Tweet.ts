@@ -37,7 +37,7 @@ const tweetSchema = new Schema<
 		shares: [
 			{
 				type: Schema.Types.ObjectId,
-				ref: "user",
+				ref: "Tweet",
 			},
 		],
 	},

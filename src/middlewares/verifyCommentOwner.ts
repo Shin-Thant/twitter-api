@@ -11,8 +11,8 @@ const verifyCommentOwner = async (
 ) => {
 	const { user: owner } = req;
 	const { commentId } = req.params;
+
 	if (!owner) {
-		console.log("User not found!");
 		throw new AppError("Unauthorized!", 401);
 	}
 	if (!commentId) {
@@ -28,7 +28,6 @@ const verifyCommentOwner = async (
 	}
 
 	if (foundComment.creator._id.toString() !== owner._id.toString()) {
-		console.log("Not your comment!");
 		throw new AppError("Unauthorized!", 401);
 	}
 

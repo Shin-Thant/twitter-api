@@ -27,11 +27,9 @@ describe("Tweet Helpers and Middlewares", () => {
 			describe("when throws Error", () => {
 				it("should return status 500 and error response", async () => {
 					const user = await getRandomUser();
-					if (!user) {
-						console.log("no user");
-						return;
-					}
-					const bearerToken = createBearerToken(user._id.toString());
+					const bearerToken = createBearerToken(
+						user?._id?.toString() as string
+					);
 
 					const data = { body: "hi" };
 					const { body } = await supertest(app)
