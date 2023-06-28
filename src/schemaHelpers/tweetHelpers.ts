@@ -3,6 +3,7 @@ import {
 	TweetPostThis,
 	TweetDoc,
 	PopulateTweetRelations,
+	PopulatedShares,
 } from "../models/types/tweetTypes";
 
 export async function populateTweetAfterCreation(this: TweetPostThis) {
@@ -39,7 +40,7 @@ export const populateTweetRelations: PopulateTweetRelations = function (
 		});
 	}
 	if (options?.populateShares) {
-		result.populate({
+		result.populate<{ shares: PopulatedShares }>({
 			path: "shares",
 			select: ["_id", "origin", "body", "owner", "type"],
 		});

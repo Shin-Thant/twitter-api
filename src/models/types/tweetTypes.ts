@@ -9,13 +9,20 @@ import {
 import { LeanUser, UserDoc, UserRef } from "./userTypes";
 import { CommentDoc, CommentRef, LeanComment } from "./commentTypes";
 
+type SharedTweet = PopulatedShares | Types.ObjectId;
+
+export type PopulatedShares = Pick<
+	TweetDoc,
+	"_id" | "origin" | "body" | "owner" | "type"
+>;
+
 export type TweetSchema = {
 	type: "post" | "share";
 	owner: UserRef;
 	body?: string;
 	origin?: TweetRef;
 	likes: UserRef[];
-	shares: TweetRef[];
+	shares: SharedTweet[];
 	comments?: CommentRef[];
 };
 

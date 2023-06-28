@@ -8,12 +8,14 @@ import {
 	setTokenCookie,
 } from "../lib/handleTokenCookie";
 import isObjectId from "../lib/isObjectId";
-import santitizeUserData from "../lib/validateUserCreation";
 import verifyToken from "../lib/verifyToken";
-import User from "../models/User";
 import { TypedRequestBody } from "../types/requestTypes";
-import findDuplicateWithUsernameAndEmail from "../util/findDuplicateUser";
 import { RegisterInput } from "../schema/authSchema";
+import {
+	createUser,
+	findDuplicateUsernameOrEmail,
+	findUser,
+} from "../services/userServices";
 
 export const handleRegister = async (
 	req: TypedRequestBody<RegisterInput>,
@@ -21,9 +23,9 @@ export const handleRegister = async (
 ) => {
 	const { username, email, password } = req.body;
 
-	const duplicates = await findDuplicateWithUsernameAndEmail(username, email);
+	const duplicates = await findDuplicateUsernameOrEmail({ username, email });
 	if (duplicates.duplicateEmail) {
-		throw new AppError("Email already used!", 400);
+		throw new AppError("There is an account with this email!", 400);
 	}
 	if (duplicates.duplicateUsername) {
 		throw new AppError("Username already taken!", 400);
@@ -32,15 +34,13 @@ export const handleRegister = async (
 	const SALT_ROUNDS = 10;
 	const encryptedPwd = await bcrypt.hash(password, SALT_ROUNDS);
 
-	const newUser = await User.create({ ...req.body, password: encryptedPwd });
+	const newUser = await createUser({ ...req.body, password: encryptedPwd });
 	if (!newUser) {
 		throw new AppError("Something went wrong", 500);
 	}
 
-	const user = await User.findById(newUser._id)
-		.select(["-following", "-followers"])
-		.lean()
-		.exec();
+	// TODO: test this
+	const user = await findUser({ _id: newUser._id });
 	res.status(201).json(user);
 };
 
@@ -57,10 +57,12 @@ export const handleLogin = async (
 		throw new AppError("All fields are required!", 400);
 	}
 
-	const foundUser = await User.findOne({ email })
-		.select("password")
-		.lean()
-		.exec();
+	// TODO: test this
+	const foundUser = await findUser(
+		{ email },
+		{ password: true },
+		{ lean: true }
+	);
 	if (!foundUser) {
 		throw new AppError("Invalid email or password!", 400);
 	}
@@ -81,10 +83,13 @@ export const handleLogin = async (
 
 	setTokenCookie(res, refreshToken);
 
-	const user = await User.findById(foundUser._id)
-		.populate("followers")
-		.lean()
-		.exec();
+	const user = await findUser(
+		{ _id: foundUser._id },
+		{ name: false },
+		{
+			populate: "followers",
+		}
+	);
 	res.json({ accessToken, user });
 };
 
@@ -106,7 +111,10 @@ export const handleRefreshToken = async (req: Request, res: Response) => {
 	if (!isObjectId(userId)) {
 		throw new AppError("Unauthorized!", 401);
 	}
-	const foundUser = await User.findById(userId).lean().exec();
+	// TODO: test this
+	const foundUser = await findUser({ _id: userId }, undefined, {
+		lean: true,
+	});
 
 	if (!foundUser) {
 		console.log("refresh: user not found!");
