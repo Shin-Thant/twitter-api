@@ -85,7 +85,7 @@ export const handleLogin = async (
 
 	const user = await findUser(
 		{ _id: foundUser._id },
-		{ name: false },
+		undefined,
 		{
 			populate: "followers",
 		}
