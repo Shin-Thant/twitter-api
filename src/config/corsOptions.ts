@@ -5,6 +5,7 @@ const allowedOrigins = [
 	"http://localhost:3000",
 	"http://localhost:5173",
 	"https://twitter-app-client-2uefc5516-shin-thant.vercel.app",
+	"https://twitter-app-client.vercel.app/",
 ];
 
 const corsOptions: CorsOptions = {
