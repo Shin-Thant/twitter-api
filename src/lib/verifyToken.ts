@@ -6,7 +6,6 @@ export default function verifyToken(token: string, secretKey: string) {
 	const payload = jwt.verify(token, secretKey);
 
 	if (!isJWTPayloadValid(payload)) {
-		console.log("invalid payload!");
 		throw new AppError("Unauthorized!", 401);
 	}
 

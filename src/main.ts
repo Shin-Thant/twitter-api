@@ -1,5 +1,5 @@
-process.on("uncaughtException", (e) => {
-	console.log("Uncaught Exception!", e); // production
+process.on("uncaughtException", () => {
+	console.log("Uncaught Exception!"); // production
 	console.log("Shutting down...");
 	process.exit(1);
 });

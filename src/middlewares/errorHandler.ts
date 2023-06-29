@@ -47,8 +47,6 @@ const errorHandler = (
 			.json(err.createAppErrorResponseBody());
 	}
 
-	console.log("s", err.name);
-
 	// *this condition always has to be behind the `AppError` condition because `AppError` inherit `Error`
 	res.status(500).json(createErrorResponseBody(err));
 };

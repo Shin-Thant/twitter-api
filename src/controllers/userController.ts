@@ -254,7 +254,6 @@ export const deleteUser = async (req: Request<Params>, res: Response) => {
 		{ _id: { $in: user.following } },
 		{ $inc: { "counts.followers": -1 } }
 	).exec();
-	console.log(result);
 
 	res.json({ message: "User deleted successfully!" });
 };

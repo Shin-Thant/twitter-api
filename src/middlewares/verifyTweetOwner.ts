@@ -10,7 +10,6 @@ const verifyTweetOwner = async (
 	const { user: owner } = req;
 	const { tweetId } = req.params;
 	if (!owner) {
-		console.log("User not found!");
 		throw new AppError("Unauthorized!", 401);
 	}
 	if (!tweetId) {
@@ -23,7 +22,6 @@ const verifyTweetOwner = async (
 	}
 
 	if (foundTweet.owner._id.toString() !== owner._id.toString()) {
-		console.log("Not your tweet!");
 		throw new AppError("Unauthorized!", 401);
 	}
 
