@@ -13,7 +13,7 @@ export const createTweetSchema = Joi.object({
 	params: Joi.object({}),
 });
 
-export interface ShareTweetInput extends Partial<CreateTweetInput> {}
+export type ShareTweetInput = Partial<CreateTweetInput>;
 export const shareTweetSchema = createTweetSchema.keys({
 	body: Joi.object<ShareTweetInput>({
 		body: Joi.string().trim(),

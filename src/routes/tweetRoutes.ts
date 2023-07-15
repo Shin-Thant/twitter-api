@@ -1,13 +1,13 @@
 import { Router } from "express";
 import { getTweetComments } from "../controllers/commentController";
 import {
-	createTweet,
-	deleteTweet,
+	createTweetHandler,
+	deleteTweetHandler,
 	getTweetById,
 	getTweets,
 	handleLikes,
 	shareTweet,
-	updateTweet,
+	updateTweetHandler,
 } from "../controllers/tweetController";
 import verifyJWT from "../middlewares/verifyJWT";
 import verifyTweetOwner from "../middlewares/verifyTweetOwner";
@@ -19,13 +19,13 @@ const router = Router();
 router
 	.route("/")
 	.get(getTweets)
-	.post(verifyJWT, validateResource(createTweetSchema), createTweet);
+	.post(verifyJWT, validateResource(createTweetSchema), createTweetHandler);
 
 router
 	.route("/:tweetId")
 	.get(getTweetById)
-	.patch(verifyJWT, verifyTweetOwner, updateTweet)
-	.delete(verifyJWT, verifyTweetOwner, deleteTweet);
+	.patch(verifyJWT, verifyTweetOwner, updateTweetHandler)
+	.delete(verifyJWT, verifyTweetOwner, deleteTweetHandler);
 
 router.route("/:tweetId/like").patch(verifyJWT, handleLikes);
 

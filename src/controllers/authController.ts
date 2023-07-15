@@ -83,13 +83,9 @@ export const handleLogin = async (
 
 	setTokenCookie(res, refreshToken);
 
-	const user = await findUser(
-		{ _id: foundUser._id },
-		undefined,
-		{
-			populate: "followers",
-		}
-	);
+	const user = await findUser({ _id: foundUser._id }, undefined, {
+		populate: "followers",
+	});
 	res.json({ accessToken, user });
 };
 
@@ -111,7 +107,6 @@ export const handleRefreshToken = async (req: Request, res: Response) => {
 	if (!isObjectId(userId)) {
 		throw new AppError("Unauthorized!", 401);
 	}
-	// TODO: test this
 	const foundUser = await findUser({ _id: userId }, undefined, {
 		lean: true,
 	});

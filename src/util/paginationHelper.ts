@@ -7,15 +7,15 @@ export interface PaginationHelper {
 }
 
 export default class PaginationHelperImpl implements PaginationHelper {
-	private readonly _MIN_ITEMS_PER_PAGE = 10;
-	private readonly _MAX_ITEMS_PER_PAGE = 30;
-	private readonly _FIRST_PAGE_NO = 1;
+	private readonly MIN_ITEMS_PER_PAGE = 10;
+	private readonly MAX_ITEMS_PER_PAGE = 30;
+	private readonly FIRST_PAGE_NO = 1;
 
 	public validateItemsPerPage(itemsPerPage: number): number {
 		if (itemsPerPage <= 0) {
-			return this._MIN_ITEMS_PER_PAGE;
-		} else if (itemsPerPage > this._MAX_ITEMS_PER_PAGE) {
-			return this._MAX_ITEMS_PER_PAGE;
+			return this.MIN_ITEMS_PER_PAGE;
+		} else if (itemsPerPage > this.MAX_ITEMS_PER_PAGE) {
+			return this.MAX_ITEMS_PER_PAGE;
 		}
 		return itemsPerPage;
 	}
@@ -24,8 +24,8 @@ export default class PaginationHelperImpl implements PaginationHelper {
 		currentPage: number,
 		totalPages: number
 	): number {
-		if (currentPage < this._FIRST_PAGE_NO) {
-			return this._FIRST_PAGE_NO;
+		if (currentPage < this.FIRST_PAGE_NO) {
+			return this.FIRST_PAGE_NO;
 		}
 		if (currentPage > totalPages && totalPages !== 0) {
 			return totalPages;

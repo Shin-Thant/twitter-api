@@ -12,11 +12,7 @@ import {
 } from "../util/validateUserUpdateInput";
 import { UserDoc } from "../models/types/userTypes";
 import { FilterQuery } from "mongoose";
-import {
-	findUser,
-	getUserDocumentCount,
-	paginateUser,
-} from "../services/userServices";
+import { findUser, getUserCount, paginateUser } from "../services/userServices";
 
 export const getMe = async (req: Request, res: Response) => {
 	const { user } = req;
@@ -54,7 +50,7 @@ export const searchUsers = async (
 		$or: [{ name: REGEX_OPTION }, { username: REGEX_OPTION }],
 	};
 
-	const totalUsers = await getUserDocumentCount(QUERY_FILTER);
+	const totalUsers = await getUserCount(QUERY_FILTER);
 
 	const userPagination = new PaginationImpl({
 		itemsPerPage: parseInt(itemsPerPage),
