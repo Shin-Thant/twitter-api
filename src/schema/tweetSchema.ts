@@ -7,13 +7,15 @@ export const createTweetSchema = Joi.object({
 	body: Joi.object<CreateTweetInput>({
 		body: Joi.string().trim().required().messages({
 			"string.base": "Tweet body must be string!",
+			"any.required": "Tweet body is required!",
 		}),
 	}),
 	query: Joi.object({}),
 	params: Joi.object({}),
 });
 
-export interface ShareTweetInput extends Partial<CreateTweetInput> {}
+export type ShareTweetInput = Partial<CreateTweetInput>;
+
 export const shareTweetSchema = createTweetSchema.keys({
 	body: Joi.object<ShareTweetInput>({
 		body: Joi.string().trim(),

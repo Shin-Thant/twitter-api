@@ -5,13 +5,15 @@ import AppError from "../config/AppError";
 const validateResource =
 	(schema: Joi.AnySchema) =>
 	(req: Request, _res: Response, next: NextFunction) => {
-		const { value, error } = schema.validate({
-			body: req.body,
-			query: req.query,
-			params: req.params,
-		});
+		const { value, error } = schema.validate(
+			{
+				body: req.body,
+				query: req.query,
+				params: req.params,
+			},
+			{ abortEarly: false }
+		);
 		if (error) {
-			console.log({ v: error?.message });
 			return next(error);
 		}
 		req.body = value.body;
