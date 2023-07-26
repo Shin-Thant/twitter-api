@@ -7,6 +7,7 @@ export const createTweetSchema = Joi.object({
 	body: Joi.object<CreateTweetInput>({
 		body: Joi.string().trim().required().messages({
 			"string.base": "Tweet body must be string!",
+			"any.required": "Tweet body is required!",
 		}),
 	}),
 	query: Joi.object({}),
@@ -14,6 +15,7 @@ export const createTweetSchema = Joi.object({
 });
 
 export type ShareTweetInput = Partial<CreateTweetInput>;
+
 export const shareTweetSchema = createTweetSchema.keys({
 	body: Joi.object<ShareTweetInput>({
 		body: Joi.string().trim(),

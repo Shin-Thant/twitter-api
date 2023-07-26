@@ -38,7 +38,10 @@ const errorHandler = (
 	// joi validation error
 	if (err.name === "ValidationError") {
 		logger.error("joi error");
-		return res.status(400).json(createErrorResponseBody(err, "fail"));
+
+		return res
+			.status(400)
+			.json(createErrorResponseBody(err.message, "fail"));
 	}
 
 	if (err instanceof AppError) {
