@@ -7,12 +7,12 @@ import {
 	getTweets,
 	handleLikes,
 	shareTweet,
-	updateTweetHandler,
+	editTweet,
 } from "../controllers/tweetController";
 import verifyJWT from "../middlewares/verifyJWT";
 import verifyTweetOwner from "../middlewares/verifyTweetOwner";
 import validateResource from "../middlewares/validateResource";
-import { createTweetSchema } from "../schema/tweetSchema";
+import { createTweetSchema, editTweetSchema } from "../schema/tweetSchema";
 
 const router = Router();
 
@@ -24,7 +24,12 @@ router
 router
 	.route("/:tweetId")
 	.get(getTweetById)
-	.patch(verifyJWT, verifyTweetOwner, updateTweetHandler)
+	.put(
+		verifyJWT,
+		validateResource(editTweetSchema),
+		verifyTweetOwner,
+		editTweet
+	)
 	.delete(verifyJWT, verifyTweetOwner, deleteTweetHandler);
 
 router.route("/:tweetId/like").patch(verifyJWT, handleLikes);

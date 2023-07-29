@@ -1,6 +1,7 @@
 process.on("uncaughtException", (e) => {
 	console.log("Uncaught Exception!", e);
 	console.log("Shutting down...");
+console.log('hi');
 	process.exit(1);
 });
 

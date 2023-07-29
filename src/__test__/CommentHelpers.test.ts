@@ -23,7 +23,8 @@ jest.mock("../schemaHelpers/commentHelpers", () => ({
 		return await this.populate("creator");
 	},
 	populateCommentRelations(this: CommentQueryHelperThis) {
-		return this.populate("creator");
+		// return this.populate("creator");
+		throw new Error("something");
 	},
 	deleteAllNestedComments: () => {
 		throw new Error("something");
@@ -42,11 +43,6 @@ describe("Comment Middlewares", () => {
 		describe("populateCommentRelations", () => {
 			describe("when throw Error", () => {
 				it("should return status 500 and error response", async () => {
-					// mock populate()
-					jest.spyOn(Comment, "populate").mockImplementation(() => {
-						throw new Error("something");
-					});
-
 					const { body } = await supertest(app)
 						.get("/api/v1/comments/all")
 						.expect(500);
@@ -117,7 +113,30 @@ describe("Comment Middlewares", () => {
 
 	describe("Request Middlewares", () => {
 		describe("verifyCommentOwner", () => {
-			describe("given invalid comment id", () => {
+			describe("given random string as comment id", () => {
+				it("should return status 400 and AppError", async () => {
+					const comment = await getRandomComment();
+
+					const bearerToken = createBearerToken(
+						comment?.creator?._id?.toString() as string
+					);
+
+					const commentId = "just_random_string";
+					const url = `/api/v1/comments/${commentId}`;
+
+					const { body } = await supertest(app)
+						.delete(url)
+						.set("Authorization", bearerToken)
+						.expect(400);
+
+					expect(body).toEqual({
+						status: "fail",
+						message: "Invalid ID!",
+					});
+				});
+			});
+
+			describe("given random comment id", () => {
 				it("should throw status 400 and AppError", async () => {
 					const comment = await getRandomComment();
 

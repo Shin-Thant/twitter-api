@@ -8,12 +8,7 @@ const userSchema = new Schema<UserSchema>(
 			required: [true, "Username is required!"],
 			unique: true,
 		},
-		following: [
-			{
-				ref: "User",
-				type: Schema.Types.ObjectId,
-			},
-		],
+
 		name: {
 			type: String,
 			maxlength: [20, "Name is too long!"],
@@ -31,7 +26,14 @@ const userSchema = new Schema<UserSchema>(
 		},
 		avatar: {
 			type: String,
+			default: "",
 		},
+		following: [
+			{
+				ref: "User",
+				type: Schema.Types.ObjectId,
+			},
+		],
 		counts: {
 			followers: {
 				type: Number,

@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import AppError from "../config/AppError";
 import PaginationImpl from "../lib/pagination";
 import { UserDoc } from "../models/types/userTypes";
-import { CreateTweetInput } from "../schema/tweetSchema";
+import { CreateTweetInput, EditTweetInput } from "../schema/tweetSchema";
 import {
 	createTweet,
 	deleteTweet,
@@ -133,8 +133,8 @@ export const shareTweet = async (
 	res.json(newSharedTweet);
 };
 
-export const updateTweetHandler = async (
-	req: Request<TweetParams, object, { body?: string }>,
+export const editTweet = async (
+	req: Request<EditTweetInput["params"], object, EditTweetInput["body"]>,
 	res: Response
 ) => {
 	const { tweet } = req;
@@ -145,7 +145,6 @@ export const updateTweetHandler = async (
 	if (!tweet) {
 		throw new AppError("Invalid Tweet ID!", 400);
 	}
-
 	tweet.body = body;
 	await tweet.save();
 

@@ -25,11 +25,11 @@ describe("/auth", () => {
 				const requestBodyArr = [
 					{
 						body: { email: "hello@gmail.com" },
-						errMessage: '"body.password" is required',
+						errMessage: 'Password is required!',
 					},
 					{
 						body: { password: "hello@gmail.com" },
-						errMessage: '"body.email" is required',
+						errMessage: 'Email is required!',
 					},
 					{
 						body: { email: 10, password: "hi" },
