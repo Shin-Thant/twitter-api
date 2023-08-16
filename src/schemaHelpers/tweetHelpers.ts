@@ -24,6 +24,7 @@ export async function populateTweetAfterCreation(this: TweetPostThis) {
 export const populateTweetRelations: PopulateTweetRelations = function (
 	options
 ) {
+	// populate the `original tweet` and `owner`
 	const result = this.populate({
 		path: "origin",
 		populate: { path: "owner", select: "-email" },

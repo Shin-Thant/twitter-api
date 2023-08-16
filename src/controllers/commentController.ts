@@ -4,8 +4,6 @@ import { TweetParams } from "./tweetController";
 import AppError from "../config/AppError";
 import santitizeCommentData from "../lib/validateCommentCreation";
 import Comment from "../models/Comment";
-import Tweet from "../models/Tweet";
-import { LeanTweet } from "../models/types/tweetTypes";
 import isObjectId from "../lib/isObjectId";
 import { findTweet } from "../services/tweetServices";
 

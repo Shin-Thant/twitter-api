@@ -139,12 +139,10 @@ export const editTweet = async (
 ) => {
 	const { tweet } = req;
 	const { body } = req.body;
-	if (!body) {
-		throw new AppError("Tweet body is required!", 400);
-	}
 	if (!tweet) {
 		throw new AppError("Invalid Tweet ID!", 400);
 	}
+
 	tweet.body = body;
 	await tweet.save();
 
