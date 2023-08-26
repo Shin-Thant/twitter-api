@@ -84,7 +84,9 @@ describe("Comment Middlewares", () => {
 						.set("Authorization", bearerToken)
 						.expect(500);
 
-					expect(body).toEqual(createErrorResponseBody(err));
+					expect(body).toEqual(
+						createErrorResponseBody({ error: err, status: "error" })
+					);
 				});
 			});
 		});

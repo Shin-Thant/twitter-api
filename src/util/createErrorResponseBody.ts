@@ -1,15 +1,18 @@
 import { ErrorResponseBody } from "../config/AppError";
 
-export default function createErrorResponseBody(
-	error?: Error | string,
-	status?: "fail" | "error"
-): ErrorResponseBody {
+export default function createErrorResponseBody({
+	error,
+	status,
+}: {
+	error?: Error | string;
+	status: "fail" | "error";
+}): ErrorResponseBody {
 	if (!error) {
 		return createError();
 	}
 
 	return {
-		status: status || "error",
+		status,
 		message:
 			typeof error === "string"
 				? error

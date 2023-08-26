@@ -21,6 +21,7 @@ export type TweetSchema = {
 	owner: UserRef;
 	body?: string;
 	origin?: TweetRef;
+	images: string[];
 	likes: UserRef[];
 	shares: SharedTweet[];
 	comments?: CommentRef[];

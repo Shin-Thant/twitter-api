@@ -26,6 +26,10 @@ const tweetSchema = new Schema<
 			ref: "User",
 			required: true,
 		},
+		images: {
+			type: [String],
+			default: [],
+		},
 		likes: [
 			{
 				type: Schema.Types.ObjectId,

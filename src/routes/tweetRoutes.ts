@@ -13,13 +13,21 @@ import verifyJWT from "../middlewares/verifyJWT";
 import verifyTweetOwner from "../middlewares/verifyTweetOwner";
 import validateResource from "../middlewares/validateResource";
 import { createTweetSchema, editTweetSchema } from "../schema/tweetSchema";
+import { uploadMany } from "../middlewares/imageUpload";
+import { saveTweetImages } from "../middlewares/saveTweetImages";
 
 const router = Router();
 
 router
 	.route("/")
 	.get(getTweets)
-	.post(verifyJWT, validateResource(createTweetSchema), createTweetHandler);
+	.post(
+		verifyJWT,
+		uploadMany({ fieldName: "photos", maxFileCount: 4 }),
+		validateResource(createTweetSchema),
+		saveTweetImages,
+		createTweetHandler
+	);
 
 router
 	.route("/:tweetId")

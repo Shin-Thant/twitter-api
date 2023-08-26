@@ -14,7 +14,10 @@ function createErrorBody(
 	statusCode: number,
 	status: "fail" | "error"
 ) {
-	return createErrorResponseBody(new AppError(message, statusCode), status);
+	return createErrorResponseBody({
+		error: new AppError(message, statusCode),
+		status,
+	});
 }
 
 describe("Route /auth/refresh", () => {
@@ -130,17 +133,20 @@ describe("Route /auth/refresh", () => {
 		});
 	});
 
-	describe('given token with invalid userId', () => {
-		it('should return status 401 and `Unauthorized` message', async () => {
+	describe("given token with invalid userId", () => {
+		it("should return status 401 and `Unauthorized` message", async () => {
 			const userId = createObjectId();
-			const refreshToken = createToken({userInfo: {id: userId}}, 'refresh');
+			const refreshToken = createToken(
+				{ userInfo: { id: userId } },
+				"refresh"
+			);
 
 			const { body } = await supertest(app)
 				.get(URL)
 				.set("Cookie", `token=${refreshToken}`)
 				.expect(401);
 
-				expect(body).toEqual(createErrorBody("Unauthorized!", 401, "fail"));
-		})
-	})
+			expect(body).toEqual(createErrorBody("Unauthorized!", 401, "fail"));
+		});
+	});
 });

@@ -77,6 +77,8 @@ export const createTweetHandler = async (
 	req: TypedRequestBody<CreateTweetInput>,
 	res: Response
 ) => {
+	const imageNames: string[] = res.locals.imageNames;
+
 	const { body } = req.body;
 	const owner = req.user as UserDoc;
 
@@ -84,6 +86,7 @@ export const createTweetHandler = async (
 		type: "post",
 		body,
 		owner: owner._id.toString(),
+		images: imageNames,
 	});
 	if (!newTweet) {
 		throw new AppError("Something went wrong!", 500);

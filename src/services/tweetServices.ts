@@ -13,6 +13,7 @@ type Options = QueryOptions<TweetSchema>;
 interface IBasicTweet {
 	body?: string;
 	owner: string;
+	images?: string[];
 }
 export interface CreateTweet extends IBasicTweet {
 	body: string;
