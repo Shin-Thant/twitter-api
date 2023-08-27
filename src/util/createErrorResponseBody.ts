@@ -1,5 +1,7 @@
 import { ErrorResponseBody } from "../config/AppError";
 
+// TODO: write tests for this
+
 export default function createErrorResponseBody({
 	error,
 	status,
@@ -8,7 +10,7 @@ export default function createErrorResponseBody({
 	status: "fail" | "error";
 }): ErrorResponseBody {
 	if (!error) {
-		return createError();
+		return createDefaultErrorResponseBody({ status });
 	}
 
 	return {
@@ -20,9 +22,13 @@ export default function createErrorResponseBody({
 	};
 }
 
-function createError(): ErrorResponseBody {
+function createDefaultErrorResponseBody({
+	status,
+}: {
+	status: "error" | "fail";
+}): ErrorResponseBody {
 	return {
-		status: "error",
+		status,
 		message: "Something went wrong!",
 	};
 }
