@@ -6,6 +6,8 @@ import logger from "../util/logger";
 import { MulterError } from "multer";
 import { createImageUploadError } from "../lib/createImageUploadError";
 
+// TODO: write tests for this
+
 type IncomingError = Error | AppError | Joi.ValidationError | MulterError;
 const errorHandler = (
 	err: IncomingError,
@@ -17,7 +19,7 @@ const errorHandler = (
 
 	if (err.name === "CastError") {
 		const responseBody = createErrorResponseBody({
-			error: "Bad Request",
+			error: "Bad Request!",
 			status: "fail",
 		});
 		return res.status(400).json(responseBody);

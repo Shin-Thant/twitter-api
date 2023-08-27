@@ -1,9 +1,6 @@
 import jwt, { JsonWebTokenError, TokenExpiredError } from "jsonwebtoken";
 import AppError from "../config/AppError";
-import createToken, {
-	getExpiresTimeString,
-	getSecretKey,
-} from "../lib/createToken";
+import createToken, { getExpiresTimeFor, getSecretKeyFor } from "../lib/jwt";
 import { NextFunction, Request, Response } from "express";
 import verifyJWT from "../middlewares/verifyJWT";
 import {
@@ -21,8 +18,8 @@ describe("JWT token", () => {
 			const mockJwtTokenSign = jest.spyOn(jwt, "sign");
 
 			it("should throw AppError", () => {
-				expect(() => createToken({}, "access")).toThrow(AppError);
-				expect(() => createToken({}, "access")).toThrow(
+				expect(() => createToken({}, "access_token")).toThrow(AppError);
+				expect(() => createToken({}, "access_token")).toThrow(
 					"Invalid jwt payload!"
 				);
 			});
@@ -37,9 +34,9 @@ describe("JWT token", () => {
 					.spyOn(jwt, "sign")
 					.mockImplementation(() => "mock jwt token");
 
-				const secretKey = getSecretKey("access");
-				const expiresIn = getExpiresTimeString("access");
-				const token = createToken({ name: "john" }, "access");
+				const secretKey = getSecretKeyFor("access_token");
+				const expiresIn = getExpiresTimeFor("access_token");
+				const token = createToken({ name: "john" }, "access_token");
 
 				expect(mockJwtTokenSign).toHaveBeenCalled();
 				expect(mockJwtTokenSign).toHaveBeenCalledWith(
@@ -143,7 +140,7 @@ describe("JWT token", () => {
 
 		describe("given token without payload", () => {
 			it("should return status 401 and `Unauthorized!` message", () => {
-				const token = jwt.sign({}, getSecretKey("access"));
+				const token = jwt.sign({}, getSecretKeyFor("access_token"));
 
 				mockRequest = {
 					headers: {
@@ -166,7 +163,7 @@ describe("JWT token", () => {
 			it("should return status 401 and `Unauthorized!` message", () => {
 				const token = createToken(
 					{ payload: "invalid payload" },
-					"access"
+					"access_token"
 				);
 
 				mockRequest = {
@@ -206,7 +203,7 @@ describe("JWT token", () => {
 				const user = await getRandomUser();
 				const token = jwt.sign(
 					{ userInfo: { id: user?._id?.toString() } },
-					getSecretKey("access"),
+					getSecretKeyFor("access_token"),
 					{ expiresIn: "-1s" }
 				);
 

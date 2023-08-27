@@ -1,5 +1,6 @@
 import { ErrorCode, MulterError } from "multer";
-import AppError from "../config/AppError";
+
+// TODO: write tests for this
 
 type ImageUploadErrors = Partial<Record<ErrorCode, string | null>>;
 

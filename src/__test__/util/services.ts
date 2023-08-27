@@ -1,5 +1,5 @@
 import mongoose, { FilterQuery } from "mongoose";
-import createToken from "../../lib/createToken";
+import createToken from "../../lib/jwt";
 import Comment from "../../models/Comment";
 import Tweet from "../../models/Tweet";
 import User from "../../models/User";
@@ -20,7 +20,7 @@ export function createBearerToken(userId: string) {
 	const payload = {
 		userInfo: { id: userId },
 	};
-	const token = createToken(payload, "access");
+	const token = createToken(payload, "access_token");
 	const bearerToken = `Bearer ${token}` as const;
 	return bearerToken;
 }

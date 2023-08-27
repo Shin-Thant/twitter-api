@@ -1,7 +1,7 @@
 import jwt from "jsonwebtoken";
 import AppError from "../config/AppError";
 
-type TokenType = "access" | "refresh";
+type TokenType = "access_token" | "refresh_token";
 
 // TODO: write test that check payload is a object containing `userInfo: {id: string}`
 
@@ -10,20 +10,20 @@ const createToken = (payload: object, tokenType: TokenType): string => {
 		throw new AppError("Invalid jwt payload!", 500);
 	}
 
-	const secretKey = getSecretKey(tokenType);
+	const secretKey = getSecretKeyFor(tokenType);
 	if (!secretKey || !secretKey.length) {
 		throw new AppError("No secret key!", 500);
 	}
 
-	const expiresIn = getExpiresTimeString(tokenType);
+	const expiresIn = getExpiresTimeFor(tokenType);
 
 	return jwt.sign(payload, secretKey, {
 		expiresIn,
 	});
 };
 
-export const getSecretKey = (tokenType: TokenType): string => {
-	if (tokenType === "access") {
+export const getSecretKeyFor = (tokenType: TokenType): string => {
+	if (tokenType === "access_token") {
 		return (
 			process.env.ACCESS_TOKEN_SECRET_KEY || "unique-access-token-secret"
 		);
@@ -31,8 +31,8 @@ export const getSecretKey = (tokenType: TokenType): string => {
 	return process.env.REFRESH_TOKEN_SECRET_KEY || "unique-access-token-secret";
 };
 
-export const getExpiresTimeString = (tokenType: TokenType) => {
-	return tokenType === "access" ? "15m" : "7d";
+export const getExpiresTimeFor = (tokenType: TokenType) => {
+	return tokenType === "access_token" ? "15m" : "7d";
 };
 
 export default createToken;

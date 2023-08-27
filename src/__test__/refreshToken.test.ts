@@ -4,7 +4,7 @@ import app from "../app/app";
 import { connectDB, disconnectDB } from "../config/database";
 import createErrorResponseBody from "../util/createErrorResponseBody";
 import AppError from "../config/AppError";
-import createToken, { getSecretKey } from "../lib/createToken";
+import createToken, { getSecretKeyFor } from "../lib/jwt";
 import { createObjectId } from "./util/services";
 
 const URL = "/api/v1/auth/refresh";
@@ -71,7 +71,7 @@ describe("Route /auth/refresh", () => {
 
 	describe("given refresh token with invalid payload", () => {
 		it("should return status 401 and `Unauthorized!` message", async () => {
-			const refreshToken = createToken({ name: "hi" }, "refresh");
+			const refreshToken = createToken({ name: "hi" }, "refresh_token");
 
 			const { body } = await supertest(app)
 				.get(URL)
@@ -86,7 +86,7 @@ describe("Route /auth/refresh", () => {
 		it("should return status 403 and `jwt expired` message", async () => {
 			const expiredToken = jwt.sign(
 				{ userInfo: { id: "someone-id" } },
-				getSecretKey("refresh"),
+				getSecretKeyFor("refresh_token"),
 				{ expiresIn: "-1s" }
 			);
 
@@ -121,7 +121,7 @@ describe("Route /auth/refresh", () => {
 		it("should return status 401 and `Unauthorized!` message", async () => {
 			const refreshToken = createToken(
 				{ userInfo: { id: "20fkajg30282jfl2952jfla;" } },
-				"refresh"
+				"refresh_token"
 			);
 
 			const { body } = await supertest(app)
@@ -138,7 +138,7 @@ describe("Route /auth/refresh", () => {
 			const userId = createObjectId();
 			const refreshToken = createToken(
 				{ userInfo: { id: userId } },
-				"refresh"
+				"refresh_token"
 			);
 
 			const { body } = await supertest(app)

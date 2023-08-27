@@ -1,7 +1,5 @@
 import { ErrorResponseBody } from "../config/AppError";
 
-// TODO: write tests for this
-
 export default function createErrorResponseBody({
 	error,
 	status,

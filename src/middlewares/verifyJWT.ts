@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import AppError from "../config/AppError";
-import { getSecretKey } from "../lib/createToken";
+import { getSecretKeyFor } from "../lib/jwt";
 import User from "../models/User";
 import verifyToken from "../lib/verifyToken";
 
@@ -13,7 +13,7 @@ export default async function verifyJWT(
 		verifyAuthorizationHeader(req);
 
 		const accessToken = getTokenFromRequest(req);
-		const secretKey = getSecretKey("access");
+		const secretKey = getSecretKeyFor("access_token");
 		const payload = verifyToken(accessToken, secretKey);
 
 		const userId = payload.userInfo.id;

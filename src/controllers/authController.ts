@@ -1,7 +1,7 @@
 import bcrypt from "bcrypt";
 import type { Request, Response } from "express";
 import AppError from "../config/AppError";
-import createToken, { getSecretKey } from "../lib/createToken";
+import createToken, { getSecretKeyFor } from "../lib/jwt";
 import {
 	clearTokenCookie,
 	isValidCookie,
@@ -78,8 +78,8 @@ export const handleLogin = async (
 	const payload = {
 		userInfo: { id: foundUser._id.toString() },
 	};
-	const accessToken = createToken(payload, "access");
-	const refreshToken = createToken(payload, "refresh");
+	const accessToken = createToken(payload, "access_token");
+	const refreshToken = createToken(payload, "refresh_token");
 
 	setTokenCookie(res, refreshToken);
 
@@ -100,7 +100,7 @@ export const handleRefreshToken = async (req: Request, res: Response) => {
 	}
 
 	const refreshToken = cookies.token;
-	const secretKey = getSecretKey("refresh");
+	const secretKey = getSecretKeyFor("refresh_token");
 	const payload = verifyToken(refreshToken, secretKey);
 
 	const userId = payload.userInfo.id;
@@ -120,7 +120,7 @@ export const handleRefreshToken = async (req: Request, res: Response) => {
 	// Caution: Don't use `payload` received from verification for new access token's payload. It will cause error.
 	const accessToken = createToken(
 		{ userInfo: { id: foundUser._id.toString() } },
-		"access"
+		"access_token"
 	);
 	res.json({ accessToken });
 };
