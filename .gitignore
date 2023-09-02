@@ -6,4 +6,4 @@ tasks.md
 
 *.mongodb
 
-test_utils
+public/uploads/*
