@@ -1,14 +1,29 @@
 import { NextFunction, Request, Response } from "express";
-import AppError from "../config/AppError";
-import createErrorResponseBody from "../util/createErrorResponseBody";
 import Joi from "joi";
-import logger from "../util/logger";
+import { JsonWebTokenError, TokenExpiredError } from "jsonwebtoken";
+import { MongooseError } from "mongoose";
 import { MulterError } from "multer";
+import AppError from "../config/AppError";
 import { createImageUploadError } from "../lib/createImageUploadError";
+import createErrorResponseBody from "../util/createErrorResponseBody";
+import {
+	isCastError,
+	isJoiValidationError,
+	isJwtTokenError,
+	isMulterError,
+	isTokenExpiredError,
+} from "../util/errorHandlerHelpers";
+import logger from "../util/logger";
 
-// TODO: write tests for this
+export type IncomingError =
+	| Error
+	| AppError
+	| MongooseError
+	| TokenExpiredError
+	| JsonWebTokenError
+	| Joi.ValidationError
+	| MulterError;
 
-type IncomingError = Error | AppError | Joi.ValidationError | MulterError;
 const errorHandler = (
 	err: IncomingError,
 	_req: Request,
@@ -17,16 +32,15 @@ const errorHandler = (
 ) => {
 	logger.error(err, err.message);
 
-	if (err.name === "CastError") {
+	if (isCastError(err)) {
 		const responseBody = createErrorResponseBody({
-			error: "Bad Request!",
+			error: "Bad request!",
 			status: "fail",
 		});
 		return res.status(400).json(responseBody);
 	}
 
-	// token expired error
-	if (err.name === "TokenExpiredError") {
+	if (isTokenExpiredError(err)) {
 		const responseBody = createErrorResponseBody({
 			error: "Token expired!",
 			status: "fail",
@@ -34,8 +48,7 @@ const errorHandler = (
 		return res.status(403).json(responseBody);
 	}
 
-	// jwt error
-	if (err.name === "JsonWebTokenError") {
+	if (isJwtTokenError(err)) {
 		const responseBody = createErrorResponseBody({
 			error: "Unauthorized!",
 			status: "fail",
@@ -43,8 +56,7 @@ const errorHandler = (
 		return res.status(401).json(responseBody);
 	}
 
-	// joi validation error
-	if (err.name === "ValidationError") {
+	if (isJoiValidationError(err)) {
 		const responseBody = createErrorResponseBody({
 			error: err.message,
 			status: "fail",
@@ -52,7 +64,7 @@ const errorHandler = (
 		return res.status(400).json(responseBody);
 	}
 
-	if (err instanceof MulterError) {
+	if (isMulterError(err)) {
 		const responseBody = createErrorResponseBody({
 			error: createImageUploadError(err),
 			status: "fail",
