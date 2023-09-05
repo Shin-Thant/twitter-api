@@ -18,7 +18,6 @@ export async function saveTweetImages(
 			return next(new AppError("Invalid image fields!", 400));
 		}
 
-		// TODO: test this when it throws error
 		const imageNames = await Promise.all(
 			files.map(async (file) => {
 				const name = generateAlphanumericTimestampName();

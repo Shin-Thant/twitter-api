@@ -1,6 +1,5 @@
 import { NextFunction, Request, Response } from "express";
 import Joi from "joi";
-import AppError from "../config/AppError";
 
 const validateResource =
 	(schema: Joi.AnySchema) =>

@@ -77,14 +77,13 @@ export const createTweetHandler = async (
 	req: TypedRequestBody<CreateTweetInput>,
 	res: Response
 ) => {
-	const imageNames: string[] = res.locals.imageNames;
-
 	const { body } = req.body;
 	const owner = req.user as UserDoc;
+	const imageNames: string[] | undefined = res.locals.imageNames;
 
 	const newTweet = await createTweet({
 		type: "post",
-		body,
+		body: body ?? "", // TODO: change this later
 		owner: owner._id.toString(),
 		images: imageNames,
 	});

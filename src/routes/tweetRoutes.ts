@@ -15,8 +15,11 @@ import validateResource from "../middlewares/validateResource";
 import { createTweetSchema, editTweetSchema } from "../schema/tweetSchema";
 import { uploadMany } from "../middlewares/imageUpload";
 import { saveTweetImages } from "../middlewares/saveTweetImages";
+import { tweetBodyOrImage } from "../middlewares/tweetBodyOrImage";
 
 const router = Router();
+
+// TODO: handler `Unexpected end of form` error
 
 router
 	.route("/")
@@ -24,6 +27,7 @@ router
 	.post(
 		verifyJWT,
 		uploadMany({ fieldName: "photos", maxFileCount: 4 }),
+		tweetBodyOrImage,
 		validateResource(createTweetSchema),
 		saveTweetImages,
 		createTweetHandler

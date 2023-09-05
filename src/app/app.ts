@@ -1,16 +1,17 @@
-import "express-async-errors";
-import express from "express";
-import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
-import hpp from "hpp";
 import cors from "cors";
+import dotenv from "dotenv";
+import express from "express";
+import "express-async-errors";
+import hpp from "hpp";
+import path from "path";
+import corsOptions from "../config/corsOptions";
 import errorHandler from "../middlewares/errorHandler";
 import authRoutes from "../routes/authRoutes";
+import commentRoutes from "../routes/commentRoutes";
+import replyRoutes from "../routes/replyRoutes";
 import tweetRoutes from "../routes/tweetRoutes";
 import userRoutes from "../routes/userRoutes";
-import replyRoutes from "../routes/replyRoutes";
-import commentRoutes from "../routes/commentRoutes";
-import corsOptions from "../config/corsOptions";
 
 dotenv.config();
 const app = express();
@@ -20,6 +21,10 @@ app.use(hpp());
 app.use(cors(corsOptions));
 app.use(cookieParser());
 app.use(express.json());
+app.use(
+	"/api/photos/",
+	express.static(path.join(__dirname, "..", "..", "public", "uploads"))
+);
 
 // routes
 app.use("/api/v1/auth", authRoutes);

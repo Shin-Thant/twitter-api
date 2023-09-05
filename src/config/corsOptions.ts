@@ -11,6 +11,8 @@ const allowedOrigins = [
 
 const corsOptions: CorsOptions = {
 	origin(origin, cb) {
+		// console.log({ origin });
+
 		if (!origin || allowedOrigins.indexOf(origin) !== -1) {
 			return cb(null, true);
 		}
