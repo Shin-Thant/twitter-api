@@ -20,11 +20,8 @@ router.get("/me", verifyJWT, getMe);
 router.patch("/follow/:userId", verifyJWT, followUser);
 router.patch("/unfollow/:userId", verifyJWT, unfollowUser);
 
-router
-	.route("/:userId")
-	.get(getUserById)
-	.put(verifyJWT, updateUserGeneralInfo)
-	.delete(verifyJWT, deleteUser);
+router.route("/:userId").get(getUserById).put(verifyJWT, updateUserGeneralInfo);
+// .delete(verifyJWT, deleteUser);
 
 router.get("/:userId/following", getUserFollowing);
 router.get("/:userId/followers", getUserFollowers);
