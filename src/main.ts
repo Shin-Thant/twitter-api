@@ -1,7 +1,6 @@
 process.on("uncaughtException", (e) => {
 	console.log("Uncaught Exception!", e);
 	console.log("Shutting down...");
-console.log('hi');
 	process.exit(1);
 });
 
@@ -16,6 +15,12 @@ const PORT: number = 3500 || process.env.PORT;
 const server = app.listen(PORT, async () => {
 	logger.info(`Server listening on port ${PORT}!`);
 	await connectDB();
+});
+
+process.on("SIGTERM", () => {
+	server.close(() => {
+		logger.info("Server closed!");
+	});
 });
 
 mongoose.connection.once("open", () => {

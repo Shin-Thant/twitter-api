@@ -22,7 +22,7 @@ app.use(cors(corsOptions));
 app.use(cookieParser());
 app.use(express.json());
 app.use(
-	"/api/photos/",
+	"/api/v1/photos/",
 	express.static(path.join(__dirname, "..", "..", "public", "uploads"))
 );
 
