@@ -5,7 +5,7 @@ import AppError from "../config/AppError";
 
 export function tweetBodyOrImage(
 	req: TypedRequestBody<CreateTweetInput>,
-	res: Response,
+	_res: Response,
 	next: NextFunction
 ) {
 	const { body } = req.body;

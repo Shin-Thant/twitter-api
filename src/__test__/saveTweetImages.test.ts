@@ -14,7 +14,6 @@ jest.mock("../util/saveImage", () => {
 			name: string;
 			image: Express.Multer.File;
 		}) => {
-			console.log("gonna throw");
 
 			throw new Error("something");
 		},

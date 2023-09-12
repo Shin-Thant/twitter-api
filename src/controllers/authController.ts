@@ -95,7 +95,6 @@ export const handleRefreshToken = async (req: Request, res: Response) => {
 	const cookies = req.cookies;
 
 	if (!isValidCookie(cookies)) {
-		console.log("cookie error");
 		throw new AppError("Unauthorized!", 401);
 	}
 
@@ -112,7 +111,6 @@ export const handleRefreshToken = async (req: Request, res: Response) => {
 	});
 
 	if (!foundUser) {
-		console.log("refresh: user not found!");
 		clearTokenCookie(res);
 		throw new AppError("Unauthorized!", 401);
 	}

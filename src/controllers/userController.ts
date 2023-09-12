@@ -246,11 +246,10 @@ export const deleteUser = async (req: Request<Params>, res: Response) => {
 	await user.deleteOne();
 
 	// TODO: test this work
-	const result = await User.updateMany(
+	await User.updateMany(
 		{ _id: { $in: user.following } },
 		{ $inc: { "counts.followers": -1 } }
 	).exec();
-	console.log(result);
 
 	res.json({ message: "User deleted successfully!" });
 };
