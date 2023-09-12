@@ -1,8 +1,8 @@
 import { NextFunction, Response } from "express";
 import { CreateTweetInput } from "../schema/tweetSchema";
 import { TypedRequestBody } from "../types/requestTypes";
+import AppError from "../config/AppError";
 
-// TODO: test this
 export function tweetBodyOrImage(
 	req: TypedRequestBody<CreateTweetInput>,
 	res: Response,
@@ -11,10 +11,11 @@ export function tweetBodyOrImage(
 	const { body } = req.body;
 	const files = req.files;
 
-	console.log({ body, files });
-
-	if (!body && !files) {
-		const error = new Error("Bad request!");
+	if (!body && (!files || !files.length)) {
+		const error = new AppError(
+			"Tweet body or photos must be provided!",
+			400
+		);
 		return next(error);
 	}
 	next();

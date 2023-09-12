@@ -1,10 +1,14 @@
 import Joi from "joi";
 
 export type CreateTweetInput = {
-	body?: string;
+	body: {
+		body?: string;
+	};
+	params: object;
+	query: object;
 };
 export const createTweetSchema = Joi.object({
-	body: Joi.object<CreateTweetInput>({
+	body: Joi.object({
 		body: Joi.string().trim().optional().messages({
 			"string.base": "Tweet body must be string!",
 		}),
@@ -23,15 +27,16 @@ export type EditTweetInput = {
 	params: {
 		tweetId: string;
 	};
+	query: object;
 };
-export const editTweetSchema = Joi.object({
-	body: Joi.object({
+export const editTweetSchema = Joi.object<EditTweetInput, true>({
+	body: Joi.object<EditTweetInput["body"], true>({
 		body: Joi.string().trim().required().messages({
 			"string.base": "Tweet body must be string!",
 			"any.required": "Tweet body is required!",
 		}),
 	}),
-	params: Joi.object<EditTweetInput["params"]>({
+	params: Joi.object<EditTweetInput["params"], true>({
 		tweetId: Joi.string().trim().required().messages({
 			"string.base": "Tweet ID must be string!",
 			"any.required": "Tweet ID is required!",

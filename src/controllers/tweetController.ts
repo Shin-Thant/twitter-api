@@ -74,7 +74,7 @@ export const getTweetById = async (
 };
 
 export const createTweetHandler = async (
-	req: TypedRequestBody<CreateTweetInput>,
+	req: TypedRequestBody<CreateTweetInput["body"]>,
 	res: Response
 ) => {
 	const { body } = req.body;
@@ -95,7 +95,7 @@ export const createTweetHandler = async (
 };
 
 export const shareTweet = async (
-	req: Request<TweetParams, object, CreateTweetInput>,
+	req: Request<TweetParams, object, CreateTweetInput["body"]>,
 	res: Response
 ) => {
 	const { user: owner } = req;
