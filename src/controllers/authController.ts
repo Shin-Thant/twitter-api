@@ -32,9 +32,9 @@ export const handleRegister = async (
 	}
 
 	const SALT_ROUNDS = 10;
-	const encryptedPwd = await bcrypt.hash(password, SALT_ROUNDS);
+	const hashedPwd = await bcrypt.hash(password, SALT_ROUNDS);
 
-	const newUser = await createUser({ ...req.body, password: encryptedPwd });
+	const newUser = await createUser({ ...req.body, password: hashedPwd });
 	if (!newUser) {
 		throw new AppError("Something went wrong", 500);
 	}

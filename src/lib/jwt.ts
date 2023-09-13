@@ -23,12 +23,17 @@ const createToken = (payload: object, tokenType: TokenType): string => {
 };
 
 export const getSecretKeyFor = (tokenType: TokenType): string => {
-	if (tokenType === "access_token") {
-		return (
-			process.env.ACCESS_TOKEN_SECRET_KEY || "unique-access-token-secret"
-		);
+	if (process.env.NODE_ENV === "test") {
+		if (tokenType === "access_token") {
+			return "unique-access-token-secret";
+		}
+		return "unique-refresh-token-secret";
 	}
-	return process.env.REFRESH_TOKEN_SECRET_KEY || "unique-access-token-secret";
+
+	if (tokenType === "access_token") {
+		return process.env.ACCESS_TOKEN_SECRET_KEY;
+	}
+	return process.env.REFRESH_TOKEN_SECRET_KEY;
 };
 
 export const getExpiresTimeFor = (tokenType: TokenType) => {
