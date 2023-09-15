@@ -14,8 +14,9 @@ const router = Router();
 
 // *limit auth requests
 const AUTH_REMEMBER_TIME_IN_MILLISECONDS = 15 * 60 * 1000;
-const authRateLimiter = () =>
-	rateLimiter(3, AUTH_REMEMBER_TIME_IN_MILLISECONDS);
+const authRateLimiter = () => {
+	return rateLimiter(3, AUTH_REMEMBER_TIME_IN_MILLISECONDS);
+};
 
 router.post(
 	"/register",

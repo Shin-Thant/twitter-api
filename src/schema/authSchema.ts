@@ -10,9 +10,11 @@ export const loginUserSchema = Joi.object({
 		email: Joi.string().email().trim().required().messages({
 			"string.base": "Email must be string!",
 			"string.email": "Invalid email!",
+			"any.required": "Email is required!",
 		}),
 		password: Joi.string().trim().required().messages({
 			"string.base": "Password must be string!",
+			"any.required": "Password is required!",
 		}),
 	}).required(),
 	query: Joi.object({}),
@@ -31,19 +33,22 @@ export const registerUserSchema = Joi.object({
 		username: Joi.string().max(15).trim().required().messages({
 			"string.base": "Username must be string!",
 			"string.max": "Username must be less than {#limit} characters!",
-			"string.required": "Username is required!",
+			"any.required": "Username is required!",
 		}),
 		name: Joi.string().trim().max(15).required().messages({
 			"string.base": "Name must be string!",
 			"string.max": "Name must be less than {#limit} characters!",
+			"any.required": "Name is required!",
 		}),
 		email: Joi.string().email().trim().required().messages({
 			"string.base": "Email must be string!",
 			"string.email": "Invalid email!",
+			"any.required": "Email is required!",
 		}),
 		password: Joi.string().min(6).trim().required().messages({
 			"string.base": "Password must be string!",
 			"string.min": "Password must have at least 6 characters!",
+			"any.required": "Password is required!",
 		}),
 		avatar: Joi.string().trim().messages({
 			"string.base": "Avatar must be string!",

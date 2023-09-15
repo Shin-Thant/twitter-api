@@ -1,31 +1,32 @@
 import { ErrorResponseBody } from "../config/AppError";
 
-export default function createErrorResponseBody(
-	err?: Error,
-	status?: "fail" | "error"
-): ErrorResponseBody {
-	if (!err) {
-		return handleNoInitError();
+export default function createErrorResponseBody({
+	error,
+	status,
+}: {
+	error?: Error | string;
+	status: "fail" | "error";
+}): ErrorResponseBody {
+	if (!error) {
+		return createDefaultErrorResponseBody({ status });
 	}
 
-	return handleErrorBody(
-		status || "error",
-		err.message || "Sometihng went wrong!"
-	);
-}
-
-function handleNoInitError(): ErrorResponseBody {
-	return {
-		status: "error",
-		message: "Something went wrong!",
-	};
-}
-function handleErrorBody(
-	status: "fail" | "error",
-	message: string
-): ErrorResponseBody {
 	return {
 		status,
-		message,
+		message:
+			typeof error === "string"
+				? error
+				: error.message || "Sometihng went wrong!",
+	};
+}
+
+function createDefaultErrorResponseBody({
+	status,
+}: {
+	status: "error" | "fail";
+}): ErrorResponseBody {
+	return {
+		status,
+		message: "Something went wrong!",
 	};
 }

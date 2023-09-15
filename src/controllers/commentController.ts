@@ -4,9 +4,8 @@ import { TweetParams } from "./tweetController";
 import AppError from "../config/AppError";
 import santitizeCommentData from "../lib/validateCommentCreation";
 import Comment from "../models/Comment";
-import Tweet from "../models/Tweet";
-import { LeanTweet } from "../models/types/tweetTypes";
 import isObjectId from "../lib/isObjectId";
+import { findTweet } from "../services/tweetServices";
 
 //* test route
 export const getAllComments = async (req: Request, res: Response) => {
@@ -52,7 +51,10 @@ export const addNewComment = async (
 	if (!isObjectId(tweetId)) {
 		throw new AppError("Invalid Tweet ID!", 400);
 	}
-	const foundTweet = await Tweet.findById(tweetId).lean<LeanTweet>().exec();
+	const foundTweet = await findTweet(
+		{ _id: tweetId.toString() },
+		{ lean: true }
+	);
 	if (!foundTweet) {
 		throw new AppError("Invalid Tweet ID!", 400);
 	}

@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import AppError from "../config/AppError";
-import Tweet from "../models/Tweet";
+import { findTweet } from "../services/tweetServices";
+import isObjectId from "../lib/isObjectId";
 
 const verifyTweetOwner = async (
 	req: Request<{ tweetId?: string }>,
@@ -15,8 +16,11 @@ const verifyTweetOwner = async (
 	if (!tweetId) {
 		throw new AppError("Tweet ID is requried!", 400);
 	}
+	if (!isObjectId(tweetId)) {
+		throw new AppError("Invalid ID!", 400);
+	}
 
-	const foundTweet = await Tweet.findById(tweetId).exec();
+	const foundTweet = await findTweet({ _id: tweetId });
 	if (!foundTweet) {
 		throw new AppError("Invalid ID!", 400);
 	}

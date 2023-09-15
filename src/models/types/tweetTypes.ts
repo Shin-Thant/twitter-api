@@ -21,6 +21,7 @@ export type TweetSchema = {
 	owner: UserRef;
 	body?: string;
 	origin?: TweetRef;
+	images: string[];
 	likes: UserRef[];
 	shares: SharedTweet[];
 	comments?: CommentRef[];
@@ -55,14 +56,14 @@ export interface TweetQueryHelpers {
 	populateRelations: PopulateTweetRelations;
 }
 
-type Options = {
+export type TweetPopulateOptions = {
 	populateComments?: boolean;
 	populateLikes?: boolean;
 	populateShares?: boolean;
 };
 export type PopulateTweetRelations = (
 	this: TweetQueryThis,
-	options?: Options
+	options?: TweetPopulateOptions
 ) => QueryWithHelpers<any, TweetDoc, TweetQueryHelpers>;
 
 // TODO: change `any` to something

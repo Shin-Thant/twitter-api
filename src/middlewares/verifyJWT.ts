@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import AppError from "../config/AppError";
-import { getSecretKey } from "../lib/createToken";
+import { getSecretKeyFor } from "../lib/jwt";
 import User from "../models/User";
 import verifyToken from "../lib/verifyToken";
 
@@ -10,10 +10,12 @@ export default async function verifyJWT(
 	next: NextFunction
 ) {
 	try {
-		verifyAuthorizationHeader(req);
+		if (!hasAuthorizationHeader(req)) {
+			throw new AppError("Missing authorization header!", 403);
+		}
 
 		const accessToken = getTokenFromRequest(req);
-		const secretKey = getSecretKey("access");
+		const secretKey = getSecretKeyFor("access_token");
 		const payload = verifyToken(accessToken, secretKey);
 
 		const userId = payload.userInfo.id;
@@ -30,32 +32,26 @@ export default async function verifyJWT(
 	}
 }
 
-function verifyAuthorizationHeader(req: Request) {
-	if (!req.headers) {
-		throw new AppError("Missing request headers!", 403);
-	}
-	if (
-		!("authorization" in req.headers) &&
-		!("Authorization" in req.headers)
-	) {
-		throw new AppError("Missing authorization header!", 403);
-	}
+function hasAuthorizationHeader(req: Request): boolean {
+	return "authorization" in req.headers || "Authorization" in req.headers;
 }
 
+const SPLIT_CHAR = " "; // space
+const TOKEN_INDEX = 1;
 function getTokenFromRequest(req: Request) {
-	const bearerToken = getBearerTokenFromReqHeader(req);
+	const bearerToken = getBearerTokenFromRequest(req);
 	if (!isValidBearerToken(bearerToken)) {
 		throw new AppError("Missing token in authorization header!", 403);
 	}
 
-	const token = bearerToken.split(" ")[1];
+	const token = bearerToken.split(SPLIT_CHAR)[TOKEN_INDEX];
 	if (!token) {
 		throw new AppError("Access token required!", 401);
 	}
 	return token;
 }
 
-function getBearerTokenFromReqHeader(req: Request) {
+function getBearerTokenFromRequest(req: Request) {
 	return req.headers.authorization || req.headers.Authorization;
 }
 
@@ -65,7 +61,8 @@ function isValidBearerToken(
 	return (
 		!!bearerToken &&
 		!Array.isArray(bearerToken) &&
-		bearerToken.startsWith("Bearer ")
+		bearerToken.startsWith("Bearer ") &&
+		bearerToken.split(" ").length === 2
 	);
 }
 

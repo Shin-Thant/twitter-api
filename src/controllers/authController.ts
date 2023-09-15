@@ -1,7 +1,7 @@
 import bcrypt from "bcrypt";
 import type { Request, Response } from "express";
 import AppError from "../config/AppError";
-import createToken, { getSecretKey } from "../lib/createToken";
+import createToken, { getSecretKeyFor } from "../lib/jwt";
 import {
 	clearTokenCookie,
 	isValidCookie,
@@ -32,14 +32,13 @@ export const handleRegister = async (
 	}
 
 	const SALT_ROUNDS = 10;
-	const encryptedPwd = await bcrypt.hash(password, SALT_ROUNDS);
+	const hashedPwd = await bcrypt.hash(password, SALT_ROUNDS);
 
-	const newUser = await createUser({ ...req.body, password: encryptedPwd });
+	const newUser = await createUser({ ...req.body, password: hashedPwd });
 	if (!newUser) {
 		throw new AppError("Something went wrong", 500);
 	}
 
-	// TODO: test this
 	const user = await findUser({ _id: newUser._id });
 	res.status(201).json(user);
 };
@@ -57,7 +56,6 @@ export const handleLogin = async (
 		throw new AppError("All fields are required!", 400);
 	}
 
-	// TODO: test this
 	const foundUser = await findUser(
 		{ email },
 		{ password: true },
@@ -78,18 +76,14 @@ export const handleLogin = async (
 	const payload = {
 		userInfo: { id: foundUser._id.toString() },
 	};
-	const accessToken = createToken(payload, "access");
-	const refreshToken = createToken(payload, "refresh");
+	const accessToken = createToken(payload, "access_token");
+	const refreshToken = createToken(payload, "refresh_token");
 
 	setTokenCookie(res, refreshToken);
 
-	const user = await findUser(
-		{ _id: foundUser._id },
-		undefined,
-		{
-			populate: "followers",
-		}
-	);
+	const user = await findUser({ _id: foundUser._id }, undefined, {
+		populate: "followers",
+	});
 	res.json({ accessToken, user });
 };
 
@@ -103,14 +97,14 @@ export const handleRefreshToken = async (req: Request, res: Response) => {
 	}
 
 	const refreshToken = cookies.token;
-	const secretKey = getSecretKey("refresh");
-	const payload = verifyToken(refreshToken, secretKey);
+	const secretKey = getSecretKeyFor("refresh_token");
 
+	const payload = verifyToken(refreshToken, secretKey);
 	const userId = payload.userInfo.id;
+
 	if (!isObjectId(userId)) {
 		throw new AppError("Unauthorized!", 401);
 	}
-	// TODO: test this
 	const foundUser = await findUser({ _id: userId }, undefined, {
 		lean: true,
 	});
@@ -120,10 +114,10 @@ export const handleRefreshToken = async (req: Request, res: Response) => {
 		throw new AppError("Unauthorized!", 401);
 	}
 
-	// Caution: Don't use `payload` received from verification for new access token's payload. It will cause error.
+	//! Caution: Don't use `payload` received from verification for new access token's payload. It will cause error.
 	const accessToken = createToken(
 		{ userInfo: { id: foundUser._id.toString() } },
-		"access"
+		"access_token"
 	);
 	res.json({ accessToken });
 };

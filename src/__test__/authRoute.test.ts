@@ -25,11 +25,11 @@ describe("/auth", () => {
 				const requestBodyArr = [
 					{
 						body: { email: "hello@gmail.com" },
-						errMessage: '"body.password" is required',
+						errMessage: 'Password is required!',
 					},
 					{
 						body: { password: "hello@gmail.com" },
-						errMessage: '"body.email" is required',
+						errMessage: 'Email is required!',
 					},
 					{
 						body: { email: 10, password: "hi" },
@@ -130,13 +130,13 @@ describe("/auth", () => {
 						name: user.name,
 						username: user.username,
 						email: user.email,
-						...(user.avatar ? { avatar: user.avatar } : {}),
+						avatar: user.avatar,
 						following: user.following,
 						followers: user.followers,
 						counts: user.counts,
 						updatedAt: expect.any(String),
 						createdAt: expect.any(String),
-						__v: expect.any(Number),
+						id: user._id.toString(),
 					},
 				});
 			});

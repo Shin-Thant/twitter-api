@@ -1,18 +1,22 @@
 import { Request, Response } from "express";
 import AppError from "../config/AppError";
 import PaginationImpl from "../lib/pagination";
-import santitizeTweetData, {
-	CreateTweet,
-	ShareTweet,
-} from "../lib/validateTweetCreation";
-import Comment from "../models/Comment";
-import Tweet from "../models/Tweet";
+import { UserDoc } from "../models/types/userTypes";
+import { CreateTweetInput, EditTweetInput } from "../schema/tweetSchema";
+import { deleteComments } from "../services/commentServices";
+import { deleteManyImages } from "../services/imageServices";
+import {
+	createTweet,
+	deleteTweet,
+	findManyTweet,
+	findTweet,
+	getTweetCount,
+	handleTweetLikes,
+	updateTweet,
+} from "../services/tweetServices";
 import { TypedRequestBody, TypedRequestQuery } from "../types/requestTypes";
 import { isValuesNotNumber } from "../util/isValuesNotNumber";
 import PaginationHelperImpl from "../util/paginationHelper";
-import { UnpopulatedTweet } from "../models/types/tweetTypes";
-import { CreateTweetInput } from "../schema/tweetSchema";
-import { UserDoc } from "../models/types/userTypes";
 
 export type TweetParams = { tweetId?: string };
 
@@ -29,7 +33,7 @@ export const getTweets = async (
 		throw new AppError("Enter valid values!", 400);
 	}
 
-	const totalTweets = await Tweet.countDocuments({});
+	const totalTweets = await getTweetCount({});
 
 	const pagination = new PaginationImpl({
 		itemsPerPage: parseInt(itemsPerPage),
@@ -38,11 +42,14 @@ export const getTweets = async (
 		helper: new PaginationHelperImpl(),
 	});
 
-	const tweets = await Tweet.find()
-		.populateRelations({ populateComments: true, populateShares: true })
-		.limit(pagination.itemsPerPage * pagination.currentPage)
-		.sort("-createdAt")
-		.exec();
+	const tweets = await findManyTweet(
+		{},
+		{
+			limit: pagination.itemsPerPage * pagination.currentPage,
+			sort: "-createdAt",
+		},
+		{ populateComments: true, populateShares: true }
+	);
 
 	res.json(pagination.createPaginationResult<typeof tweets>(tweets));
 };
@@ -56,9 +63,10 @@ export const getTweetById = async (
 		throw new AppError("All fields are requried!", 400);
 	}
 
-	const tweet = await Tweet.findById(tweetId)
-		.populateRelations({ populateComments: true })
-		.exec();
+	const tweet = await findTweet(
+		{ _id: tweetId },
+		{ populate: { path: "comments" } }
+	);
 
 	if (!tweet) {
 		throw new AppError("Invalid ID!", 400);
@@ -66,20 +74,20 @@ export const getTweetById = async (
 	res.json(tweet);
 };
 
-export const createTweet = async (
-	req: TypedRequestBody<CreateTweetInput>,
+export const createTweetHandler = async (
+	req: TypedRequestBody<CreateTweetInput["body"]>,
 	res: Response
 ) => {
 	const { body } = req.body;
 	const owner = req.user as UserDoc;
+	const imageNames: string[] | undefined = res.locals.imageNames;
 
-	const tweetData: CreateTweet = {
+	const newTweet = await createTweet({
 		type: "post",
-		body,
+		body: body,
 		owner: owner._id.toString(),
-	};
-
-	const newTweet = await Tweet.create(tweetData);
+		images: imageNames ?? [],
+	});
 	if (!newTweet) {
 		throw new AppError("Something went wrong!", 500);
 	}
@@ -88,7 +96,7 @@ export const createTweet = async (
 };
 
 export const shareTweet = async (
-	req: Request<TweetParams, object, CreateTweetInput>,
+	req: Request<TweetParams, object, CreateTweetInput["body"]>,
 	res: Response
 ) => {
 	const { user: owner } = req;
@@ -99,46 +107,41 @@ export const shareTweet = async (
 		throw new AppError("All fields are required!", 400);
 	}
 
-	const originTweet = await Tweet.findById<UnpopulatedTweet>(tweetId).exec();
+	const originTweet = await findTweet({ _id: tweetId }, { lean: true });
 	if (!originTweet) {
 		throw new AppError("Invalid tweet ID!", 400);
 	}
 
-	const tweetData: ShareTweet = {
+	// create share tweet
+	const newSharedTweet = await createTweet({
 		type: "share",
+		body,
 		origin: tweetId,
 		owner: owner._id.toString(),
-	};
-	if (body) {
-		tweetData.body = body;
-	}
-	const { value, error } = santitizeTweetData(tweetData);
-	if (error) {
-		throw error;
-	}
-
-	// create share tweet
-	const newSharedTweet = await Tweet.create(value);
+	});
 	if (!newSharedTweet) {
 		throw new AppError("Some went wrong", 500);
 	}
 
 	// update original tweet
-	originTweet.shares.push(newSharedTweet._id);
-	await originTweet.save();
+	await updateTweet(
+		{ _id: tweetId },
+		{
+			$push: {
+				shares: newSharedTweet._id,
+			},
+		}
+	);
 
 	res.json(newSharedTweet);
 };
 
-export const updateTweet = async (
-	req: Request<TweetParams, object, { body?: string }>,
+export const editTweet = async (
+	req: Request<EditTweetInput["params"], object, EditTweetInput["body"]>,
 	res: Response
 ) => {
 	const { tweet } = req;
 	const { body } = req.body;
-	if (!body) {
-		throw new AppError("Tweet body is required!", 400);
-	}
 	if (!tweet) {
 		throw new AppError("Invalid Tweet ID!", 400);
 	}
@@ -159,32 +162,57 @@ export const handleLikes = async (req: Request<TweetParams>, res: Response) => {
 		throw new AppError("Tweet ID required!", 400);
 	}
 
-	const tweet = await Tweet.findById<UnpopulatedTweet>(tweetId).exec();
+	const tweet = await findTweet({ _id: tweetId });
 	if (!tweet) {
 		throw new AppError("Invalid tweet ID!", 400);
 	}
 
 	const isLiked = tweet.likes.includes(user._id);
 
+	let updatedTweet;
 	if (!isLiked) {
 		// add like
-		tweet.likes.push(user._id);
+		updatedTweet = await handleTweetLikes(
+			{ _id: tweetId },
+			{ action: "like", item: user._id }
+		);
 	} else {
 		// remove like
-		tweet.likes = tweet.likes.filter(
-			(userId) => userId.toString() !== user._id.toString()
+		updatedTweet = await handleTweetLikes(
+			{ _id: tweetId },
+			{ action: "unlike", item: user._id }
 		);
 	}
-	await tweet.save();
-	res.json(tweet);
+
+	res.json(updatedTweet);
 };
 
-export const deleteTweet = async (req: Request<TweetParams>, res: Response) => {
+export const deleteTweetHandler = async (
+	req: Request<TweetParams>,
+	res: Response
+) => {
 	const { tweet } = req;
 	if (!tweet) {
 		throw new AppError("Invalid Tweet ID!", 400);
 	}
-	await Comment.deleteMany({ tweet: tweet._id });
-	await tweet.deleteOne();
+
+	await deleteTweet({ _id: tweet._id.toString() });
+
+	if (tweet.images?.length) {
+		await deleteManyImages(tweet.images);
+	}
+
+	await deleteComments({ tweet: tweet._id });
+	if (tweet.type === "share" && tweet.origin) {
+		// remove one item from original tweet shares
+		await updateTweet(
+			{ _id: tweet.origin.toString() },
+			{
+				$pull: {
+					shares: tweet._id.toString(),
+				},
+			}
+		);
+	}
 	res.json({ status: "success", message: "Tweet deleted successfully!" });
 };

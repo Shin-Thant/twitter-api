@@ -3,24 +3,27 @@ import User from "../models/User";
 import { UserDoc, UserSchema } from "../models/types/userTypes";
 import { RegisterInput } from "../schema/authSchema";
 
+type Filter = FilterQuery<UserDoc>;
+type Options = QueryOptions<UserDoc>;
+
 export async function createUser(input: RegisterInput) {
 	return User.create(input);
 }
 
 export async function findUser(
-	query: FilterQuery<UserDoc>,
+	filter: Filter,
 	projection?: ProjectionType<UserSchema>,
-	options?: QueryOptions<UserDoc>
+	options?: Options
 ) {
-	return User.findOne(query, projection, options).exec();
+	return User.findOne(filter, projection, options).exec();
 }
 
 export async function findUsers(
-	query: FilterQuery<UserDoc>,
+	filter: Filter,
 	projection?: ProjectionType<UserSchema>,
-	options?: QueryOptions<UserDoc>
+	options?: Options
 ) {
-	return User.find(query, projection, options).exec();
+	return User.find(filter, projection, options).exec();
 }
 
 export async function findDuplicateUsernameOrEmail({
@@ -51,7 +54,7 @@ export async function findDuplicateUsernameOrEmail({
 }
 
 export async function paginateUser(
-	query: FilterQuery<UserDoc>,
+	filter: Filter,
 	projection?: ProjectionType<UserSchema>,
 	options?: {
 		skip: number;
@@ -60,9 +63,9 @@ export async function paginateUser(
 		lean?: boolean;
 	}
 ) {
-	return findUsers(query, projection, { ...options });
+	return findUsers(filter, projection, { ...options });
 }
 
-export async function getUserDocumentCount(query: FilterQuery<UserDoc>) {
-	return User.countDocuments(query);
+export async function getUserCount(filter: Filter) {
+	return User.countDocuments(filter);
 }
