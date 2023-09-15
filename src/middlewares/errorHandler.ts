@@ -6,7 +6,9 @@ import { MulterError } from "multer";
 import AppError from "../config/AppError";
 import { createImageUploadError } from "../lib/createImageUploadError";
 import createErrorResponseBody from "../util/createErrorResponseBody";
+import { createUnhandledErrorBodyFor } from "../util/createUnhandledErrorBodyFor";
 import {
+	isAppError,
 	isCastError,
 	isJoiValidationError,
 	isJwtTokenError,
@@ -58,7 +60,7 @@ const errorHandler = (
 
 	if (isJoiValidationError(err)) {
 		const responseBody = createErrorResponseBody({
-			error: err.message,
+			error: err,
 			status: "fail",
 		});
 		return res.status(400).json(responseBody);
@@ -73,20 +75,14 @@ const errorHandler = (
 	}
 
 	// AppError error
-	if (isAppErrorInstance(err)) {
+	if (isAppError(err)) {
 		return res
 			.status(err.statusCode)
 			.json(err.createAppErrorResponseBody());
 	}
 
-	// *this condition always has to be behind the `AppError` condition because `AppError` inherit `Error`
-	res.status(500).json(
-		createErrorResponseBody({ error: err, status: "error" })
-	);
+	//! this condition must be below the `AppError` condition because `AppError` inherits `Error`
+	res.status(500).json(createUnhandledErrorBodyFor(err));
 };
-
-function isAppErrorInstance(error: IncomingError): error is AppError {
-	return error instanceof AppError;
-}
 
 export default errorHandler;
