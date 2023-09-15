@@ -1,7 +1,7 @@
-import { NextFunction, Request, Response } from "express";
 import crypto from "crypto";
+import { NextFunction, Request, Response } from "express";
 import AppError from "../config/AppError";
-import { saveImage } from "../util/saveImage";
+import { saveImage } from "../services/imageServices";
 
 export async function saveTweetImages(
 	req: Request,

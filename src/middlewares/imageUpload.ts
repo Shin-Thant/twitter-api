@@ -1,5 +1,5 @@
 import multer from "multer";
-import { isValidImageType } from "../util/isValidImageType";
+import { isValidImageType } from "../services/imageServices";
 
 const FILE_SIZE_IN_BYTES = 100000 as const; // 100 kilobytes
 

@@ -8,13 +8,12 @@ let next: NextFunction = () => undefined;
 const mockNext = jest.fn().mockImplementation((error?: Error) => error);
 next = mockNext;
 
-jest.mock("../util/saveImage", () => {
+jest.mock("../util/imageHandlers", () => {
 	return {
 		saveImage: (_imageInfo: {
 			name: string;
 			image: Express.Multer.File;
 		}) => {
-
 			throw new Error("something");
 		},
 	};

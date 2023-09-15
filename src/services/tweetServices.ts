@@ -1,9 +1,9 @@
 import { FilterQuery, QueryOptions, Types, UpdateQuery } from "mongoose";
 import Tweet from "../models/Tweet";
 import {
-	TweetSchema,
 	TweetDoc,
 	TweetPopulateOptions,
+	TweetSchema,
 } from "../models/types/tweetTypes";
 
 type Filter = FilterQuery<TweetSchema>;

@@ -17,11 +17,12 @@ const server = app.listen(PORT, async () => {
 	await connectDB();
 });
 
-process.on("SIGTERM", () => {
-	server.close(() => {
-		logger.info("Server closed!");
-	});
-});
+// process.on("SIGTERM", () => {
+// 	logger.debug('Graceful shutdown...')
+// 	server.close(() => {
+// 		logger.info("Server closed!");
+// 	});
+// });
 
 mongoose.connection.once("open", () => {
 	logger.info("Successfully connected to DB!");

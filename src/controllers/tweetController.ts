@@ -3,6 +3,7 @@ import AppError from "../config/AppError";
 import PaginationImpl from "../lib/pagination";
 import { UserDoc } from "../models/types/userTypes";
 import { CreateTweetInput, EditTweetInput } from "../schema/tweetSchema";
+import { deleteComments } from "../services/commentServices";
 import {
 	createTweet,
 	deleteTweet,
@@ -13,9 +14,9 @@ import {
 	updateTweet,
 } from "../services/tweetServices";
 import { TypedRequestBody, TypedRequestQuery } from "../types/requestTypes";
+import { deleteManyImages } from "../services/imageServices";
 import { isValuesNotNumber } from "../util/isValuesNotNumber";
 import PaginationHelperImpl from "../util/paginationHelper";
-import { deleteComments } from "../services/commentServices";
 
 export type TweetParams = { tweetId?: string };
 
@@ -196,6 +197,10 @@ export const deleteTweetHandler = async (
 	}
 
 	await deleteTweet({ _id: tweet._id.toString() });
+
+	if (tweet.images?.length) {
+		await deleteManyImages(tweet.images);
+	}
 
 	await deleteComments({ tweet: tweet._id });
 	if (tweet.type === "share" && tweet.origin) {
