@@ -25,7 +25,7 @@ router
 	.route("/")
 	.get(getTweets)
 	.post(
-		// verifyJWT,
+		verifyJWT,
 		uploadMany({ fieldName: "photos", maxFileCount: 4 }),
 		tweetBodyOrImage,
 		validateResource(createTweetSchema),
