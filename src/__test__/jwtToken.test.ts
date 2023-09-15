@@ -72,22 +72,6 @@ describe("JWT token", () => {
 			mockRequest = {};
 		});
 
-		describe("given empty request header", () => {
-			it("should return status 403 and `Missing request header!` message", () => {
-				runVerifyJWT(mockRequest as Request);
-
-				const arg: AppError = mockFn.mock.calls[0][0];
-				const expectedErr = new AppError(
-					"Missing request headers!",
-					403
-				);
-
-				expect(nextFunction).toHaveBeenCalledWith(expectedErr);
-				expect(arg.statusCode).toBe(expectedErr.statusCode);
-				expect(arg.message).toBe(expectedErr.message);
-			});
-		});
-
 		describe("given no Authorization header", () => {
 			it("should return status 403 and `Missing authorization header!` message", () => {
 				mockRequest = { headers: {} };

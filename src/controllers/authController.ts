@@ -98,9 +98,10 @@ export const handleRefreshToken = async (req: Request, res: Response) => {
 
 	const refreshToken = cookies.token;
 	const secretKey = getSecretKeyFor("refresh_token");
-	const payload = verifyToken(refreshToken, secretKey);
 
+	const payload = verifyToken(refreshToken, secretKey);
 	const userId = payload.userInfo.id;
+
 	if (!isObjectId(userId)) {
 		throw new AppError("Unauthorized!", 401);
 	}
@@ -113,7 +114,7 @@ export const handleRefreshToken = async (req: Request, res: Response) => {
 		throw new AppError("Unauthorized!", 401);
 	}
 
-	// Caution: Don't use `payload` received from verification for new access token's payload. It will cause error.
+	//! Caution: Don't use `payload` received from verification for new access token's payload. It will cause error.
 	const accessToken = createToken(
 		{ userInfo: { id: foundUser._id.toString() } },
 		"access_token"

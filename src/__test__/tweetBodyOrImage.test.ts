@@ -18,7 +18,7 @@ describe("tweetBodyOrImage middleware", () => {
 		req = {} as Request;
 	});
 
-	describe.only("when request without body or photos", () => {
+	describe("when request without body or photos", () => {
 		beforeAll(async () => {
 			await connectDB();
 		});
