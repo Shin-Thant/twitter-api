@@ -36,9 +36,9 @@ const getExtensionTypeFor = (mimetype: string) => {
 	return mimetype.split(SPLIT_CHAR)[TYPE_INDEX];
 };
 
-export async function deleteManyImages(images: string[]) {
-	for (const image in images) {
-		const imagePath = getImagePath({ imageName: image });
+export async function deleteManyImages(imageNames: string[]) {
+	for (const imageName in imageNames) {
+		const imagePath = getImagePath({ imageName });
 		const imageExists = await checkImageExist({ path: imagePath });
 		if (!imageExists) {
 			return;
