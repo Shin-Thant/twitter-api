@@ -8,7 +8,7 @@ let next: NextFunction = () => undefined;
 const mockNext = jest.fn().mockImplementation((error?: Error) => error);
 next = mockNext;
 
-jest.mock("../util/imageHandlers", () => {
+jest.mock("../services/imageServices", () => {
 	return {
 		saveImage: (_imageInfo: {
 			name: string;

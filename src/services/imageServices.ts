@@ -2,6 +2,7 @@ import sharp from "sharp";
 import fs from "fs/promises";
 import AppError from "../config/AppError";
 import path from "path";
+import logger from "../util/logger";
 
 const ALLOWED_TYPES = ["png", "jpg", "jpeg"] as const;
 type TYPE = (typeof ALLOWED_TYPES)[number];
@@ -38,25 +39,30 @@ const getExtensionTypeFor = (mimetype: string) => {
 export async function deleteManyImages(images: string[]) {
 	for (const image in images) {
 		const imagePath = getImagePath({ imageName: image });
-		const imageExists = await checkImageExist(imagePath);
+		const imageExists = await checkImageExist({ path: imagePath });
 		if (!imageExists) {
 			return;
 		}
-		await deleteImage(imagePath);
+		await deleteImage({ path: imagePath });
 	}
 }
 
-export async function checkImageExist(imagePath: string): Promise<boolean> {
+export async function checkImageExist({
+	path,
+}: {
+	path: string;
+}): Promise<boolean> {
 	try {
-		await fs.access(imagePath, fs.constants.F_OK);
+		await fs.access(path, fs.constants.F_OK);
 		return true;
 	} catch (err) {
+		logger.error("Image exist check error!", err);
 		return false;
 	}
 }
 
-export async function deleteImage(imagePath: string) {
-	await fs.unlink(imagePath);
+async function deleteImage({ path }: { path: string }) {
+	await fs.unlink(path);
 }
 
 export function getImagePath({ imageName }: { imageName: string }): string {
