@@ -1,7 +1,7 @@
-import sharp from "sharp";
 import fs from "fs/promises";
-import AppError from "../config/AppError";
 import path from "path";
+import sharp from "sharp";
+import AppError from "../config/AppError";
 import logger from "../util/logger";
 
 const ALLOWED_TYPES = ["png", "jpg", "jpeg"] as const;

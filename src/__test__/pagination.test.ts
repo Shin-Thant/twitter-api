@@ -1,9 +1,6 @@
 import PaginationImpl, { ConstructorParam } from "../lib/pagination";
 import PaginationHelperImpl from "../util/paginationHelper";
 
-// TODO: remove `limit` in cliend side type
-// TODO: write test when the currentPage or itemsPerPage or totalDocs or some input are minus values
-
 const helper = new PaginationHelperImpl();
 const pagination = new PaginationImpl({
 	itemsPerPage: 10,

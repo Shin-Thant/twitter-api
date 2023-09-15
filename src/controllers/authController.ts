@@ -39,7 +39,6 @@ export const handleRegister = async (
 		throw new AppError("Something went wrong", 500);
 	}
 
-	// TODO: test this
 	const user = await findUser({ _id: newUser._id });
 	res.status(201).json(user);
 };
@@ -57,7 +56,6 @@ export const handleLogin = async (
 		throw new AppError("All fields are required!", 400);
 	}
 
-	// TODO: test this
 	const foundUser = await findUser(
 		{ email },
 		{ password: true },

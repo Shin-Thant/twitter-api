@@ -22,7 +22,6 @@ describe("errorHandler", () => {
 		mockStatus.mockReturnValue({ json: mockJson });
 	});
 
-	// TODO: rewrite this test
 	describe("given CastError", () => {
 		it("should respond with `Bad request!` error message and status `fail`", () => {
 			const castError: CastError = {

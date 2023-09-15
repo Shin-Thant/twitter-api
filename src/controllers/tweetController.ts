@@ -4,6 +4,7 @@ import PaginationImpl from "../lib/pagination";
 import { UserDoc } from "../models/types/userTypes";
 import { CreateTweetInput, EditTweetInput } from "../schema/tweetSchema";
 import { deleteComments } from "../services/commentServices";
+import { deleteManyImages } from "../services/imageServices";
 import {
 	createTweet,
 	deleteTweet,
@@ -14,7 +15,6 @@ import {
 	updateTweet,
 } from "../services/tweetServices";
 import { TypedRequestBody, TypedRequestQuery } from "../types/requestTypes";
-import { deleteManyImages } from "../services/imageServices";
 import { isValuesNotNumber } from "../util/isValuesNotNumber";
 import PaginationHelperImpl from "../util/paginationHelper";
 
@@ -84,9 +84,9 @@ export const createTweetHandler = async (
 
 	const newTweet = await createTweet({
 		type: "post",
-		body: body ?? "", // TODO: change this later
+		body: body,
 		owner: owner._id.toString(),
-		images: imageNames,
+		images: imageNames ?? [],
 	});
 	if (!newTweet) {
 		throw new AppError("Something went wrong!", 500);

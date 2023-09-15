@@ -10,23 +10,19 @@ type Filter = FilterQuery<TweetSchema>;
 type Update = UpdateQuery<TweetSchema>;
 type Options = QueryOptions<TweetSchema>;
 
-interface BasicTweet {
-	owner: string;
-	images?: string[];
-}
-
 type PostTweetContent =
-	| { body: string }
-	| { images: string[] }
+	| { body: string; images?: string[] }
+	| { body?: string; images: string[] }
 	| { body: string; images: string[] };
 export type CreateTweet = {
 	type: "post";
-} & BasicTweet &
-	PostTweetContent;
+	owner: string;
+} & PostTweetContent;
 
-export interface ShareTweet extends BasicTweet {
+export interface ShareTweet {
 	type: "share";
 	body?: string;
+	owner: string;
 	origin: string;
 }
 type NewTweet = CreateTweet | ShareTweet;
