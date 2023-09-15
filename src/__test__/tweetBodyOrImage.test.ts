@@ -1,6 +1,10 @@
 import { NextFunction, Request, Response } from "express";
-import { tweetBodyOrImage } from "../middlewares/tweetBodyOrImage";
+import supertest from "supertest";
+import app from "../app/app";
 import AppError from "../config/AppError";
+import { connectDB, disconnectDB } from "../config/database";
+import { tweetBodyOrImage } from "../middlewares/tweetBodyOrImage";
+import { createBearerToken, getRandomUser } from "./util/services";
 
 let req = {} as Request;
 const res = {} as Response;
@@ -12,6 +16,35 @@ next = mockNext;
 describe("tweetBodyOrImage middleware", () => {
 	beforeEach(() => {
 		req = {} as Request;
+	});
+
+	describe.only("when request without body or photos", () => {
+		beforeAll(async () => {
+			await connectDB();
+		});
+		afterAll(async () => {
+			await disconnectDB();
+		});
+
+		it("should response with status `fail` and message", async () => {
+			const randomUser = (await getRandomUser())!;
+			const bearerToken = createBearerToken(randomUser._id.toString());
+			console.log({ randomUser, bearerToken });
+
+			const formData = new FormData();
+
+			const result = await supertest(app)
+				.post("/api/v1/tweets")
+				.set("Authorization", bearerToken)
+				.send(formData)
+				.expect(400);
+
+			const expectedBody = {
+				status: "fail",
+				message: "Tweet body or photos must be provided!",
+			};
+			expect(result.body).toEqual(expectedBody);
+		});
 	});
 
 	describe("not given tweet body and images", () => {
