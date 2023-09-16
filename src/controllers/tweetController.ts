@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import AppError from "../config/AppError";
 import PaginationImpl from "../lib/pagination";
+import { TweetDoc } from "../models/types/tweetTypes";
 import { UserDoc } from "../models/types/userTypes";
 import { CreateTweetInput, EditTweetInput } from "../schema/tweetSchema";
 import { deleteComments } from "../services/commentServices";
@@ -136,18 +137,24 @@ export const shareTweet = async (
 	res.json(newSharedTweet);
 };
 
-export const editTweet = async (
+export const editTweetHandler = async (
 	req: Request<EditTweetInput["params"], object, EditTweetInput["body"]>,
 	res: Response
 ) => {
-	const { tweet } = req;
 	const { body } = req.body;
-	if (!tweet) {
-		throw new AppError("Invalid Tweet ID!", 400);
-	}
+	const tweet = req.tweet as TweetDoc;
+	const newImageNames: string[] | undefined = res.locals.imageNames;
+	const oldImageNames = [...tweet.images];
 
-	tweet.body = body;
+	if (body) {
+		tweet.body = body;
+	}
+	if (newImageNames?.length) {
+		tweet.images = newImageNames;
+	}
 	await tweet.save();
+
+	await deleteManyImages({ imageNames: oldImageNames });
 
 	res.json(tweet);
 };
@@ -199,7 +206,7 @@ export const deleteTweetHandler = async (
 	await deleteTweet({ _id: tweet._id.toString() });
 
 	if (tweet.images?.length) {
-		await deleteManyImages(tweet.images);
+		await deleteManyImages({ imageNames: tweet.images });
 	}
 
 	await deleteComments({ tweet: tweet._id });

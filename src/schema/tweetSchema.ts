@@ -22,7 +22,7 @@ export const shareTweetSchema = createTweetSchema;
 
 export type EditTweetInput = {
 	body: {
-		body: string;
+		body?: string;
 	};
 	params: {
 		tweetId: string;
@@ -31,9 +31,8 @@ export type EditTweetInput = {
 };
 export const editTweetSchema = Joi.object<EditTweetInput, true>({
 	body: Joi.object<EditTweetInput["body"], true>({
-		body: Joi.string().trim().required().messages({
+		body: Joi.string().trim().optional().messages({
 			"string.base": "Tweet body must be string!",
-			"any.required": "Tweet body is required!",
 		}),
 	}),
 	params: Joi.object<EditTweetInput["params"], true>({

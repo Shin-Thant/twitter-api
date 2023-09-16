@@ -7,7 +7,7 @@ import {
 	getTweets,
 	handleLikes,
 	shareTweet,
-	editTweet,
+	editTweetHandler,
 } from "../controllers/tweetController";
 import verifyJWT from "../middlewares/verifyJWT";
 import verifyTweetOwner from "../middlewares/verifyTweetOwner";
@@ -25,11 +25,13 @@ router
 	.route("/")
 	.get(getTweets)
 	.post(
-		verifyJWT,
-		uploadMany({ fieldName: "photos", maxFileCount: 4 }),
-		tweetBodyOrImage,
-		validateResource(createTweetSchema),
-		saveTweetImages,
+		[
+			verifyJWT,
+			validateResource(createTweetSchema),
+			uploadMany({ fieldName: "photos", maxFileCount: 4 }),
+			tweetBodyOrImage,
+			saveTweetImages,
+		],
 		createTweetHandler
 	);
 
@@ -37,10 +39,15 @@ router
 	.route("/:tweetId")
 	.get(getTweetById)
 	.put(
-		verifyJWT,
-		validateResource(editTweetSchema),
-		verifyTweetOwner,
-		editTweet
+		[
+			verifyJWT,
+			validateResource(editTweetSchema),
+			verifyTweetOwner,
+			uploadMany({ fieldName: "photos", maxFileCount: 4 }),
+			tweetBodyOrImage,
+			saveTweetImages,
+		],
+		editTweetHandler
 	)
 	.delete(verifyJWT, verifyTweetOwner, deleteTweetHandler);
 

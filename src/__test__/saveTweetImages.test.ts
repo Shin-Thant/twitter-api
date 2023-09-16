@@ -16,6 +16,9 @@ jest.mock("../services/imageServices", () => {
 		}) => {
 			throw new Error("something");
 		},
+		generateImageName() {
+			return Date.now().toString();
+		},
 	};
 });
 
@@ -35,7 +38,7 @@ describe("saveTweetImages", () => {
 
 	describe("given files is not array", () => {
 		it("should call next() with error", () => {
-			const expectedError = new Error("Invalid image fields!");
+			const expectedError = new Error("Invalid image field!");
 
 			req = { files: { field: "test" } } as unknown as Request;
 			saveTweetImages(req, res, next);

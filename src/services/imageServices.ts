@@ -1,3 +1,4 @@
+import crypto from "crypto";
 import fs from "fs/promises";
 import path from "path";
 import sharp from "sharp";
@@ -36,14 +37,18 @@ const getExtensionTypeFor = (mimetype: string) => {
 	return mimetype.split(SPLIT_CHAR)[TYPE_INDEX];
 };
 
-export async function deleteManyImages(imageNames: string[]) {
-	for (const imageName in imageNames) {
-		const imagePath = getImagePath({ imageName });
-		const imageExists = await checkImageExist({ path: imagePath });
+export async function deleteManyImages({
+	imageNames,
+}: {
+	imageNames: string[];
+}) {
+	for (const imageName of imageNames) {
+		const path = getImagePath({ imageName });
+		const imageExists = await checkImageExist({ path });
 		if (!imageExists) {
 			return;
 		}
-		await deleteImage({ path: imagePath });
+		await deleteImage({ path });
 	}
 }
 
@@ -56,7 +61,7 @@ export async function checkImageExist({
 		await fs.access(path, fs.constants.F_OK);
 		return true;
 	} catch (err) {
-		logger.error("Image exist check error!", err);
+		logger.error("Image exist check error!", { err });
 		return false;
 	}
 }
@@ -67,4 +72,17 @@ async function deleteImage({ path }: { path: string }) {
 
 export function getImagePath({ imageName }: { imageName: string }): string {
 	return path.join(__dirname, "..", "..", "public", "uploads", imageName);
+}
+
+// {random_alphanumerics}-{timestamp}
+const BYTES_LENGTH = 16;
+const ENCODING = "hex";
+export function generateImageName() {
+	const randomAlphanumerics = crypto
+		.randomBytes(BYTES_LENGTH)
+		.toString(ENCODING);
+
+	const timestamp = Date.now();
+
+	return `${randomAlphanumerics}-${timestamp}`;
 }
