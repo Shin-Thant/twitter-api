@@ -7,5 +7,6 @@ tasks.md
 *.mongodb
 
 public/uploads/*
+!.gitkeep
 
 .vscode/
