@@ -1,10 +1,12 @@
+import { PathLike } from "fs";
+import fs from "fs/promises";
 import path from "path";
 import {
 	checkImageExist,
+	deleteManyImages,
 	getImagePath,
 	isValidImageType,
 } from "../services/imageServices";
-import fs from "fs/promises";
 
 describe("Image Services", () => {
 	describe("isValidImageType", () => {
@@ -78,8 +80,8 @@ describe("Image Services", () => {
 
 		describe("when fs.access() method throws error", () => {
 			jest.spyOn(fs, "access").mockImplementation(
-				// @ts-ignore
-				async (_path: string, _mode?: number) => {
+				async (_path: PathLike, _mode?: number) => {
+					console.log("throw");
 					throw new Error("oops!");
 				}
 			);
@@ -87,6 +89,55 @@ describe("Image Services", () => {
 			it("should return false", async () => {
 				const result = await checkImageExist({ path: "/fake" });
 				expect(result).toBe(false);
+			});
+		});
+	});
+
+	describe("deleteManyImages", () => {
+		const mockUnlink = jest.fn(async (path: PathLike) => {
+			console.log("deleting", path);
+		});
+
+		beforeEach(() => {
+			fs.unlink = mockUnlink;
+		});
+
+		describe("given invalid image names", () => {
+			it("it should not call deleteImage()", async () => {
+				const invalidImageNames = ["hi", "hello"];
+
+				await deleteManyImages({
+					imageNames: invalidImageNames,
+				});
+				expect(mockUnlink).toBeCalledTimes(0);
+			});
+		});
+
+		describe("given valid image names", () => {
+			const mockAccess = jest.fn(
+				async (_path: PathLike, _mode?: number) => {
+					console.log("granted", _path);
+					// return await Promise.resolve();
+				}
+			);
+
+			beforeEach(() => {
+				fs.access = mockAccess;
+			});
+
+			it("it should call deleteImage() with path", async () => {
+				const validImageNames = ["valid_img_1.jpg", "valid_img_2.png"];
+
+				await deleteManyImages({
+					imageNames: validImageNames,
+				});
+
+				expect(mockUnlink).toBeCalledTimes(2);
+				validImageNames.forEach((name) => {
+					expect(mockUnlink).toBeCalledWith(
+						getImagePath({ imageName: name })
+					);
+				});
 			});
 		});
 	});

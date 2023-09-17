@@ -14,6 +14,8 @@ import { UserDoc } from "../models/types/userTypes";
 import { FilterQuery } from "mongoose";
 import { findUser, getUserCount, paginateUser } from "../services/userServices";
 
+const paginationHelper = new PaginationHelperImpl();
+
 export const getMe = async (req: Request, res: Response) => {
 	const { user } = req;
 	if (!user) {
@@ -56,7 +58,7 @@ export const searchUsers = async (
 		itemsPerPage: parseInt(itemsPerPage),
 		currentPage: parseInt(currentPage),
 		totalDocs: totalUsers,
-		helper: new PaginationHelperImpl(),
+		helper: paginationHelper,
 	});
 
 	const options = {

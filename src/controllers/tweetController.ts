@@ -19,6 +19,8 @@ import { TypedRequestBody, TypedRequestQuery } from "../types/requestTypes";
 import { isValuesNotNumber } from "../util/isValuesNotNumber";
 import PaginationHelperImpl from "../util/paginationHelper";
 
+const paginationHelper = new PaginationHelperImpl();
+
 export type TweetParams = { tweetId?: string };
 
 type TweetQueryString = { currentPage?: string; itemsPerPage?: string };
@@ -40,7 +42,7 @@ export const getTweets = async (
 		itemsPerPage: parseInt(itemsPerPage),
 		currentPage: parseInt(currentPage),
 		totalDocs: totalTweets,
-		helper: new PaginationHelperImpl(),
+		helper: paginationHelper,
 	});
 
 	const tweets = await findManyTweet(
