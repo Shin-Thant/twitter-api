@@ -1,7 +1,7 @@
 import multer from "multer";
 import { isValidImageType } from "../services/imageServices";
 
-const FILE_SIZE_IN_BYTES = 100000 as const; // 100 kilobytes
+const FILE_SIZE_IN_BYTES = 120000 as const; // 120 kilobytes
 
 // memory storage is default
 const upload = multer({

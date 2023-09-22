@@ -148,17 +148,15 @@ export const editTweetHandler = async (
 	const newImageNames: string[] | undefined = res.locals.imageNames;
 	const oldImageNames = [...tweet.images];
 
-	if (body) {
-		tweet.body = body;
-	}
-	if (newImageNames?.length) {
-		tweet.images = newImageNames;
-	}
-	await tweet.save();
+	const updatedTweet = await updateTweet(
+		{ _id: tweet._id },
+		{ body, images: newImageNames ?? [] },
+		{ new: true }
+	);
 
 	await deleteManyImages({ imageNames: oldImageNames });
 
-	res.json(tweet);
+	res.json(updatedTweet);
 };
 
 export const handleLikes = async (req: Request<TweetParams>, res: Response) => {
