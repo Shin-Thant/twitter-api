@@ -18,20 +18,6 @@ export async function saveTweetImages(
 			throw new AppError("Invalid image field!", 400);
 		}
 
-		const result = await fsPromise.readdir(
-			path.join(__dirname, "..", "..", "public", "uploads")
-		);
-		console.log({ result });
-
-		try {
-			await fsPromise.access(
-				path.join(__dirname, "..", "..", "public/uploads"),
-				fsPromise.constants.F_OK
-			);
-		} catch (err) {
-			console.log(err);
-		}
-
 		const imageNames = await Promise.all(
 			files.map(async (file) => {
 				const name = generateImageName();
