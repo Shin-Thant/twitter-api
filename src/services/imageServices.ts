@@ -61,6 +61,7 @@ export async function checkImageExist({
 		await fs.access(path, fs.constants.F_OK);
 		return true;
 	} catch (err) {
+		console.log({ err });
 		logger.error("Image exist check error!", path, err);
 		return false;
 	}
