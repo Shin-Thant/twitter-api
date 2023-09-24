@@ -19,7 +19,7 @@ export async function saveTweetImages(
 		}
 
 		const result = await fsPromise.readdir(
-			path.join(__dirname, "..", "..")
+			path.join(__dirname, "..", "..", "public")
 		);
 		console.log({ result });
 
