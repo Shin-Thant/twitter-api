@@ -9,6 +9,7 @@ declare global {
 			REFRESH_TOKEN_SECRET_KEY: string;
 			DATABASE_URI: string;
 			LOCAL_DATABASE_URI: string;
+			SENDGRID_API_KEY: string;
 		}
 	}
 }

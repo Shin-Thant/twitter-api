@@ -1,3 +1,4 @@
+import sgMail from "@sendgrid/mail";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import dotenv from "dotenv";
@@ -15,6 +16,7 @@ import userRoutes from "../routes/userRoutes";
 
 dotenv.config();
 const app = express();
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 // middlewares
 app.use(hpp());
