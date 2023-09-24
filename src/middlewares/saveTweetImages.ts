@@ -19,7 +19,7 @@ export async function saveTweetImages(
 		}
 
 		const result = await fsPromise.readdir(
-			path.join(__dirname, "..", "..", "public")
+			path.join(__dirname, "..", "..", "public", "uploads")
 		);
 		console.log({ result });
 
@@ -32,15 +32,15 @@ export async function saveTweetImages(
 			console.log(err);
 		}
 
-		// const imageNames = await Promise.all(
-		// 	files.map(async (file) => {
-		// 		const name = generateImageName();
-		// 		const imageInfo = await saveImage({ name, image: file });
-		// 		return `${name}.${imageInfo.format}`;
-		// 	})
-		// );
+		const imageNames = await Promise.all(
+			files.map(async (file) => {
+				const name = generateImageName();
+				const imageInfo = await saveImage({ name, image: file });
+				return `${name}.${imageInfo.format}`;
+			})
+		);
 
-		// res.locals.imageNames = [...imageNames];
+		res.locals.imageNames = [...imageNames];
 		next();
 	} catch (err) {
 		next(err);
