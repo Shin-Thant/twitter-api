@@ -1,7 +1,6 @@
 import bcrypt from "bcrypt";
 import type { Request, Response } from "express";
 import AppError from "../config/AppError";
-import createToken, { getSecretKeyFor } from "../lib/jwt";
 import {
 	clearTokenCookie,
 	isValidCookie,
@@ -9,15 +8,16 @@ import {
 } from "../lib/handleTokenCookie";
 import isObjectId from "../lib/isObjectId";
 import verifyToken from "../lib/verifyToken";
-import { TypedRequestBody } from "../types/requestTypes";
+import { UserDoc } from "../models/types/userTypes";
 import { RegisterInput } from "../schema/authSchema";
 import {
 	createUser,
 	findDuplicateUsernameOrEmail,
 	findUser,
 } from "../services/userServices";
-import { UserDoc } from "../models/types/userTypes";
+import { TypedRequestBody } from "../types/requestTypes";
 import { sendWelcomeEmail } from "../util/email";
+import { createJwtToken, getSecretKeyFor } from "../util/jwt";
 
 export const handleRegister = async (
 	req: TypedRequestBody<RegisterInput>,
@@ -41,12 +41,27 @@ export const handleRegister = async (
 		throw new AppError("Something went wrong", 500);
 	}
 
-	// const user = await findUser({ _id: newUser._id });
 	const user: Partial<UserDoc> = { ...newUser.toObject() };
 	delete user.password;
 
 	// send email
 	await sendWelcomeEmail({ to: newUser.email, name: newUser.name });
+
+	// const emailToken = createToken(
+	// 	{ id: newUser._id.toString() },
+	// 	"email_token"
+	// );
+
+	// const expiresTimeString = getExpiresTimeFor("email_token");
+	// const expireTimeInMins = parseInt(
+	// 	expiresTimeString.slice(0, expiresTimeString.length)
+	// );
+	// await sendVerifyEmail({
+	// 	to: newUser.email,
+	// 	name: newUser.name,
+	// 	verifyLink: "",
+	// 	expireTimeInMins,
+	// });
 
 	res.status(201).json(user);
 };
@@ -84,8 +99,14 @@ export const handleLogin = async (
 	const payload = {
 		userInfo: { id: foundUser._id.toString() },
 	};
-	const accessToken = createToken(payload, "access_token");
-	const refreshToken = createToken(payload, "refresh_token");
+	const accessToken = createJwtToken({
+		payload,
+		secretKey: getSecretKeyFor("access_token"),
+	});
+	const refreshToken = createJwtToken({
+		payload,
+		secretKey: getSecretKeyFor("refresh_token"),
+	});
 
 	setTokenCookie(res, refreshToken);
 
@@ -107,8 +128,8 @@ export const handleRefreshToken = async (req: Request, res: Response) => {
 	const refreshToken = cookies.token;
 	const secretKey = getSecretKeyFor("refresh_token");
 
-	const payload = verifyToken(refreshToken, secretKey);
-	const userId = payload.userInfo.id;
+	const refreshTokenPayload = verifyToken(refreshToken, secretKey);
+	const userId = refreshTokenPayload.userInfo.id;
 
 	if (!isObjectId(userId)) {
 		throw new AppError("Unauthorized!", 401);
@@ -123,10 +144,13 @@ export const handleRefreshToken = async (req: Request, res: Response) => {
 	}
 
 	//! Caution: Don't use `payload` received from verification for new access token's payload. It will cause error.
-	const accessToken = createToken(
-		{ userInfo: { id: foundUser._id.toString() } },
-		"access_token"
-	);
+	const newAccessTokenPayload = {
+		userInfo: { id: foundUser._id.toString() },
+	};
+	const accessToken = createJwtToken({
+		payload: newAccessTokenPayload,
+		secretKey: getSecretKeyFor("access_token"),
+	});
 	res.json({ accessToken });
 };
 

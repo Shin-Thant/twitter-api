@@ -7,21 +7,27 @@ type ValidatorArg = {
 	validateOptions?: Joi.ValidationOptions;
 };
 
-const authTokenSchema = Joi.object({
-	userInfo: Joi.object({
+interface AuthTokenPayload {
+	userInfo: {
+		id: string;
+	};
+}
+
+const authTokenSchema = Joi.object<AuthTokenPayload, true>({
+	userInfo: Joi.object<AuthTokenPayload["userInfo"], true>({
 		id: Joi.string().required(),
 	}),
 });
-export function accessTokenValidator({
+export function validateAccessToken({
 	payload,
-	validateOptions,
+	validateOptions = { abortEarly: true },
 }: ValidatorArg) {
 	return authTokenSchema.validate(payload, validateOptions);
 }
 
-export function refreshTokenValidator({
+export function validateRefreshToken({
 	payload,
-	validateOptions,
+	validateOptions = { abortEarly: true },
 }: ValidatorArg) {
 	return authTokenSchema.validate(payload, validateOptions);
 }
@@ -29,9 +35,9 @@ export function refreshTokenValidator({
 const emailTokenSchema = Joi.object({
 	id: Joi.string().required(),
 });
-export function emailTokenValidator({
+export function validateEmailToken({
 	payload,
-	validateOptions,
+	validateOptions = { abortEarly: true },
 }: ValidatorArg) {
 	return emailTokenSchema.validate(payload, validateOptions);
 }

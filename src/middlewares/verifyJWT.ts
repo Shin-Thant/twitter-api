@@ -1,8 +1,8 @@
 import { NextFunction, Request, Response } from "express";
 import AppError from "../config/AppError";
-import { getSecretKeyFor } from "../lib/jwt";
 import User from "../models/User";
-import verifyToken from "../lib/verifyToken";
+import { getSecretKeyFor, verifyJwtToken } from "../util/jwt";
+import { validateAccessToken } from "../util/jwtTokenValidators";
 
 export default async function verifyJWT(
 	req: Request,
@@ -15,10 +15,18 @@ export default async function verifyJWT(
 		}
 
 		const accessToken = getTokenFromRequest(req);
-		const secretKey = getSecretKeyFor("access_token");
-		const payload = verifyToken(accessToken, secretKey);
+		const payload = verifyJwtToken({
+			token: accessToken,
+			secretKey: getSecretKeyFor("access_token"),
+		});
 
-		const userId = payload.userInfo.id;
+		const { value: validatedPayload, error: validationError } =
+			validateAccessToken({ payload });
+		if (validationError) {
+			throw new Error("Invalid Payload");
+		}
+
+		const userId = validatedPayload.userInfo.id;
 		const foundUser = await findUserByID(userId);
 
 		if (!foundUser) {
