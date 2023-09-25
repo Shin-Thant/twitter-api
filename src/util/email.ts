@@ -1,39 +1,45 @@
-// using Twilio SendGrid's v3 Node.js Library
-// https://github.com/sendgrid/sendgrid-nodejs
-
 import sgMail, { MailDataRequired } from "@sendgrid/mail";
+import { getWelcomeTemplate } from "./templates";
 
-export async function sendEmail({
+type EmailType = "email_verify" | "welcome";
+
+const EMAIL_SUBJECTS: Record<EmailType, string> = {
+	welcome: "Welcome from Twitter!",
+	email_verify: "Verify your email!",
+};
+
+export async function sendWelcomeEmail({
+	to,
+	name,
+}: {
+	to: string;
+	name: string;
+}) {
+	return sendEmail({
+		to,
+		subject: getSubjectFor("welcome"),
+		template: getWelcomeTemplate({ name }),
+	});
+}
+
+async function sendEmail({
 	to,
 	subject,
-	text,
+	template,
 }: {
 	to: string;
 	subject: string;
-	text: string;
+	template: string;
 }) {
 	const data: MailDataRequired = {
 		to,
 		from: "shinpolymer141123@gmail.com",
 		subject,
-		text,
+		html: template,
 	};
 	return await sgMail.send(data);
 }
 
-// sgMail.setApiKey(process.env.SENDGRID_API_KEY);
-// const msg = {
-// 	to: "test@example.com", // Change to your recipient
-// 	from: "test@example.com", // Change to your verified sender
-// 	subject: "Sending with SendGrid is Fun",
-// 	text: "and easy to do anywhere, even with Node.js",
-// 	html: "<strong>and easy to do anywhere, even with Node.js</strong>",
-// };
-// sgMail
-// 	.send(msg)
-// 	.then(() => {
-// 		console.log("Email sent");
-// 	})
-// 	.catch((error) => {
-// 		console.error(error);
-// 	});
+function getSubjectFor(type: EmailType) {
+	return EMAIL_SUBJECTS[type];
+}

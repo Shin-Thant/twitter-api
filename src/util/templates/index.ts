@@ -1,0 +1,1 @@
+export { getWelcomeTemplate } from "./welcome";

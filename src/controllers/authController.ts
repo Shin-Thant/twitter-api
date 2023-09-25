@@ -16,6 +16,8 @@ import {
 	findDuplicateUsernameOrEmail,
 	findUser,
 } from "../services/userServices";
+import { UserDoc } from "../models/types/userTypes";
+import { sendWelcomeEmail } from "../util/email";
 
 export const handleRegister = async (
 	req: TypedRequestBody<RegisterInput>,
@@ -39,7 +41,13 @@ export const handleRegister = async (
 		throw new AppError("Something went wrong", 500);
 	}
 
-	const user = await findUser({ _id: newUser._id });
+	// const user = await findUser({ _id: newUser._id });
+	const user: Partial<UserDoc> = { ...newUser.toObject() };
+	delete user.password;
+
+	// send email
+	await sendWelcomeEmail({ to: newUser.email, name: newUser.name });
+
 	res.status(201).json(user);
 };
 
