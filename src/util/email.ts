@@ -1,11 +1,11 @@
 import sgMail, { MailDataRequired } from "@sendgrid/mail";
-import { getWelcomeTemplate } from "./templates";
+import { getEmailVerifyTemplate, getWelcomeTemplate } from "./templates";
 
 type EmailType = "email_verify" | "welcome";
 
 const EMAIL_SUBJECTS: Record<EmailType, string> = {
 	welcome: "Welcome from Twitter!",
-	email_verify: "Verify your email!",
+	email_verify: "Verify email!",
 };
 
 export async function sendWelcomeEmail({
@@ -15,10 +15,32 @@ export async function sendWelcomeEmail({
 	to: string;
 	name: string;
 }) {
-	return sendEmail({
+	return await sendEmail({
 		to,
 		subject: getSubjectFor("welcome"),
 		template: getWelcomeTemplate({ name }),
+	});
+}
+
+export async function sendVerifyEmail({
+	to,
+	name,
+	verifyLink,
+	expireTimeInMins,
+}: {
+	to: string;
+	name: string;
+	expireTimeInMins: number;
+	verifyLink: string;
+}) {
+	return await sendEmail({
+		to,
+		subject: getSubjectFor("email_verify"),
+		template: getEmailVerifyTemplate({
+			name,
+			expireTimeInMins,
+			verifyLink,
+		}),
 	});
 }
 

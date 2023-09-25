@@ -2,16 +2,16 @@ import { CookieOptions, Response } from "express";
 import AppError from "../config/AppError";
 
 const TOKEN_COOKIE_NAME = "token" as const;
+const COOKIE_MAX_AGE_IN_MILLISECONDS = 7 * 24 * 60 * 60 * 1000; // 7 days
 
 export function setTokenCookie(res: Response, token: string) {
 	if (!token) {
 		throw new AppError("Internal Server Error!", 500);
 	}
 
-	const maxAgeInMilliseconds = 7 * 24 * 60 * 60 * 1000; // 7 days
 	const cookieOptions: CookieOptions = {
 		httpOnly: true,
-		maxAge: maxAgeInMilliseconds,
+		maxAge: COOKIE_MAX_AGE_IN_MILLISECONDS,
 		sameSite: "none",
 		secure: true,
 	};
