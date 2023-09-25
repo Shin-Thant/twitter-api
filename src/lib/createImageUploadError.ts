@@ -1,7 +1,5 @@
 import { ErrorCode, MulterError } from "multer";
 
-// TODO: write tests for this
-
 type ImageUploadErrors = Partial<Record<ErrorCode, string | null>>;
 
 const IMAGE_UPLOAD_ERRORS: ImageUploadErrors = {

@@ -1,8 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import AppError from "../config/AppError";
 import { generateImageName, saveImage } from "../services/imageServices";
-import path from "path";
-import fsPromise from "fs/promises";
 
 export async function saveTweetImages(
 	req: Request,

@@ -16,7 +16,7 @@ import {
 	updateTweet,
 } from "../services/tweetServices";
 import { TypedRequestBody, TypedRequestQuery } from "../types/requestTypes";
-import { isValuesNotNumber } from "../util/isValuesNotNumber";
+import { areValuesNumber } from "../util/areValuesNumber";
 import PaginationHelperImpl from "../util/paginationHelper";
 
 const paginationHelper = new PaginationHelperImpl();
@@ -32,7 +32,7 @@ export const getTweets = async (
 	if (!currentPage || !itemsPerPage) {
 		throw new AppError("All fields are requried!", 400);
 	}
-	if (isValuesNotNumber(itemsPerPage, currentPage)) {
+	if (!areValuesNumber(itemsPerPage, currentPage)) {
 		throw new AppError("Enter valid values!", 400);
 	}
 

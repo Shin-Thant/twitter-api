@@ -4,7 +4,7 @@ import isObjectId from "../lib/isObjectId";
 import PaginationImpl from "../lib/pagination";
 import User from "../models/User";
 import { TypedRequestQuery } from "../types/requestTypes";
-import { isValuesNotNumber } from "../util/isValuesNotNumber";
+import { areValuesNumber } from "../util/areValuesNumber";
 import PaginationHelperImpl from "../util/paginationHelper";
 import {
 	UpdateReqBody,
@@ -42,7 +42,7 @@ export const searchUsers = async (
 	if (!name || !currentPage || !itemsPerPage) {
 		throw new AppError("All fields is required!", 400);
 	}
-	if (isValuesNotNumber(itemsPerPage, currentPage)) {
+	if (areValuesNumber(itemsPerPage, currentPage)) {
 		throw new AppError("Enter valid values", 400);
 	}
 
