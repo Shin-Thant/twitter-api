@@ -29,7 +29,6 @@ describe("tweetBodyOrImage middleware", () => {
 		it("should response with status `fail` and message", async () => {
 			const randomUser = (await getRandomUser())!;
 			const bearerToken = createBearerToken(randomUser._id.toString());
-			console.log({ randomUser, bearerToken });
 
 			const formData = new FormData();
 
