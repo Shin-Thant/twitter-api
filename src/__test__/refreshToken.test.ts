@@ -1,10 +1,10 @@
 import jwt from "jsonwebtoken";
 import supertest from "supertest";
 import app from "../app/app";
+import AppError from "../config/AppError";
 import { connectDB, disconnectDB } from "../config/database";
 import createErrorResponseBody from "../util/createErrorResponseBody";
-import AppError from "../config/AppError";
-import createToken, { getSecretKeyFor } from "../lib/jwt";
+import { createJwtToken, getSecretKeyFor } from "../util/jwt";
 import { createObjectId } from "./util/services";
 
 const URL = "/api/v1/auth/refresh";
@@ -71,7 +71,10 @@ describe("Route /auth/refresh", () => {
 
 	describe("given refresh token with invalid payload", () => {
 		it("should return status 401 and `Unauthorized!` message", async () => {
-			const refreshToken = createToken({ name: "hi" }, "refresh_token");
+			const refreshToken = createJwtToken({
+				payload: { name: "hi" },
+				secretKey: getSecretKeyFor("refresh_token"),
+			});
 
 			const { body } = await supertest(app)
 				.get(URL)
@@ -119,10 +122,10 @@ describe("Route /auth/refresh", () => {
 
 	describe("given refresh token with invalid id", () => {
 		it("should return status 401 and `Unauthorized!` message", async () => {
-			const refreshToken = createToken(
-				{ userInfo: { id: "20fkajg30282jfl2952jfla;" } },
-				"refresh_token"
-			);
+			const refreshToken = createJwtToken({
+				payload: { userInfo: { id: "20fkajg30282jfl2952jfla;" } },
+				secretKey: getSecretKeyFor("refresh_token"),
+			});
 
 			const { body } = await supertest(app)
 				.get(URL)
@@ -136,10 +139,10 @@ describe("Route /auth/refresh", () => {
 	describe("given token with invalid userId", () => {
 		it("should return status 401 and `Unauthorized` message", async () => {
 			const userId = createObjectId();
-			const refreshToken = createToken(
-				{ userInfo: { id: userId } },
-				"refresh_token"
-			);
+			const refreshToken = createJwtToken({
+				payload: { userInfo: { id: userId } },
+				secretKey: getSecretKeyFor("refresh_token"),
+			});
 
 			const { body } = await supertest(app)
 				.get(URL)
