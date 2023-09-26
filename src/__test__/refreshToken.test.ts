@@ -70,7 +70,7 @@ describe("Route /auth/refresh", () => {
 	});
 
 	describe("given refresh token with invalid payload", () => {
-		it("should return status 401 and `Unauthorized!` message", async () => {
+		it("should return status 403 and `Forbidden!` message", async () => {
 			const refreshToken = createJwtToken({
 				payload: { name: "hi" },
 				secretKey: getSecretKeyFor("refresh_token"),
@@ -79,9 +79,9 @@ describe("Route /auth/refresh", () => {
 			const { body } = await supertest(app)
 				.get(URL)
 				.set("Cookie", `token=${refreshToken}`)
-				.expect(401);
+				.expect(403);
 
-			expect(body).toEqual(createErrorBody("Unauthorized!", 401, "fail"));
+			expect(body).toEqual(createErrorBody("Forbidden!", 403, "fail"));
 		});
 	});
 

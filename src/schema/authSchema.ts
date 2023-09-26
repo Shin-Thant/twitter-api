@@ -57,3 +57,21 @@ export const registerUserSchema = Joi.object({
 	query: Joi.object({}),
 	params: Joi.object({}),
 });
+
+export interface EmailVerifyInput {
+	body: object;
+	params: {
+		token: string;
+	};
+	query: object;
+}
+export const emailVerifySchema = Joi.object<EmailVerifyInput, true>({
+	body: Joi.object({}),
+	params: Joi.object<EmailVerifyInput["params"], true>({
+		token: Joi.string().trim().required().messages({
+			"base.string": "Token must be string!",
+			"any.required": "Token is requried!",
+		}),
+	}),
+	query: Joi.object({}),
+});

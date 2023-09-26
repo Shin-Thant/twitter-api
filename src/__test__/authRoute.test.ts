@@ -11,6 +11,15 @@ jest.mock("../lib/rateLimit", () => (_arg1: number, _arg2: number) => {
 	};
 });
 
+jest.mock("../util/email", () => ({
+	async sendWelcomeEmail() {
+		console.log("sending welcome email...");
+	},
+	async sendVerifyEmail() {
+		console.log("sending welcome email...");
+	},
+}));
+
 describe("/auth", () => {
 	beforeAll(async () => {
 		await connectDB();
@@ -25,11 +34,11 @@ describe("/auth", () => {
 				const requestBodyArr = [
 					{
 						body: { email: "hello@gmail.com" },
-						errMessage: 'Password is required!',
+						errMessage: "Password is required!",
 					},
 					{
 						body: { password: "hello@gmail.com" },
-						errMessage: 'Email is required!',
+						errMessage: "Email is required!",
 					},
 					{
 						body: { email: 10, password: "hi" },

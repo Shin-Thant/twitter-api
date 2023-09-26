@@ -7,17 +7,26 @@ import {
 	setTokenCookie,
 } from "../lib/handleTokenCookie";
 import isObjectId from "../lib/isObjectId";
-import verifyToken from "../lib/verifyToken";
 import { UserDoc } from "../models/types/userTypes";
-import { RegisterInput } from "../schema/authSchema";
+import { EmailVerifyInput, RegisterInput } from "../schema/authSchema";
 import {
 	createUser,
 	findDuplicateUsernameOrEmail,
 	findUser,
 } from "../services/userServices";
 import { TypedRequestBody } from "../types/requestTypes";
-import { sendWelcomeEmail } from "../util/email";
-import { createJwtToken, getSecretKeyFor } from "../util/jwt";
+import { sendVerifyEmail, sendWelcomeEmail } from "../util/email";
+import {
+	createJwtToken,
+	getSecretKeyFor,
+	getTokenExpireTime,
+	verifyJwtToken,
+} from "../util/jwt";
+import {
+	validateEmailToken,
+	validateRefreshToken,
+} from "../util/jwtTokenValidators";
+import logger from "../util/logger";
 
 export const handleRegister = async (
 	req: TypedRequestBody<RegisterInput>,
@@ -44,24 +53,33 @@ export const handleRegister = async (
 	const user: Partial<UserDoc> = { ...newUser.toObject() };
 	delete user.password;
 
-	// send email
+	// send welcome email
 	await sendWelcomeEmail({ to: newUser.email, name: newUser.name });
 
-	// const emailToken = createToken(
-	// 	{ id: newUser._id.toString() },
-	// 	"email_token"
-	// );
+	const emailTokenExpireTime = getTokenExpireTime("email_token");
+	const emailToken = createJwtToken({
+		payload: { id: newUser._id.toString() },
+		secretKey: getSecretKeyFor("email_token"),
+		options: {
+			expiresIn: emailTokenExpireTime,
+		},
+	});
 
-	// const expiresTimeString = getExpiresTimeFor("email_token");
-	// const expireTimeInMins = parseInt(
-	// 	expiresTimeString.slice(0, expiresTimeString.length)
-	// );
-	// await sendVerifyEmail({
-	// 	to: newUser.email,
-	// 	name: newUser.name,
-	// 	verifyLink: "",
-	// 	expireTimeInMins,
-	// });
+	const expireTimeInNumber = parseInt(
+		emailTokenExpireTime.slice(0, emailTokenExpireTime.length)
+	);
+
+	const verifyLink = `${req.protocol}://${req.get(
+		"host"
+	)}/api/verify-email/${emailToken}`;
+
+	// send email verification mail
+	await sendVerifyEmail({
+		to: newUser.email,
+		name: newUser.name,
+		verifyLink,
+		expireTimeInMins: expireTimeInNumber,
+	});
 
 	res.status(201).json(user);
 };
@@ -102,10 +120,16 @@ export const handleLogin = async (
 	const accessToken = createJwtToken({
 		payload,
 		secretKey: getSecretKeyFor("access_token"),
+		options: {
+			expiresIn: getTokenExpireTime("access_token"),
+		},
 	});
 	const refreshToken = createJwtToken({
 		payload,
 		secretKey: getSecretKeyFor("refresh_token"),
+		options: {
+			expiresIn: getTokenExpireTime("access_token"),
+		},
 	});
 
 	setTokenCookie(res, refreshToken);
@@ -128,8 +152,19 @@ export const handleRefreshToken = async (req: Request, res: Response) => {
 	const refreshToken = cookies.token;
 	const secretKey = getSecretKeyFor("refresh_token");
 
-	const refreshTokenPayload = verifyToken(refreshToken, secretKey);
-	const userId = refreshTokenPayload.userInfo.id;
+	const refreshTokenPayload = verifyJwtToken({
+		token: refreshToken,
+		secretKey,
+	});
+	const { error, value: validatedRefreshTokenPayload } = validateRefreshToken(
+		{ payload: refreshTokenPayload }
+	);
+	if (error) {
+		logger.error("Invalid refresh token payload");
+		throw new AppError("Forbidden!", 403);
+	}
+
+	const userId = validatedRefreshTokenPayload.userInfo.id;
 
 	if (!isObjectId(userId)) {
 		throw new AppError("Unauthorized!", 401);
@@ -161,4 +196,32 @@ export const handleLogout = (req: Request, res: Response) => {
 	}
 
 	res.json({ message: "Logout successfully!" });
+};
+
+export const handleEmailVerfication = async (
+	req: Request<EmailVerifyInput["params"]>,
+	res: Response
+) => {
+	const token = req.params.token;
+
+	const payload = verifyJwtToken({
+		token,
+		secretKey: getSecretKeyFor("email_token"),
+	});
+
+	const { value: validatedPayload, error } = validateEmailToken({ payload });
+	if (error) {
+		logger.error("Invalid email token!");
+		throw new AppError("Forbidden!", 403);
+	}
+
+	const userId = validatedPayload.id;
+	const foundUser = await findUser({ _id: userId });
+	if (!foundUser) {
+		logger.error("Invalid token payload!");
+		throw new AppError("Forbidden!", 403);
+	}
+
+	// update user
+	// response with login route
 };

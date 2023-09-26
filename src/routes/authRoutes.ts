@@ -1,5 +1,6 @@
 import { Router } from "express";
 import {
+	handleEmailVerfication,
 	handleLogin,
 	handleLogout,
 	handleRefreshToken,
@@ -8,31 +9,45 @@ import {
 import rateLimiter from "../lib/rateLimit";
 import verifyJWT from "../middlewares/verifyJWT";
 import validateResource from "../middlewares/validateResource";
-import { loginUserSchema, registerUserSchema } from "../schema/authSchema";
+import {
+	emailVerifySchema,
+	loginUserSchema,
+	registerUserSchema,
+} from "../schema/authSchema";
 
 const router = Router();
 
 // *limit auth requests
-const AUTH_REMEMBER_TIME_IN_MILLISECONDS = 15 * 60 * 1000;
+const AUTH_REMEMBER_TIME_IN_MILLISECONDS = 15 * 60 * 1000; // 15 mins
 const authRateLimiter = () => {
 	return rateLimiter(3, AUTH_REMEMBER_TIME_IN_MILLISECONDS);
 };
 
 router.post(
 	"/register",
-	authRateLimiter(),
-	validateResource(registerUserSchema),
+	[authRateLimiter(), validateResource(registerUserSchema)],
 	handleRegister
 );
+
 router.post(
 	"/login",
-	authRateLimiter(),
-	validateResource(loginUserSchema),
+	[authRateLimiter(), validateResource(loginUserSchema)],
 	handleLogin
 );
+
 router.post("/logout", authRateLimiter(), verifyJWT, handleLogout);
 
-const REFRESH_REMEMBER_TIME_IN_MILLISECONDS = 60 * 1000;
+const EMAIL_VERIFY_REMEMBER_TIME_IN_MILLISECONDS = 15 * 60 * 1000; // 15 mins
+router.get(
+	"/verify-email/:token",
+	[
+		rateLimiter(8, EMAIL_VERIFY_REMEMBER_TIME_IN_MILLISECONDS),
+		validateResource(emailVerifySchema),
+	],
+	handleEmailVerfication
+);
+
+const REFRESH_REMEMBER_TIME_IN_MILLISECONDS = 60 * 1000; // 1 min
 router.get(
 	"/refresh",
 	rateLimiter(10, REFRESH_REMEMBER_TIME_IN_MILLISECONDS),

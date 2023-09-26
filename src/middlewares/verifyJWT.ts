@@ -3,6 +3,7 @@ import AppError from "../config/AppError";
 import User from "../models/User";
 import { getSecretKeyFor, verifyJwtToken } from "../util/jwt";
 import { validateAccessToken } from "../util/jwtTokenValidators";
+import logger from "../util/logger";
 
 export default async function verifyJWT(
 	req: Request,
@@ -24,6 +25,7 @@ export default async function verifyJWT(
 			validateAccessToken({ payload });
 
 		if (validationError) {
+			logger.error("Invalid access token!");
 			throw new AppError("Forbidden!", 403);
 		}
 

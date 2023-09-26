@@ -13,6 +13,10 @@ interface AuthTokenPayload {
 	};
 }
 
+interface EmailTokenPayload {
+	id: string;
+}
+
 const DEFAULT_VALIDATION_OPTION: Joi.ValidationOptions = {
 	abortEarly: true,
 	stripUnknown: true,
@@ -24,6 +28,7 @@ const authTokenSchema = Joi.object<AuthTokenPayload, true>({
 		id: Joi.string().required(),
 	}).required(),
 }).required();
+
 export function validateAccessToken({
 	payload,
 	validateOptions = DEFAULT_VALIDATION_OPTION,
@@ -33,14 +38,15 @@ export function validateAccessToken({
 
 export function validateRefreshToken({
 	payload,
-	validateOptions = { abortEarly: true },
+	validateOptions = DEFAULT_VALIDATION_OPTION,
 }: ValidatorArg) {
 	return authTokenSchema.validate(payload, validateOptions);
 }
 
-const emailTokenSchema = Joi.object({
+const emailTokenSchema = Joi.object<EmailTokenPayload, true>({
 	id: Joi.string().required(),
 }).required();
+
 export function validateEmailToken({
 	payload,
 	validateOptions = DEFAULT_VALIDATION_OPTION,
