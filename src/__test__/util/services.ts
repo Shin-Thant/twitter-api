@@ -1,10 +1,10 @@
 import mongoose, { FilterQuery } from "mongoose";
-import createToken from "../../lib/jwt";
 import Comment from "../../models/Comment";
 import Tweet from "../../models/Tweet";
 import User from "../../models/User";
 import { UserDoc } from "../../models/types/userTypes";
 import { CommentDoc } from "../../models/types/commentTypes";
+import { createJwtToken, getSecretKeyFor } from "../../util/jwt";
 
 export async function getRandomComment(query?: FilterQuery<CommentDoc>) {
 	return await Comment.findOne(query);
@@ -20,7 +20,10 @@ export function createBearerToken(userId: string) {
 	const payload = {
 		userInfo: { id: userId },
 	};
-	const token = createToken(payload, "access_token");
+	const token = createJwtToken({
+		payload,
+		secretKey: getSecretKeyFor("access_token"),
+	});
 	const bearerToken = `Bearer ${token}` as const;
 	return bearerToken;
 }

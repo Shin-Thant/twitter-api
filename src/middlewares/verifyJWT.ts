@@ -23,7 +23,7 @@ export default async function verifyJWT(
 		const { value: validatedPayload, error: validationError } =
 			validateAccessToken({ payload });
 		if (validationError) {
-			throw new Error("Invalid Payload");
+			throw new AppError("Forbidden!", 403);
 		}
 
 		const userId = validatedPayload.userInfo.id;

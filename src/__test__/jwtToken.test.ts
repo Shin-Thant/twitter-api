@@ -1,6 +1,5 @@
 import jwt, { JsonWebTokenError, TokenExpiredError } from "jsonwebtoken";
 import AppError from "../config/AppError";
-import createToken, { getExpiresTimeFor, getSecretKeyFor } from "../lib/jwt";
 import { NextFunction, Request, Response } from "express";
 import verifyJWT from "../middlewares/verifyJWT";
 import {
@@ -11,47 +10,23 @@ import {
 import { connectDB, disconnectDB } from "../config/database";
 import supertest from "supertest";
 import app from "../app/app";
+import { createJwtToken, getSecretKeyFor } from "../util/jwt";
 
 describe("JWT token", () => {
-	describe("token creation", () => {
-		describe("given empty payload", () => {
-			const mockJwtTokenSign = jest.spyOn(jwt, "sign");
-
-			it("should throw AppError", () => {
-				expect(() => createToken({}, "access_token")).toThrow(AppError);
-				expect(() => createToken({}, "access_token")).toThrow(
-					"Invalid jwt payload!"
-				);
-			});
-			it("should not call jwt.sign", () => {
-				expect(mockJwtTokenSign).not.toHaveBeenCalled();
-			});
-		});
-
-		describe("given valid payload", () => {
-			it("should return token string", () => {
-				const mockJwtTokenSign = jest
-					.spyOn(jwt, "sign")
-					.mockImplementation(() => "mock jwt token");
-
-				const secretKey = getSecretKeyFor("access_token");
-				const expiresIn = getExpiresTimeFor("access_token");
-				const token = createToken({ name: "john" }, "access_token");
-
-				expect(mockJwtTokenSign).toHaveBeenCalled();
-				expect(mockJwtTokenSign).toHaveBeenCalledWith(
-					{ name: "john" },
-					secretKey,
-					{
-						expiresIn: expiresIn,
-					}
-				);
-				expect(token).toBe("mock jwt token");
+	describe("createJwtToken", () => {
+		describe("given payload", () => {
+			it("should return string", () => {
+				const token = createJwtToken({
+					payload: { id: "string" },
+					secretKey: "random_sec",
+				});
+				expect(token).not.toBe("");
+				expect(token).toStrictEqual(expect.any(String));
 			});
 		});
 	});
 
-	describe("verify token middleware", () => {
+	describe("verifyJwtToken", () => {
 		beforeAll(async () => {
 			await connectDB();
 		});
@@ -117,14 +92,19 @@ describe("JWT token", () => {
 				const expectedErr = new JsonWebTokenError("jwt malformed");
 
 				expect(nextFunction).toHaveBeenCalledWith(expectedErr);
+				console.log({ arg });
+
 				expect(arg.name).toBe(expectedErr.name);
 				expect(arg.message).toBe(expectedErr.message);
 			});
 		});
 
 		describe("given token without payload", () => {
-			it("should return status 401 and `Unauthorized!` message", () => {
-				const token = jwt.sign({}, getSecretKeyFor("access_token"));
+			it("should return status 403 and `Forbidden!` message", () => {
+				const token = createJwtToken({
+					payload: {},
+					secretKey: getSecretKeyFor("access_token"),
+				});
 
 				mockRequest = {
 					headers: {
@@ -134,7 +114,7 @@ describe("JWT token", () => {
 				runVerifyJWT(mockRequest as Request);
 
 				const arg: AppError = mockFn.mock.calls[0][0];
-				const expectedErr = new AppError("Unauthorized!", 401);
+				const expectedErr = new AppError("Forbidden!", 403);
 
 				expect(nextFunction).toHaveBeenCalledWith(expectedErr);
 				expect(arg.statusCode).toBe(expectedErr.statusCode);
@@ -144,11 +124,11 @@ describe("JWT token", () => {
 		});
 
 		describe("given token with invalid payload", () => {
-			it("should return status 401 and `Unauthorized!` message", () => {
-				const token = createToken(
-					{ payload: "invalid payload" },
-					"access_token"
-				);
+			it("should return status 403 and `Forbidden!` message", () => {
+				const token = createJwtToken({
+					payload: { payload: "invalid payload" },
+					secretKey: getSecretKeyFor("access_token"),
+				});
 
 				mockRequest = {
 					headers: { authorization: `Bearer ${token}` },
@@ -156,7 +136,7 @@ describe("JWT token", () => {
 				runVerifyJWT(mockRequest as Request);
 
 				const arg: AppError = mockFn.mock.calls[0][0];
-				const expectedErr = new AppError("Unauthorized!", 401);
+				const expectedErr = new AppError("Forbidden!", 403);
 
 				expect(nextFunction).toHaveBeenCalledWith(expectedErr);
 				expect(arg.statusCode).toBe(expectedErr.statusCode);
@@ -166,7 +146,7 @@ describe("JWT token", () => {
 		});
 
 		describe("given token without valid user", () => {
-			it("should return status 403 and `Invalid token!` message", async () => {
+			it("should return status 403 and `Forbidden!` message", async () => {
 				const id = createObjectId();
 				const bearerToken = createBearerToken(id);
 
