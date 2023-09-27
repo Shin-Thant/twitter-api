@@ -23,33 +23,33 @@ const DEFAULT_VALIDATION_OPTION: Joi.ValidationOptions = {
 	allowUnknown: true,
 };
 
-const authTokenSchema = Joi.object<AuthTokenPayload, true>({
+const authTokenPayloadSchema = Joi.object<AuthTokenPayload, true>({
 	userInfo: Joi.object<AuthTokenPayload["userInfo"], true>({
 		id: Joi.string().required(),
 	}).required(),
 }).required();
 
-export function validateAccessToken({
+export function validateAccessTokenPayload({
 	payload,
 	validateOptions = DEFAULT_VALIDATION_OPTION,
 }: ValidatorArg) {
-	return authTokenSchema.validate(payload, validateOptions);
+	return authTokenPayloadSchema.validate(payload, validateOptions);
 }
 
-export function validateRefreshToken({
+export function validateRefreshTokenPayload({
 	payload,
 	validateOptions = DEFAULT_VALIDATION_OPTION,
 }: ValidatorArg) {
-	return authTokenSchema.validate(payload, validateOptions);
+	return authTokenPayloadSchema.validate(payload, validateOptions);
 }
 
-const emailTokenSchema = Joi.object<EmailTokenPayload, true>({
+const emailTokenPayloadSchema = Joi.object<EmailTokenPayload, true>({
 	id: Joi.string().required(),
 }).required();
 
-export function validateEmailToken({
+export function validateEmailTokenPayload({
 	payload,
 	validateOptions = DEFAULT_VALIDATION_OPTION,
 }: ValidatorArg) {
-	return emailTokenSchema.validate(payload, validateOptions);
+	return emailTokenPayloadSchema.validate(payload, validateOptions);
 }

@@ -23,9 +23,9 @@ import {
 	verifyJwtToken,
 } from "../util/jwt";
 import {
-	validateEmailToken,
-	validateRefreshToken,
-} from "../util/jwtTokenValidators";
+	validateEmailTokenPayload,
+	validateRefreshTokenPayload,
+} from "../util/jwtPayloadValidators";
 import logger from "../util/logger";
 
 export const handleRegister = async (
@@ -71,7 +71,7 @@ export const handleRegister = async (
 
 	const verifyLink = `${req.protocol}://${req.get(
 		"host"
-	)}/api/verify-email/${emailToken}`;
+	)}/api/v1/auth/verify-email/${emailToken}`;
 
 	// send email verification mail
 	await sendVerifyEmail({
@@ -140,8 +140,6 @@ export const handleLogin = async (
 	res.json({ accessToken, user });
 };
 
-// TODO: test this
-// TODO: refactor this
 export const handleRefreshToken = async (req: Request, res: Response) => {
 	const cookies = req.cookies;
 
@@ -156,9 +154,9 @@ export const handleRefreshToken = async (req: Request, res: Response) => {
 		token: refreshToken,
 		secretKey,
 	});
-	const { error, value: validatedRefreshTokenPayload } = validateRefreshToken(
-		{ payload: refreshTokenPayload }
-	);
+
+	const { error, value: validatedRefreshTokenPayload } =
+		validateRefreshTokenPayload({ payload: refreshTokenPayload });
 	if (error) {
 		logger.error("Invalid refresh token payload");
 		throw new AppError("Forbidden!", 403);
@@ -209,7 +207,9 @@ export const handleEmailVerfication = async (
 		secretKey: getSecretKeyFor("email_token"),
 	});
 
-	const { value: validatedPayload, error } = validateEmailToken({ payload });
+	const { value: validatedPayload, error } = validateEmailTokenPayload({
+		payload,
+	});
 	if (error) {
 		logger.error("Invalid email token!");
 		throw new AppError("Forbidden!", 403);
@@ -223,5 +223,9 @@ export const handleEmailVerfication = async (
 	}
 
 	// update user
-	// response with login route
+	foundUser.emailVerified = true;
+	await foundUser.save();
+
+	// redirect user to login
+	res.redirect("http://localhost:5173/login");
 };

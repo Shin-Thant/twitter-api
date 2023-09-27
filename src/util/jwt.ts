@@ -8,11 +8,11 @@ const SECRET_KEY_FOR_TEST_ENV: Record<TokenType, string> = {
 	email_token: "unique-email-token-secret",
 } as const;
 
-const SECRET_KEY: Record<TokenType, string> = {
-	access_token: process.env.ACCESS_TOKEN_SECRET_KEY,
-	refresh_token: process.env.REFRESH_TOKEN_SECRET_KEY,
-	email_token: process.env.EMAIL_TOKEN_SECRET_KEY,
-} as const;
+// const SECRET_KEY: Record<TokenType, string> = {
+// 	access_token: process.env.ACCESS_TOKEN_SECRET_KEY,
+// 	refresh_token: process.env.REFRESH_TOKEN_SECRET_KEY,
+// 	email_token: process.env.EMAIL_TOKEN_SECRET_KEY,
+// } as const;
 
 const EXPIRES_TIME: Record<TokenType, string> = {
 	access_token: "15m",
@@ -46,6 +46,12 @@ export const getSecretKeyFor = (tokenType: TokenType): string => {
 	if (process.env.NODE_ENV === "test") {
 		return SECRET_KEY_FOR_TEST_ENV[tokenType];
 	}
+
+	const SECRET_KEY: Record<TokenType, string> = {
+		access_token: process.env.ACCESS_TOKEN_SECRET_KEY,
+		refresh_token: process.env.REFRESH_TOKEN_SECRET_KEY,
+		email_token: process.env.EMAIL_TOKEN_SECRET_KEY,
+	} as const;
 
 	return SECRET_KEY[tokenType];
 };
