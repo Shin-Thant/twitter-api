@@ -18,6 +18,10 @@ const userSchema = new Schema<UserSchema>(
 			type: String,
 			required: [true, "Email is required!"],
 		},
+		emailVerified: {
+			type: Boolean,
+			default: false,
+		},
 		password: {
 			type: String,
 			required: [true, "Password is required!"],

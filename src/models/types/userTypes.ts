@@ -4,6 +4,7 @@ export interface UserSchema {
 	username: string;
 	name: string;
 	email: string;
+	emailVerified: boolean;
 	password: string;
 	following: [string | Exclude<UserRef, Types.ObjectId>];
 	avatar?: string;
