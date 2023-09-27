@@ -1,16 +1,16 @@
-import jwt, { JsonWebTokenError, TokenExpiredError } from "jsonwebtoken";
-import AppError from "../config/AppError";
 import { NextFunction, Request, Response } from "express";
+import jwt, { JsonWebTokenError, TokenExpiredError } from "jsonwebtoken";
+import supertest from "supertest";
+import app from "../app/app";
+import AppError from "../config/AppError";
+import { connectDB, disconnectDB } from "../config/database";
 import verifyJWT from "../middlewares/verifyJWT";
+import { createJwtToken, getSecretKeyFor } from "../util/jwt";
 import {
 	createBearerToken,
 	createObjectId,
 	getRandomUser,
 } from "./util/services";
-import { connectDB, disconnectDB } from "../config/database";
-import supertest from "supertest";
-import app from "../app/app";
-import { createJwtToken, getSecretKeyFor } from "../util/jwt";
 
 describe("JWT token", () => {
 	describe("createJwtToken", () => {

@@ -1,5 +1,6 @@
 import sgMail, { MailDataRequired } from "@sendgrid/mail";
 import { getEmailVerifyTemplate, getWelcomeTemplate } from "./templates";
+import { Request } from "express";
 
 type EmailType = "email_verify" | "welcome";
 
@@ -64,4 +65,16 @@ async function sendEmail({
 
 function getSubjectFor(type: EmailType) {
 	return EMAIL_SUBJECTS[type];
+}
+
+export function createEmailVerifyLink({
+	req,
+	token,
+}: {
+	req: Request;
+	token: string;
+}) {
+	return `${req.protocol}://${req.get(
+		"host"
+	)}/api/v1/auth/verify-email/${token}`;
 }

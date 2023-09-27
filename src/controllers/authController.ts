@@ -15,7 +15,11 @@ import {
 	findUser,
 } from "../services/userServices";
 import { TypedRequestBody } from "../types/requestTypes";
-import { sendVerifyEmail, sendWelcomeEmail } from "../util/email";
+import {
+	createEmailVerifyLink,
+	sendVerifyEmail,
+	sendWelcomeEmail,
+} from "../util/email";
 import {
 	createJwtToken,
 	getSecretKeyFor,
@@ -69,9 +73,7 @@ export const handleRegister = async (
 		emailTokenExpireTime.slice(0, emailTokenExpireTime.length)
 	);
 
-	const verifyLink = `${req.protocol}://${req.get(
-		"host"
-	)}/api/v1/auth/verify-email/${emailToken}`;
+	const verifyLink = createEmailVerifyLink({ req, token: emailToken });
 
 	// send email verification mail
 	await sendVerifyEmail({
@@ -128,7 +130,7 @@ export const handleLogin = async (
 		payload,
 		secretKey: getSecretKeyFor("refresh_token"),
 		options: {
-			expiresIn: getTokenExpireTime("access_token"),
+			expiresIn: getTokenExpireTime("refresh_token"),
 		},
 	});
 
@@ -183,6 +185,9 @@ export const handleRefreshToken = async (req: Request, res: Response) => {
 	const accessToken = createJwtToken({
 		payload: newAccessTokenPayload,
 		secretKey: getSecretKeyFor("access_token"),
+		options: {
+			expiresIn: getTokenExpireTime("access_token"),
+		},
 	});
 	res.json({ accessToken });
 };
