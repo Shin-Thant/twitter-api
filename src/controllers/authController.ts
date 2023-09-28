@@ -32,6 +32,7 @@ import {
 } from "../util/jwtPayloadValidators";
 import logger from "../util/logger";
 import { getClientURL } from "../config/clientURL";
+import { isAppError, isJwtTokenError } from "../util/errorHandlerHelpers";
 
 export const handleRegister = async (
 	req: TypedRequestBody<RegisterInput>,
@@ -237,7 +238,20 @@ export const handleEmailVerfication = async (
 		res.redirect(`${getClientURL()}/login`);
 	} catch (err) {
 		logger.error("Email verification route error!", err);
-		res.status(401).redirect(`${getClientURL()}/login`);
+
+		if (!(err instanceof Error)) {
+			return res.status(500).redirect(`${getClientURL()}/login`);
+		}
+
+		if (isJwtTokenError(err)) {
+			res.status(401);
+		} else if (isAppError(err)) {
+			res.status(err.statusCode);
+		} else {
+			res.status(500);
+		}
+
+		res.redirect(`${getClientURL()}/login`);
 	}
 };
 
