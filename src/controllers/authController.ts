@@ -24,7 +24,7 @@ import {
 	createJwtToken,
 	getSecretKeyFor,
 	getTokenExpireTime,
-	getTokenExpireTimeNumber,
+	getEmailTokenExpireTime,
 	verifyJwtToken,
 } from "../util/jwt";
 import {
@@ -76,7 +76,7 @@ export const handleRegister = async (
 		to: newUser.email,
 		name: newUser.name,
 		verifyLink: createEmailVerifyLink({ req, token: emailToken }),
-		expireTimeInMins: getTokenExpireTimeNumber("email_token"),
+		expireTimeInMins: getEmailTokenExpireTime(),
 	});
 
 	res.status(201).json(user);
@@ -97,7 +97,11 @@ export const handleLogin = async (
 
 	const foundUser = await findUser(
 		{ email },
-		{ password: true },
+		{
+			name: true,
+			email: true,
+			password: true,
+		},
 		{ lean: true }
 	);
 	if (!foundUser) {
@@ -112,18 +116,18 @@ export const handleLogin = async (
 		throw new AppError("Invalid email or password!", 400);
 	}
 
-	const payload = {
+	const authTokenPayload = {
 		userInfo: { id: foundUser._id.toString() },
 	};
 	const accessToken = createJwtToken({
-		payload,
+		payload: authTokenPayload,
 		secretKey: getSecretKeyFor("access_token"),
 		options: {
 			expiresIn: getTokenExpireTime("access_token"),
 		},
 	});
 	const refreshToken = createJwtToken({
-		payload,
+		payload: authTokenPayload,
 		secretKey: getSecretKeyFor("refresh_token"),
 		options: {
 			expiresIn: getTokenExpireTime("refresh_token"),
@@ -131,6 +135,23 @@ export const handleLogin = async (
 	});
 
 	setTokenCookie(res, refreshToken);
+
+	if(!foundUser.emailVerified) {
+		const emailToken = createJwtToken({
+			payload: {id: foundUser._id.toString()},
+			secretKey: getSecretKeyFor("email_token"),
+			options: {
+				expiresIn: getTokenExpireTime("email_token"),
+			},
+		});
+	
+		await sendVerifyEmail({
+			to: foundUser.email,
+			name: foundUser.name,
+			verifyLink: createEmailVerifyLink({ req, token: emailToken }),
+			expireTimeInMins: getEmailTokenExpireTime(),
+		});
+	}
 
 	const user = await findUser({ _id: foundUser._id }, undefined, {
 		populate: "followers",
@@ -203,6 +224,7 @@ export const handleEmailVerfication = async (
 ) => {
 	try {
 		const token = req.params.token;
+		console.log(token);
 
 		const payload = verifyJwtToken({
 			token,
@@ -231,6 +253,7 @@ export const handleEmailVerfication = async (
 		// redirect user to login
 		res.redirect(`${getClientURL()}/login`);
 	} catch (err) {
+		console.log(err);
 		logger.error("Email verification route error!", err);
 
 		if (!(err instanceof Error)) {
@@ -266,7 +289,7 @@ export const handleResendVerifyEmail = async (req: Request, res: Response) => {
 		to: user.email,
 		name: user.name,
 		verifyLink: createEmailVerifyLink({ req, token: emailToken }),
-		expireTimeInMins: getTokenExpireTimeNumber("email_token"),
+		expireTimeInMins: getEmailTokenExpireTime(),
 	});
 
 	res.json({ message: "Resent email successfully!" });

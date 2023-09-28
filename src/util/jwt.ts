@@ -57,8 +57,8 @@ export const getSecretKeyFor = (tokenType: TokenType): string => {
 };
 
 const START_INDEX = 0;
-export const getTokenExpireTimeNumber = (tokenType: TokenType) => {
-	const expireTimeWithUnit = getTokenExpireTime(tokenType);
+export const getEmailTokenExpireTime = () => {
+	const expireTimeWithUnit = getTokenExpireTime("email_token");
 
 	return parseInt(
 		expireTimeWithUnit.slice(START_INDEX, expireTimeWithUnit.length)
