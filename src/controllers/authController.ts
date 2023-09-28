@@ -31,6 +31,7 @@ import {
 	validateRefreshTokenPayload,
 } from "../util/jwtPayloadValidators";
 import logger from "../util/logger";
+import { getClientURL } from "../config/clientURL";
 
 export const handleRegister = async (
 	req: TypedRequestBody<RegisterInput>,
@@ -232,5 +233,33 @@ export const handleEmailVerfication = async (
 	await foundUser.save();
 
 	// redirect user to login
-	res.redirect("http://localhost:5173/login");
+	res.redirect(`${getClientURL()}/login`);
+};
+
+export const handleResendVerifyEmail = async (req: Request, res: Response) => {
+	const user = req.user as UserDoc;
+
+	const emailTokenExpireTime = getTokenExpireTime("email_token");
+	const emailToken = createJwtToken({
+		payload: { id: user._id.toString() },
+		secretKey: getSecretKeyFor("email_token"),
+		options: {
+			expiresIn: emailTokenExpireTime,
+		},
+	});
+
+	const expireTimeInNumber = parseInt(
+		emailTokenExpireTime.slice(0, emailTokenExpireTime.length)
+	);
+
+	const verifyLink = createEmailVerifyLink({ req, token: emailToken });
+
+	await sendVerifyEmail({
+		to: user.email,
+		name: user.name,
+		verifyLink,
+		expireTimeInMins: expireTimeInNumber,
+	});
+
+	res.json({ message: "Resent email successfully!" });
 };

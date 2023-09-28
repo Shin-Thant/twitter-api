@@ -5,6 +5,7 @@ import {
 	handleLogout,
 	handleRefreshToken,
 	handleRegister,
+	handleResendVerifyEmail,
 } from "../controllers/authController";
 import rateLimiter from "../lib/rateLimit";
 import verifyJWT from "../middlewares/verifyJWT";
@@ -46,6 +47,8 @@ router.get(
 	],
 	handleEmailVerfication
 );
+
+router.post("/send-verify-email", verifyJWT, handleResendVerifyEmail);
 
 const REFRESH_REMEMBER_TIME_IN_MILLISECONDS = 60 * 1000; // 1 min
 router.get(
