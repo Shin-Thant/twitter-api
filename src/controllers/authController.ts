@@ -206,34 +206,39 @@ export const handleEmailVerfication = async (
 	req: Request<EmailVerifyInput["params"]>,
 	res: Response
 ) => {
-	const token = req.params.token;
+	try {
+		const token = req.params.token;
 
-	const payload = verifyJwtToken({
-		token,
-		secretKey: getSecretKeyFor("email_token"),
-	});
+		const payload = verifyJwtToken({
+			token,
+			secretKey: getSecretKeyFor("email_token"),
+		});
 
-	const { value: validatedPayload, error } = validateEmailTokenPayload({
-		payload,
-	});
-	if (error) {
-		logger.error("Invalid email token!");
-		throw new AppError("Forbidden!", 403);
+		const { value: validatedPayload, error } = validateEmailTokenPayload({
+			payload,
+		});
+		if (error) {
+			logger.error("Invalid email token!");
+			throw new AppError("Forbidden!", 403);
+		}
+
+		const userId = validatedPayload.id;
+		const foundUser = await findUser({ _id: userId });
+		if (!foundUser) {
+			logger.error("Invalid token payload!");
+			throw new AppError("Forbidden!", 403);
+		}
+
+		// update user
+		foundUser.emailVerified = true;
+		await foundUser.save();
+
+		// redirect user to login
+		res.redirect(`${getClientURL()}/login`);
+	} catch (err) {
+		logger.error("Email verification route error!", err);
+		res.status(401).redirect(`${getClientURL()}/login`);
 	}
-
-	const userId = validatedPayload.id;
-	const foundUser = await findUser({ _id: userId });
-	if (!foundUser) {
-		logger.error("Invalid token payload!");
-		throw new AppError("Forbidden!", 403);
-	}
-
-	// update user
-	foundUser.emailVerified = true;
-	await foundUser.save();
-
-	// redirect user to login
-	res.redirect(`${getClientURL()}/login`);
 };
 
 export const handleResendVerifyEmail = async (req: Request, res: Response) => {
