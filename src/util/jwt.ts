@@ -56,6 +56,15 @@ export const getSecretKeyFor = (tokenType: TokenType): string => {
 	return SECRET_KEY[tokenType];
 };
 
+const START_INDEX = 0;
+export const getTokenExpireTimeNumber = (tokenType: TokenType) => {
+	const expireTimeWithUnit = getTokenExpireTime(tokenType);
+
+	return parseInt(
+		expireTimeWithUnit.slice(START_INDEX, expireTimeWithUnit.length)
+	);
+};
+
 export const getTokenExpireTime = (tokenType: TokenType) => {
 	return EXPIRES_TIME[tokenType];
 };

@@ -24,6 +24,7 @@ import {
 	createJwtToken,
 	getSecretKeyFor,
 	getTokenExpireTime,
+	getTokenExpireTimeNumber,
 	verifyJwtToken,
 } from "../util/jwt";
 import {
@@ -62,27 +63,20 @@ export const handleRegister = async (
 	// send welcome email
 	await sendWelcomeEmail({ to: newUser.email, name: newUser.name });
 
-	const emailTokenExpireTime = getTokenExpireTime("email_token");
 	const emailToken = createJwtToken({
 		payload: { id: newUser._id.toString() },
 		secretKey: getSecretKeyFor("email_token"),
 		options: {
-			expiresIn: emailTokenExpireTime,
+			expiresIn: getTokenExpireTime("email_token"),
 		},
 	});
-
-	const expireTimeInNumber = parseInt(
-		emailTokenExpireTime.slice(0, emailTokenExpireTime.length)
-	);
-
-	const verifyLink = createEmailVerifyLink({ req, token: emailToken });
 
 	// send email verification mail
 	await sendVerifyEmail({
 		to: newUser.email,
 		name: newUser.name,
-		verifyLink,
-		expireTimeInMins: expireTimeInNumber,
+		verifyLink: createEmailVerifyLink({ req, token: emailToken }),
+		expireTimeInMins: getTokenExpireTimeNumber("email_token"),
 	});
 
 	res.status(201).json(user);
@@ -258,26 +252,21 @@ export const handleEmailVerfication = async (
 export const handleResendVerifyEmail = async (req: Request, res: Response) => {
 	const user = req.user as UserDoc;
 
-	const emailTokenExpireTime = getTokenExpireTime("email_token");
+	const tokenPayload = { id: user._id.toString() };
+
 	const emailToken = createJwtToken({
-		payload: { id: user._id.toString() },
+		payload: tokenPayload,
 		secretKey: getSecretKeyFor("email_token"),
 		options: {
-			expiresIn: emailTokenExpireTime,
+			expiresIn: getTokenExpireTime("email_token"),
 		},
 	});
-
-	const expireTimeInNumber = parseInt(
-		emailTokenExpireTime.slice(0, emailTokenExpireTime.length)
-	);
-
-	const verifyLink = createEmailVerifyLink({ req, token: emailToken });
 
 	await sendVerifyEmail({
 		to: user.email,
 		name: user.name,
-		verifyLink,
-		expireTimeInMins: expireTimeInNumber,
+		verifyLink: createEmailVerifyLink({ req, token: emailToken }),
+		expireTimeInMins: getTokenExpireTimeNumber("email_token"),
 	});
 
 	res.json({ message: "Resent email successfully!" });
