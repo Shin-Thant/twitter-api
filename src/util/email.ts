@@ -60,7 +60,7 @@ async function sendEmail({
 		subject,
 		html: template,
 	};
-//	return await sgMail.send(data);
+	return await sgMail.send(data);
 }
 
 function getSubjectFor(type: EmailType) {
