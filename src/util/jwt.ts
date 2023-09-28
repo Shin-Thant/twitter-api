@@ -8,12 +8,6 @@ const SECRET_KEY_FOR_TEST_ENV: Record<TokenType, string> = {
 	email_token: "unique-email-token-secret",
 } as const;
 
-// const SECRET_KEY: Record<TokenType, string> = {
-// 	access_token: process.env.ACCESS_TOKEN_SECRET_KEY,
-// 	refresh_token: process.env.REFRESH_TOKEN_SECRET_KEY,
-// 	email_token: process.env.EMAIL_TOKEN_SECRET_KEY,
-// } as const;
-
 const EXPIRES_TIME: Record<TokenType, string> = {
 	access_token: "15m",
 	refresh_token: "7d",
@@ -57,7 +51,7 @@ export const getSecretKeyFor = (tokenType: TokenType): string => {
 };
 
 const START_INDEX = 0;
-export const getEmailTokenExpireTime = () => {
+export const getEmailTokenExpireTimeNumber = () => {
 	const expireTimeWithUnit = getTokenExpireTime("email_token");
 
 	return parseInt(

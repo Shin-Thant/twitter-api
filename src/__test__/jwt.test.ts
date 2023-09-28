@@ -5,7 +5,12 @@ import app from "../app/app";
 import AppError from "../config/AppError";
 import { connectDB, disconnectDB } from "../config/database";
 import verifyJWT from "../middlewares/verifyJWT";
-import { createJwtToken, getSecretKeyFor } from "../util/jwt";
+import {
+	createJwtToken,
+	getEmailTokenExpireTimeNumber,
+	getSecretKeyFor,
+	getTokenExpireTime,
+} from "../util/jwt";
 import {
 	createBearerToken,
 	createObjectId,
@@ -203,6 +208,33 @@ describe("JWT token", () => {
 				expect(nextFunction).toHaveBeenCalledWith(expectedErr);
 				expect(arg.name).toBe(expectedErr.name);
 				expect(arg.message).toBe(expectedErr.message);
+			});
+		});
+	});
+
+	describe("getEmailTokenExpireTimeNumber", () => {
+		it("should always return number `15`", () => {
+			const result = getEmailTokenExpireTimeNumber();
+			expect(result).toBe(15);
+		});
+	});
+
+	describe("getTokenExpireTime", () => {
+		describe("given access_token", () => {
+			it("should return `15m`", () => {
+				expect(getTokenExpireTime("access_token")).toBe("15m");
+			});
+		});
+
+		describe("given refresh_token", () => {
+			it("should return `7d`", () => {
+				expect(getTokenExpireTime("refresh_token")).toBe("7d");
+			});
+		});
+
+		describe("given email_token", () => {
+			it("should return `15m`", () => {
+				expect(getTokenExpireTime("email_token")).toBe("15m");
 			});
 		});
 	});

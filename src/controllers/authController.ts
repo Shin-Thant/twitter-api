@@ -24,7 +24,7 @@ import {
 	createJwtToken,
 	getSecretKeyFor,
 	getTokenExpireTime,
-	getEmailTokenExpireTime,
+	getEmailTokenExpireTimeNumber,
 	verifyJwtToken,
 } from "../util/jwt";
 import {
@@ -76,7 +76,7 @@ export const handleRegister = async (
 		to: newUser.email,
 		name: newUser.name,
 		verifyLink: createEmailVerifyLink({ req, token: emailToken }),
-		expireTimeInMins: getEmailTokenExpireTime(),
+		expireTimeInMins: getEmailTokenExpireTimeNumber(),
 	});
 
 	res.status(201).json(user);
@@ -136,20 +136,20 @@ export const handleLogin = async (
 
 	setTokenCookie(res, refreshToken);
 
-	if(!foundUser.emailVerified) {
+	if (!foundUser.emailVerified) {
 		const emailToken = createJwtToken({
-			payload: {id: foundUser._id.toString()},
+			payload: { id: foundUser._id.toString() },
 			secretKey: getSecretKeyFor("email_token"),
 			options: {
 				expiresIn: getTokenExpireTime("email_token"),
 			},
 		});
-	
+
 		await sendVerifyEmail({
 			to: foundUser.email,
 			name: foundUser.name,
 			verifyLink: createEmailVerifyLink({ req, token: emailToken }),
-			expireTimeInMins: getEmailTokenExpireTime(),
+			expireTimeInMins: getEmailTokenExpireTimeNumber(),
 		});
 	}
 
@@ -289,7 +289,7 @@ export const handleResendVerifyEmail = async (req: Request, res: Response) => {
 		to: user.email,
 		name: user.name,
 		verifyLink: createEmailVerifyLink({ req, token: emailToken }),
-		expireTimeInMins: getEmailTokenExpireTime(),
+		expireTimeInMins: getEmailTokenExpireTimeNumber(),
 	});
 
 	res.json({ message: "Resent email successfully!" });
