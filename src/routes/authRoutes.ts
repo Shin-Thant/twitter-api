@@ -48,7 +48,12 @@ router.get(
 	handleEmailVerfication
 );
 
-router.post("/send-verify-email", verifyJWT, handleResendVerifyEmail);
+const RESEND_EMAIL_REMEMBER_TIME_IN_MILLISECONDS = 15 * 60 * 1000; // 15 mins
+router.post(
+	"/send-verify-email",
+	[verifyJWT, rateLimiter(5, RESEND_EMAIL_REMEMBER_TIME_IN_MILLISECONDS)],
+	handleResendVerifyEmail
+);
 
 const REFRESH_REMEMBER_TIME_IN_MILLISECONDS = 60 * 1000; // 1 min
 router.get(
