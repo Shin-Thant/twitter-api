@@ -97,7 +97,6 @@ describe("JWT token", () => {
 				const expectedErr = new JsonWebTokenError("jwt malformed");
 
 				expect(nextFunction).toHaveBeenCalledWith(expectedErr);
-				console.log({ arg });
 
 				expect(arg.name).toBe(expectedErr.name);
 				expect(arg.message).toBe(expectedErr.message);

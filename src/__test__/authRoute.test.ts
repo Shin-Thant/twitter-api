@@ -12,11 +12,15 @@ jest.mock("../lib/rateLimit", () => (_arg1: number, _arg2: number) => {
 });
 
 jest.mock("../util/email", () => ({
+	...jest.requireActual("../util/email"),
 	async sendWelcomeEmail() {
 		console.log("sending welcome email...");
 	},
 	async sendVerifyEmail() {
-		console.log("sending welcome email...");
+		console.log("sending verify email...");
+	},
+	async sendEmail() {
+		console.log("sending...");
 	},
 }));
 
