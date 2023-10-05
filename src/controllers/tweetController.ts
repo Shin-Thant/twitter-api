@@ -68,7 +68,13 @@ export const getTweetById = async (
 
 	const tweet = await findTweet(
 		{ _id: tweetId },
-		{ populate: { path: "comments" } }
+		{
+			populate: [
+				{ path: "owner" },
+				{ path: "comments" },
+				{ path: "origin", populate: { path: "owner" } },
+			],
+		}
 	);
 
 	if (!tweet) {
