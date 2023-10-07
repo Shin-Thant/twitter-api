@@ -1,10 +1,7 @@
-import { FilterQuery } from "mongoose";
 import User from "../models/User";
-import { UserDoc, UserSchema } from "../models/types/userTypes";
+import { UserSchema } from "../models/types/userTypes";
 import { RegisterInput } from "../schema/authSchema";
-import { FindMany, FindOne } from "./types";
-
-type Filter = FilterQuery<UserDoc>;
+import { FindMany, FindOne, GetCount } from "./types";
 
 export async function createUser(input: RegisterInput) {
 	return User.create(input);
@@ -48,6 +45,6 @@ export async function findDuplicateUsernameOrEmail({
 	return result;
 }
 
-export async function getUserCount(filter: Filter) {
-	return User.countDocuments(filter);
+export async function getUserCount(args: GetCount<UserSchema>) {
+	return User.countDocuments(args.filter, args.options);
 }

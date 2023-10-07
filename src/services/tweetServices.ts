@@ -3,10 +3,6 @@ import Tweet from "../models/Tweet";
 import { TweetSchema } from "../models/types/tweetTypes";
 import { DeleteOne, FindMany, FindOne, GetCount, UpdateOne } from "./types";
 
-type Filter = FilterQuery<TweetSchema>;
-type Update = UpdateQuery<TweetSchema>;
-type Options = QueryOptions<TweetSchema>;
-
 type PostTweetContent =
 	| { body: string; images?: string[] }
 	| { body?: string; images: string[] }
@@ -47,6 +43,9 @@ export async function updateTweet(args: UpdateOne<TweetSchema>) {
 	return await Tweet.findOneAndUpdate(args.filter, args.update, args.options);
 }
 
+type Filter = FilterQuery<TweetSchema>;
+type Update = UpdateQuery<TweetSchema>;
+type Options = QueryOptions<TweetSchema>;
 type PayloadOptions = {
 	action: "like" | "unlike";
 	item: Types.ObjectId;
