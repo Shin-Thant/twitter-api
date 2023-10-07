@@ -9,7 +9,7 @@ import { deleteManyImages } from "../services/imageServices";
 import {
 	createTweet,
 	deleteTweet,
-	findManyTweet,
+	findManyTweets,
 	findTweet,
 	getTweetCount,
 	handleTweetLikes,
@@ -36,7 +36,7 @@ export const getTweets = async (
 		throw new AppError("Enter valid values!", 400);
 	}
 
-	const totalTweets = await getTweetCount({});
+	const totalTweets = await getTweetCount({ filter: {} });
 
 	const pagination = new PaginationImpl({
 		itemsPerPage: parseInt(itemsPerPage),
@@ -45,7 +45,7 @@ export const getTweets = async (
 		helper: paginationHelper,
 	});
 
-	const tweets = await findManyTweet({
+	const tweets = await findManyTweets({
 		filter: {},
 		options: {
 			populate: [

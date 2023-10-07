@@ -1,6 +1,11 @@
 import { QueryOptions, UpdateQuery } from "mongoose";
 import { FilterQuery, ProjectionType } from "mongoose";
 
+export interface GetCount<T> {
+	filter: FilterQuery<T>;
+	options?: QueryOptions<T>;
+}
+
 export interface FindOne<T> {
 	filter: FilterQuery<T>;
 	projection?: ProjectionType<T>;

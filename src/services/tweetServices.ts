@@ -1,7 +1,7 @@
 import { FilterQuery, QueryOptions, Types, UpdateQuery } from "mongoose";
 import Tweet from "../models/Tweet";
 import { TweetSchema } from "../models/types/tweetTypes";
-import { DeleteOne, FindMany, FindOne, UpdateOne } from "./types";
+import { DeleteOne, FindMany, FindOne, GetCount, UpdateOne } from "./types";
 
 type Filter = FilterQuery<TweetSchema>;
 type Update = UpdateQuery<TweetSchema>;
@@ -27,8 +27,8 @@ export async function createTweet(input: NewTweet) {
 	return Tweet.create(input);
 }
 
-export async function getTweetCount(query: Filter) {
-	return Tweet.countDocuments(query);
+export async function getTweetCount(args: GetCount<TweetSchema>) {
+	return Tweet.countDocuments(args.filter, args.options);
 }
 
 export async function findTweet(args: FindOne<TweetSchema>) {
@@ -39,7 +39,7 @@ export async function findTweet(args: FindOne<TweetSchema>) {
 	).exec();
 }
 
-export async function findManyTweet(args: FindMany<TweetSchema>) {
+export async function findManyTweets(args: FindMany<TweetSchema>) {
 	return await Tweet.find(args.filter, args.projection, args.options);
 }
 
