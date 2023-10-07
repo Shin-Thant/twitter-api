@@ -1,10 +1,7 @@
 import { FilterQuery, QueryOptions, Types, UpdateQuery } from "mongoose";
 import Tweet from "../models/Tweet";
-import {
-	TweetDoc,
-	TweetPopulateOptions,
-	TweetSchema,
-} from "../models/types/tweetTypes";
+import { TweetSchema } from "../models/types/tweetTypes";
+import { DeleteOne, FindMany, FindOne, UpdateOne } from "./types";
 
 type Filter = FilterQuery<TweetSchema>;
 type Update = UpdateQuery<TweetSchema>;
@@ -34,56 +31,51 @@ export async function getTweetCount(query: Filter) {
 	return Tweet.countDocuments(query);
 }
 
-export async function findTweet(filter: Filter, queryOptions?: Options) {
-	return Tweet.findOne(filter, {}, queryOptions).exec();
+export async function findTweet(args: FindOne<TweetSchema>) {
+	return await Tweet.findOne(
+		args.filter,
+		args.projection,
+		args.options
+	).exec();
 }
 
-export async function findManyTweet(
-	filter: Filter,
-	queryOptions?: Options,
-	populateOptions?: TweetPopulateOptions
-) {
-	const res = Tweet.find(filter, {}, queryOptions);
-	if (populateOptions) {
-		res.populateRelations(populateOptions);
-	}
-	return res.exec();
+export async function findManyTweet(args: FindMany<TweetSchema>) {
+	return await Tweet.find(args.filter, args.projection, args.options);
 }
 
-export async function updateTweet(
-	filter: Filter,
-	update: Update,
-	options?: Options
-) {
-	return Tweet.findOneAndUpdate(filter, update, options);
+export async function updateTweet(args: UpdateOne<TweetSchema>) {
+	return await Tweet.findOneAndUpdate(args.filter, args.update, args.options);
 }
 
 type PayloadOptions = {
 	action: "like" | "unlike";
 	item: Types.ObjectId;
-	options?: Options;
 };
 export async function handleTweetLikes(
-	query: Filter,
-	{ action, item, options }: PayloadOptions
+	args: { filter: Filter; options?: Options } & PayloadOptions
 ) {
 	const update: Update =
-		action === "like"
+		args.action === "like"
 			? {
 					$push: {
-						likes: item,
+						likes: args.item,
 					},
 					// eslint-disable-next-line no-mixed-spaces-and-tabs
 			  }
 			: {
 					$pull: {
-						likes: item,
+						likes: args.item,
 					},
 					// eslint-disable-next-line no-mixed-spaces-and-tabs
 			  };
-	return updateTweet(query, update, options ?? { new: true });
+
+	return await updateTweet({
+		filter: args.filter,
+		update,
+		options: args.options ?? { new: true },
+	});
 }
 
-export async function deleteTweet(filter: FilterQuery<TweetDoc>) {
-	return Tweet.findOneAndDelete(filter);
+export async function deleteTweet(args: DeleteOne<TweetSchema>) {
+	return Tweet.findOneAndDelete(args.filter, args.options);
 }
