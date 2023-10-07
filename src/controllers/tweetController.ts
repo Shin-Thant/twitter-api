@@ -234,7 +234,7 @@ export const deleteTweetHandler = async (
 		await deleteManyImages({ imageNames: tweet.images });
 	}
 
-	await deleteComments({ tweet: tweet._id });
+	await deleteComments({ filter: { tweet: tweet._id } });
 	if (tweet.type === "share" && tweet.origin) {
 		// remove one item from original tweet shares
 		await updateTweet({

@@ -28,3 +28,8 @@ export interface DeleteOne<T> {
 	filter: FilterQuery<T>;
 	options?: QueryOptions<T>;
 }
+
+export interface DeleteMany<T> {
+	filter: FilterQuery<T>;
+	options?: QueryOptions<T>;
+}

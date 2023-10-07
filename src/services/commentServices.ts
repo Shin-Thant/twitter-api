@@ -1,7 +1,7 @@
-import { FilterQuery } from "mongoose";
 import Comment from "../models/Comment";
 import { CommentSchema } from "../models/types/commentTypes";
+import { DeleteMany } from "./types";
 
-export async function deleteComments(filter: FilterQuery<CommentSchema>) {
-	return Comment.deleteMany(filter);
+export async function deleteComments(args: DeleteMany<CommentSchema>) {
+	return Comment.deleteMany(args.filter, args.options);
 }
