@@ -71,7 +71,10 @@ export const getTweetById = async (
 		{
 			populate: [
 				{ path: "owner" },
-				{ path: "comments" },
+				{
+					path: "comments",
+					populate: { path: "creator", select: "-email" },
+				},
 				{ path: "origin", populate: { path: "owner" } },
 			],
 		}
