@@ -95,15 +95,15 @@ export const handleLogin = async (
 		throw new AppError("All fields are required!", 400);
 	}
 
-	const foundUser = await findUser(
-		{ email },
-		{
+	const foundUser = await findUser({
+		filter: { email },
+		projection: {
 			name: true,
 			email: true,
 			password: true,
 		},
-		{ lean: true }
-	);
+		options: { lean: true },
+	});
 	if (!foundUser) {
 		throw new AppError("Invalid email or password!", 400);
 	}
@@ -153,8 +153,11 @@ export const handleLogin = async (
 		});
 	}
 
-	const user = await findUser({ _id: foundUser._id }, undefined, {
-		populate: "followers",
+	const user = await findUser({
+		filter: { _id: foundUser._id },
+		options: {
+			populate: "followers",
+		},
 	});
 	res.json({ accessToken, user });
 };
@@ -186,8 +189,11 @@ export const handleRefreshToken = async (req: Request, res: Response) => {
 	if (!isObjectId(userId)) {
 		throw new AppError("Unauthorized!", 401);
 	}
-	const foundUser = await findUser({ _id: userId }, undefined, {
-		lean: true,
+	const foundUser = await findUser({
+		filter: { _id: userId },
+		options: {
+			lean: true,
+		},
 	});
 
 	if (!foundUser) {
@@ -240,7 +246,7 @@ export const handleEmailVerfication = async (
 		}
 
 		const userId = validatedPayload.id;
-		const foundUser = await findUser({ _id: userId });
+		const foundUser = await findUser({ filter: { _id: userId } });
 		if (!foundUser) {
 			logger.error("Invalid token payload!");
 			throw new AppError("Forbidden!", 403);

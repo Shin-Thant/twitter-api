@@ -51,10 +51,10 @@ export const addNewComment = async (
 	if (!isObjectId(tweetId)) {
 		throw new AppError("Invalid Tweet ID!", 400);
 	}
-	const foundTweet = await findTweet(
-		{ _id: tweetId.toString() },
-		{ lean: true }
-	);
+	const foundTweet = await findTweet({
+		filter: { _id: tweetId.toString() },
+		options: { lean: true },
+	});
 	if (!foundTweet) {
 		throw new AppError("Invalid Tweet ID!", 400);
 	}

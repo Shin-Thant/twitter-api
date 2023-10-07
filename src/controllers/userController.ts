@@ -1,8 +1,15 @@
 import { Request, Response } from "express";
+import { FilterQuery } from "mongoose";
 import AppError from "../config/AppError";
 import isObjectId from "../lib/isObjectId";
 import PaginationImpl from "../lib/pagination";
 import User from "../models/User";
+import { UserDoc } from "../models/types/userTypes";
+import {
+	findManyUsers,
+	findUser,
+	getUserCount,
+} from "../services/userServices";
 import { TypedRequestQuery } from "../types/requestTypes";
 import { areValuesNumber } from "../util/areValuesNumber";
 import PaginationHelperImpl from "../util/paginationHelper";
@@ -10,9 +17,6 @@ import {
 	UpdateReqBody,
 	validateUserUpdateInput,
 } from "../util/validateUserUpdateInput";
-import { UserDoc } from "../models/types/userTypes";
-import { FilterQuery } from "mongoose";
-import { findUser, getUserCount, paginateUser } from "../services/userServices";
 
 const paginationHelper = new PaginationHelperImpl();
 
@@ -61,17 +65,16 @@ export const searchUsers = async (
 		helper: paginationHelper,
 	});
 
-	const options = {
-		limit: userPagination.itemsPerPage,
-		skip: userPagination.skip,
-		sort: "name",
-		lean: true,
-	};
-	const users = await paginateUser(
-		QUERY_FILTER,
-		{ following: false },
-		options
-	);
+	const users = await findManyUsers({
+		filter: QUERY_FILTER,
+		projection: { following: false },
+		options: {
+			limit: userPagination.itemsPerPage,
+			skip: userPagination.skip,
+			sort: "name",
+			lean: true,
+		},
+	});
 
 	res.json(userPagination.createPaginationResult<typeof users>(users));
 };
@@ -82,13 +85,11 @@ export const getUserById = async (req: Request<Params>, res: Response) => {
 		return;
 	}
 
-	const foundUser = await findUser(
-		{ _id: userId },
-		{ following: false },
-		{
-			lean: true,
-		}
-	);
+	const foundUser = await findUser({
+		filter: { _id: userId },
+		projection: { following: false },
+		options: { lean: true },
+	});
 	if (!foundUser) {
 		throw new AppError("User not found!", 400);
 	}
@@ -102,8 +103,11 @@ export const getUserFollowing = async (req: Request<Params>, res: Response) => {
 		throw new AppError("User ID is required!", 400);
 	}
 
-	const foundUser = await findUser({ _id: userId }, undefined, {
-		populate: { path: "following", select: "-following" },
+	const foundUser = await findUser({
+		filter: { _id: userId },
+		options: {
+			populate: { path: "following", select: "-following" },
+		},
 	});
 	if (!foundUser) {
 		throw new AppError("Invalid ID!", 400);
@@ -118,8 +122,11 @@ export const getUserFollowers = async (req: Request<Params>, res: Response) => {
 		throw new AppError("User ID is required!", 400);
 	}
 
-	const foundUser = await findUser({ _id: userId }, undefined, {
-		populate: "followers",
+	const foundUser = await findUser({
+		filter: { _id: userId },
+		options: {
+			populate: "followers",
+		},
 	});
 	if (!foundUser) {
 		throw new AppError("Invalid ID!", 400);
@@ -188,7 +195,7 @@ async function validateFollowId(loginedUserId: string, userId: string) {
 	if (loginedUserId === userId) {
 		throw new AppError("Bad request!", 400);
 	}
-	const foundUser = await findUser({ _id: userId });
+	const foundUser = await findUser({ filter: { _id: userId } });
 	if (!foundUser) {
 		throw new AppError("Invalid user!", 400);
 	}
@@ -205,7 +212,7 @@ export const updateUserGeneralInfo = async (
 		throw new AppError("All fields are required!", 400);
 	}
 
-	const user = await findUser({ _id: userId });
+	const user = await findUser({ filter: { _id: userId } });
 	if (!user) {
 		throw new AppError("Invalid user id!", 400);
 	}
@@ -216,10 +223,13 @@ export const updateUserGeneralInfo = async (
 		throw error;
 	}
 
-	const duplicateUser = await findUser({ name }, undefined, {
-		collation: {
-			locale: "en",
-			strength: 2,
+	const duplicateUser = await findUser({
+		filter: { name },
+		options: {
+			collation: {
+				locale: "en",
+				strength: 2,
+			},
 		},
 	});
 	if (duplicateUser && duplicateUser._id.toString() !== userId) {
@@ -240,7 +250,7 @@ export const deleteUser = async (req: Request<Params>, res: Response) => {
 		throw new AppError("User ID is required!", 400);
 	}
 
-	const user = await findUser({ _id: userId });
+	const user = await findUser({ filter: { _id: userId } });
 	if (!user) {
 		throw new AppError("User not found!", 400);
 	}
