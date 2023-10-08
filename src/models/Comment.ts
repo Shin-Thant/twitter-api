@@ -21,7 +21,7 @@ const commentSchema = new Schema<
 			type: String,
 			required: [true, "Comment body is required!"],
 		},
-		creator: {
+		owner: {
 			type: Schema.Types.ObjectId,
 			ref: "User",
 			required: [true, "Creator ID is required!"],
@@ -29,6 +29,7 @@ const commentSchema = new Schema<
 		tweet: {
 			type: Schema.Types.ObjectId,
 			ref: "Tweet",
+			requried: true,
 		},
 		parent: {
 			type: Schema.Types.ObjectId,

@@ -9,7 +9,7 @@ import { LeanUser, UserRef } from "./userTypes";
 
 export type CommentSchema = {
 	body: string;
-	creator: UserRef;
+	owner: UserRef;
 	tweet: Types.ObjectId;
 	parent?: CommentRef;
 	comments?: CommentRef[];
