@@ -59,6 +59,13 @@ export const getTweets = async (
 					path: "shares",
 					select: ["_id", "origin", "body", "owner", "type"],
 				},
+				{
+					path: "comments",
+					populate: {
+						path: "creator",
+						select: "-email",
+					},
+				},
 			],
 			limit: pagination.itemsPerPage * pagination.currentPage,
 			sort: "-createdAt",
