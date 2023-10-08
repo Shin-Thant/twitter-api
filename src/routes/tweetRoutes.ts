@@ -12,7 +12,11 @@ import {
 import verifyJWT from "../middlewares/verifyJWT";
 import verifyTweetOwner from "../middlewares/verifyTweetOwner";
 import validateResource from "../middlewares/validateResource";
-import { createTweetSchema, editTweetSchema } from "../schema/tweetSchema";
+import {
+	createTweetSchema,
+	editTweetSchema,
+	getTweetByIdSchema,
+} from "../schema/tweetSchema";
 import { uploadMany } from "../middlewares/imageUpload";
 import { saveTweetImages } from "../middlewares/saveTweetImages";
 import { tweetBodyOrImage } from "../middlewares/tweetBodyOrImage";
@@ -37,7 +41,7 @@ router
 
 router
 	.route("/:tweetId")
-	.get(getTweetById)
+	.get(validateResource(getTweetByIdSchema), getTweetById)
 	.put(
 		[
 			verifyJWT,

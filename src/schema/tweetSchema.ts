@@ -1,4 +1,31 @@
 import Joi from "joi";
+import isObjectId from "../lib/isObjectId";
+
+export type GetTweetByIdInput = {
+	body: object;
+	params: { tweetId: string };
+	query: object;
+};
+export const getTweetByIdSchema = Joi.object<GetTweetByIdInput, true>({
+	body: Joi.object({}),
+	params: Joi.object({
+		tweetId: Joi.string()
+			.trim()
+			.required()
+			.custom(function (value) {
+				if (!isObjectId(value)) {
+					throw new Error("Invalid tweet ID!");
+				}
+				return value;
+			})
+			.messages({
+				"string.base": "Tweet ID must be string!",
+				"any.required": "Tweet ID is required!",
+				"any.custom": "Invalid tweet ID!",
+			}),
+	}),
+	query: Joi.object({}),
+});
 
 export type CreateTweetInput = {
 	body: {
