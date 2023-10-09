@@ -54,7 +54,6 @@ export const getTweets = async (
 					populate: { path: "owner", select: "-email" },
 				},
 				{ path: "owner", select: "-email" },
-				{ path: "likes", select: "-email" },
 				{
 					path: "shares",
 					select: ["_id", "origin", "body", "owner", "type"],
@@ -62,7 +61,7 @@ export const getTweets = async (
 				{
 					path: "comments",
 					populate: {
-						path: "creator",
+						path: "owner",
 						select: "-email",
 					},
 				},
@@ -91,7 +90,7 @@ export const getTweetById = async (
 				{ path: "owner" },
 				{
 					path: "comments",
-					populate: { path: "creator", select: "-email" },
+					populate: { path: "owner", select: "-email" },
 				},
 				{ path: "origin", populate: { path: "owner" } },
 			],
