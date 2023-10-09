@@ -3,23 +3,28 @@ import {
 	addNewComment,
 	deleteComment,
 	getCommentById,
+	getTweetComments,
 	updateComment,
-	getAllComments,
 } from "../controllers/commentController";
-import verifyJWT from "../middlewares/verifyJWT";
+import validateResource from "../middlewares/validateResource";
 import verifyCommentOwner from "../middlewares/verifyCommentOwner";
+import verifyJWT from "../middlewares/verifyJWT";
+import {
+	createCommentSchema,
+	getCommentsSchema,
+} from "../schema/commentSchema";
 
-const router = Router();
+const router = Router({ mergeParams: true });
 
-router.route("/").post(verifyJWT, addNewComment);
-
-//* only for testing
-router.route("/all").get(getAllComments);
+router
+	.route("/")
+	.get(validateResource(getCommentsSchema), getTweetComments)
+	.post([verifyJWT, validateResource(createCommentSchema)], addNewComment);
 
 router
 	.route("/:commentId")
 	.get(getCommentById)
-	.put(verifyJWT, verifyCommentOwner, updateComment)
-	.delete(verifyJWT, verifyCommentOwner, deleteComment);
+	.put([verifyJWT, verifyCommentOwner], updateComment)
+	.delete([verifyJWT, verifyCommentOwner], deleteComment);
 
 export default router;

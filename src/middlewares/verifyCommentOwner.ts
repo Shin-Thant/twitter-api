@@ -27,7 +27,7 @@ const verifyCommentOwner = async (
 		throw new AppError("Invalid ID!", 400);
 	}
 
-	if (foundComment.creator._id.toString() !== owner._id.toString()) {
+	if (foundComment.owner._id.toString() !== owner._id.toString()) {
 		throw new AppError("Unauthorized!", 401);
 	}
 
