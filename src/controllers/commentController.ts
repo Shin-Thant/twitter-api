@@ -1,11 +1,12 @@
 import { Request, Response } from "express";
+import AppError from "../config/AppError";
+import isObjectId from "../lib/isObjectId";
+import Comment from "../models/Comment";
+import { CreateCommentInput } from "../schema/commentSchema";
+import { createComment } from "../services/commentServices";
+import { findTweet } from "../services/tweetServices";
 import { TypedRequestBody } from "../types/requestTypes";
 import { TweetParams } from "./tweetController";
-import AppError from "../config/AppError";
-import santitizeCommentData from "../lib/validateCommentCreation";
-import Comment from "../models/Comment";
-import isObjectId from "../lib/isObjectId";
-import { findTweet } from "../services/tweetServices";
 
 //* test route
 export const getAllComments = async (req: Request, res: Response) => {
@@ -36,18 +37,21 @@ export const getTweetComments = async (
 	res.json(comments);
 };
 
-type NewComment = { body?: string; tweetId?: string };
-
 export const addNewComment = async (
-	req: Request<Omit<TweetParams, "commentId">, object, NewComment>,
+	req: Request<
+		CreateCommentInput["params"],
+		object,
+		CreateCommentInput["body"]
+	>,
 	res: Response
 ) => {
-	const { user: creator } = req;
-	const { body, tweetId } = req.body;
-	if (!body || !creator || !tweetId) {
+	const { user: owner } = req;
+	const { body } = req.body;
+	const { tweetId } = req.params;
+
+	if (!body || !owner || !tweetId) {
 		throw new AppError("All fields are required!", 400);
 	}
-
 	if (!isObjectId(tweetId)) {
 		throw new AppError("Invalid Tweet ID!", 400);
 	}
@@ -59,17 +63,11 @@ export const addNewComment = async (
 		throw new AppError("Invalid Tweet ID!", 400);
 	}
 
-	const commentData = {
+	const newComment = await createComment({
 		body,
-		creator: creator._id.toString(),
+		owner: owner._id.toString(),
 		tweet: tweetId,
-	};
-	const { value: data, error: inputErr } = santitizeCommentData(commentData);
-	if (inputErr) {
-		throw inputErr;
-	}
-
-	const newComment = await Comment.create(data);
+	});
 	if (!newComment) {
 		throw new AppError("Something went wrong!", 500);
 	}
