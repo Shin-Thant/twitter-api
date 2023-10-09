@@ -10,19 +10,19 @@ import Comment from "../models/Comment";
 import { UserDoc } from "../models/types/userTypes";
 
 export async function populateCommentAfterCreation(this: CommentPostThis) {
-	await this.populate({ path: "creator", select: "-email" });
+	await this.populate({ path: "owner", select: "-email" });
 }
 
 export const populateCommentRelations: PopulateCommmentRelations =
 	function (options?: { populateComments: boolean }) {
-		const result = this.populate<{ creator: Omit<UserDoc, "email"> }>({
-			path: "creator",
+		const result = this.populate<{ owner: Omit<UserDoc, "email"> }>({
+			path: "owner",
 			select: "-email",
 		});
 		if (options?.populateComments) {
 			result.populate<{ comments: CommentDoc[] }>({
 				path: "comments",
-				populate: { path: "creator", select: "-email" },
+				populate: { path: "owner", select: "-email" },
 			});
 		}
 		return result;
