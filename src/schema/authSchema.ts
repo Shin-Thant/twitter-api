@@ -1,4 +1,5 @@
 import Joi from "joi";
+import { Dto } from "./types";
 
 type LoginInput = {
 	email: string;
@@ -58,12 +59,10 @@ export const registerUserSchema = Joi.object({
 	params: Joi.object({}),
 });
 
-export interface EmailVerifyInput {
-	body: object;
+export interface EmailVerifyInput extends Dto {
 	params: {
 		token: string;
 	};
-	query: object;
 }
 export const emailVerifySchema = Joi.object<EmailVerifyInput, true>({
 	body: Joi.object({}),
