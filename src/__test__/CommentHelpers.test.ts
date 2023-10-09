@@ -96,7 +96,7 @@ describe("Comment Middlewares", () => {
 				const comment = await getRandomComment();
 
 				const bearerToken = createBearerToken(
-					comment?.creator?._id?.toString() as string
+					comment?.owner?._id?.toString() as string
 				);
 
 				const url = `/api/v1/comments/${comment?._id.toString()}`;
@@ -120,7 +120,7 @@ describe("Comment Middlewares", () => {
 					const comment = await getRandomComment();
 
 					const bearerToken = createBearerToken(
-						comment?.creator?._id?.toString() as string
+						comment?.owner?._id?.toString() as string
 					);
 
 					const commentId = "just_random_string";
@@ -143,7 +143,7 @@ describe("Comment Middlewares", () => {
 					const comment = await getRandomComment();
 
 					const bearerToken = createBearerToken(
-						comment?.creator?._id?.toString() as string
+						comment?.owner?._id?.toString() as string
 					);
 
 					const commentId = createObjectId();
@@ -167,7 +167,7 @@ describe("Comment Middlewares", () => {
 
 					const user = await getRandomUser({
 						_id: {
-							$ne: comment?.creator,
+							$ne: comment?.owner,
 						},
 					});
 
