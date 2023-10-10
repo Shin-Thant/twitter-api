@@ -14,7 +14,7 @@ import {
 	deleteCommentSchema,
 	getCommentsSchema,
 	updateCommentSchema,
-} from "../schema/commentSchema";
+} from "../validationSchemas/commentSchema";
 
 const router = Router({ mergeParams: true });
 

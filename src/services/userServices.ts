@@ -1,6 +1,6 @@
 import User from "../models/User";
 import { UserSchema } from "../models/types/userTypes";
-import { RegisterInput } from "../schema/authSchema";
+import { RegisterInput } from "../validationSchemas/authSchema";
 import { FindMany, FindOne, GetCount } from "./types";
 
 export async function createUser(input: RegisterInput) {

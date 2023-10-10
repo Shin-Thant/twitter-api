@@ -14,7 +14,7 @@ import {
 	emailVerifySchema,
 	loginUserSchema,
 	registerUserSchema,
-} from "../schema/authSchema";
+} from "../validationSchemas/authSchema";
 
 const router = Router();
 

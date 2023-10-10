@@ -8,7 +8,10 @@ import {
 } from "../lib/handleTokenCookie";
 import isObjectId from "../lib/isObjectId";
 import { UserDoc } from "../models/types/userTypes";
-import { EmailVerifyInput, RegisterInput } from "../schema/authSchema";
+import {
+	EmailVerifyInput,
+	RegisterInput,
+} from "../validationSchemas/authSchema";
 import {
 	createUser,
 	findDuplicateUsernameOrEmail,

@@ -5,7 +5,7 @@ import Comment from "../models/Comment";
 import {
 	CreateCommentInput,
 	UpdateCommentInput,
-} from "../schema/commentSchema";
+} from "../validationSchemas/commentSchema";
 import {
 	createComment,
 	findComment,

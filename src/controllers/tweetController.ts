@@ -3,7 +3,10 @@ import AppError from "../config/AppError";
 import PaginationImpl from "../lib/pagination";
 import { TweetDoc } from "../models/types/tweetTypes";
 import { UserDoc } from "../models/types/userTypes";
-import { CreateTweetInput, EditTweetInput } from "../schema/tweetSchema";
+import {
+	CreateTweetInput,
+	EditTweetInput,
+} from "../validationSchemas/tweetSchema";
 import { deleteComments } from "../services/commentServices";
 import { deleteManyImages } from "../services/imageServices";
 import {

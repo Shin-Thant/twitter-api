@@ -1,5 +1,5 @@
 import { NextFunction, Response } from "express";
-import { CreateTweetInput } from "../schema/tweetSchema";
+import { CreateTweetInput } from "../validationSchemas/tweetSchema";
 import { TypedRequestBody } from "../types/requestTypes";
 import AppError from "../config/AppError";
 

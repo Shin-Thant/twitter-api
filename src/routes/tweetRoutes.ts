@@ -18,7 +18,7 @@ import {
 	createTweetSchema,
 	editTweetSchema,
 	getTweetByIdSchema,
-} from "../schema/tweetSchema";
+} from "../validationSchemas/tweetSchema";
 import commentRoutes from "./commentRoutes";
 
 const router = Router();
