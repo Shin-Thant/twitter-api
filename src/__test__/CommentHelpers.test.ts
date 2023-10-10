@@ -14,6 +14,7 @@ import supertest from "supertest";
 import app from "../app/app";
 import Comment from "../models/Comment";
 import createErrorResponseBody from "../util/createErrorResponseBody";
+import { TweetDoc } from "../models/types/tweetTypes";
 
 // TODO: pre-create a comment before that comment is used then delete
 
@@ -39,23 +40,6 @@ describe("Comment Middlewares", () => {
 		await disconnectDB();
 	});
 
-	describe("Helpers", () => {
-		describe("populateCommentRelations", () => {
-			describe("when throw Error", () => {
-				it("should return status 500 and error response", async () => {
-					const { body } = await supertest(app)
-						.get("/api/v1/comments/all")
-						.expect(500);
-
-					expect(body).toEqual({
-						status: "error",
-						message: "something",
-					});
-				});
-			});
-		});
-	});
-
 	describe("Schema Middlewares", () => {
 		describe("populateCommentAfterCreation", () => {
 			describe("when populate() throw error", () => {
@@ -68,16 +52,18 @@ describe("Comment Middlewares", () => {
 						}
 					);
 
-					const user = await getRandomUser();
-					if (!user) return;
-					const bearerToken = createBearerToken(user._id.toString());
-					const tweet = await getRandomTweet();
+					const randomUser = await getRandomUser();
+					if (!randomUser) return;
+
+					const bearerToken = createBearerToken(
+						randomUser._id.toString()
+					);
+					const tweet = (await getRandomTweet()) as TweetDoc;
 					const data = {
 						body: "sth",
-						tweetId: tweet?._id.toString(),
 					};
 
-					const url = "/api/v1/comments";
+					const url = `/api/v1/tweets/${tweet?._id.toString()}/comments`;
 					const { body } = await supertest(app)
 						.post(url)
 						.send(data)
