@@ -31,7 +31,7 @@ const commentSchema = new Schema<
 			ref: "Tweet",
 			requried: true,
 		},
-		parent: {
+		origin: {
 			type: Schema.Types.ObjectId,
 			ref: "Comment",
 		},

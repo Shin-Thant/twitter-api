@@ -11,14 +11,14 @@ export type CommentSchema = {
 	body: string;
 	owner: UserRef;
 	tweet: Types.ObjectId;
-	parent?: CommentRef;
+	origin?: CommentRef;
 	comments?: CommentRef[];
 };
 
 export interface LeanComment extends CommentSchema {
 	_id: Types.ObjectId;
 	creator: LeanUser | Types.ObjectId;
-	parent?: LeanComment | Types.ObjectId;
+	origin?: LeanComment | Types.ObjectId;
 	comments?: (LeanComment | Types.ObjectId)[];
 }
 

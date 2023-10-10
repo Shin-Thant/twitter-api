@@ -59,10 +59,6 @@ router.route("/:tweetId/like").patch(verifyJWT, handleLikes);
 
 router.route("/:tweetId/share").post(verifyJWT, shareTweet);
 
-//router.route("/:tweetId/comments").get(getTweetComments);
-router.use(
-	"/:tweetId/comments",
-	commentRoutes
-);
+router.use("/:tweetId/comments", commentRoutes);
 
 export default router;

@@ -18,6 +18,7 @@ export interface ShareTweet {
 	owner: string;
 	origin: string;
 }
+
 type NewTweet = CreateTweet | ShareTweet;
 export async function createTweet(input: NewTweet) {
 	return Tweet.create(input);

@@ -5,6 +5,6 @@ import verifyJWT from "../middlewares/verifyJWT";
 const router = Router();
 
 // /comments/some-id/reply
-router.route("/:commentId").post(verifyJWT, replyComment);
+// router.route("/:commentId").post(verifyJWT, replyComment);
 
 export default router;

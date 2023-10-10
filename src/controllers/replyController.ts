@@ -29,8 +29,8 @@ export const replyComment = async (
 	const replyData = {
 		body,
 		tweet: foundParent._id.toString(),
-		parent: parentId,
-		creator: creator._id.toString(),
+		origin: parentId,
+		owner: creator._id.toString(),
 	};
 	const { value: data, error: inputErr } = santitizeCommentData(replyData);
 	if (inputErr) {
