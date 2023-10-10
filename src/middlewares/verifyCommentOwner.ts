@@ -1,11 +1,10 @@
 import { NextFunction, Request, Response } from "express";
 import AppError from "../config/AppError";
 import Comment from "../models/Comment";
-import { CommentParams } from "../controllers/commentController";
 import isObjectId from "../lib/isObjectId";
 
 const verifyCommentOwner = async (
-	req: Request<CommentParams>,
+	req: Request<{ commentId: string }>,
 	res: Response,
 	next: NextFunction
 ) => {

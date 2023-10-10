@@ -119,7 +119,7 @@ describe("Comment Middlewares", () => {
 
 					expect(body).toEqual({
 						status: "fail",
-						message: "Invalid ID!",
+						message: "Invalid tweet ID!",
 					});
 				});
 			});

@@ -11,7 +11,9 @@ import verifyCommentOwner from "../middlewares/verifyCommentOwner";
 import verifyJWT from "../middlewares/verifyJWT";
 import {
 	createCommentSchema,
+	deleteCommentSchema,
 	getCommentsSchema,
+	updateCommentSchema,
 } from "../schema/commentSchema";
 
 const router = Router({ mergeParams: true });
@@ -24,7 +26,13 @@ router
 router
 	.route("/:commentId")
 	.get(getCommentById)
-	.put([verifyJWT, verifyCommentOwner], updateComment)
-	.delete([verifyJWT, verifyCommentOwner], deleteComment);
+	.put(
+		[verifyJWT, validateResource(updateCommentSchema), verifyCommentOwner],
+		updateComment
+	)
+	.delete(
+		[verifyJWT, validateResource(deleteCommentSchema), verifyCommentOwner],
+		deleteComment
+	);
 
 export default router;

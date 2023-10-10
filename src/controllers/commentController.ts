@@ -2,15 +2,18 @@ import { Request, Response } from "express";
 import AppError from "../config/AppError";
 import isObjectId from "../lib/isObjectId";
 import Comment from "../models/Comment";
-import { CreateCommentInput } from "../schema/commentSchema";
+import {
+	CreateCommentInput,
+	UpdateCommentInput,
+} from "../schema/commentSchema";
 import {
 	createComment,
 	findComment,
 	findManyComments,
 } from "../services/commentServices";
 import { findTweet } from "../services/tweetServices";
-import { TypedRequestBody } from "../types/requestTypes";
 import { TweetParams } from "./tweetController";
+import { CommentDoc } from "../models/types/commentTypes";
 
 //* test route
 export const getAllComments = async (req: Request, res: Response) => {
@@ -19,8 +22,6 @@ export const getAllComments = async (req: Request, res: Response) => {
 		.lean();
 	res.json(comments);
 };
-
-export type CommentParams = { commentId?: string };
 
 export const getTweetComments = async (
 	req: Request<TweetParams>,
@@ -88,7 +89,7 @@ export const addNewComment = async (
 };
 
 export const getCommentById = async (
-	req: Request<CommentParams>,
+	req: Request<{ commentId: string }>,
 	res: Response
 ) => {
 	const { commentId } = req.params;
@@ -115,21 +116,16 @@ export const getCommentById = async (
 	res.json(foundComment);
 };
 
-type UpdateBody = {
-	body?: string;
-};
 export const updateComment = async (
-	req: TypedRequestBody<UpdateBody>,
+	req: Request<
+		UpdateCommentInput["params"] & { tweetId: string },
+		object,
+		UpdateCommentInput["body"]
+	>,
 	res: Response
 ) => {
-	const { comment } = req;
+	const comment = req.comment as CommentDoc;
 	const { body } = req.body;
-	if (!comment) {
-		throw new AppError("Unauthorized!", 401);
-	}
-	if (!body) {
-		throw new AppError("Comment body is required!", 400);
-	}
 
 	comment.body = body;
 	await comment.save();
