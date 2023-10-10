@@ -56,7 +56,7 @@ export const searchUsers = async (
 		$or: [{ name: REGEX_OPTION }, { username: REGEX_OPTION }],
 	};
 
-	const totalUsers = await getUserCount(QUERY_FILTER);
+	const totalUsers = await getUserCount({ filter: QUERY_FILTER });
 
 	const userPagination = new PaginationImpl({
 		itemsPerPage: parseInt(itemsPerPage),

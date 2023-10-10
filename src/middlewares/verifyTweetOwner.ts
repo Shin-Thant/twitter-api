@@ -20,7 +20,7 @@ const verifyTweetOwner = async (
 		throw new AppError("Invalid ID!", 400);
 	}
 
-	const foundTweet = await findTweet({ _id: tweetId });
+	const foundTweet = await findTweet({ filter: { _id: tweetId } });
 	if (!foundTweet) {
 		throw new AppError("Invalid ID!", 400);
 	}
