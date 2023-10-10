@@ -3,7 +3,11 @@ import AppError from "../config/AppError";
 import isObjectId from "../lib/isObjectId";
 import Comment from "../models/Comment";
 import { CreateCommentInput } from "../schema/commentSchema";
-import { createComment } from "../services/commentServices";
+import {
+	createComment,
+	findComment,
+	findManyComments,
+} from "../services/commentServices";
 import { findTweet } from "../services/tweetServices";
 import { TypedRequestBody } from "../types/requestTypes";
 import { TweetParams } from "./tweetController";
@@ -27,13 +31,21 @@ export const getTweetComments = async (
 		throw new AppError("Tweet ID is requried!", 400);
 	}
 
-	const comments = await Comment.find({
-		tweet: tweetId,
-		parent: { $exists: false },
-	})
-		.populateRelations({ populateComments: true })
-		.sort("-createdAt")
-		.lean();
+	const comments = await findManyComments({
+		filter: { tweet: tweetId, origin: { $exists: false } },
+		options: {
+			populate: [
+				{ path: "owner", select: "-email" },
+				{
+					path: "comments",
+					populate: { path: "owner", select: "-email" },
+				},
+			],
+			sort: "-createdAt",
+			lean: true,
+		},
+	});
+
 	res.json(comments);
 };
 
@@ -84,9 +96,18 @@ export const getCommentById = async (
 		throw new AppError("Comment ID is required!", 400);
 	}
 
-	const foundComment = await Comment.findById(commentId)
-		.populateRelations({ populateComments: true })
-		.exec();
+	const foundComment = await findComment({
+		filter: { _id: commentId },
+		options: {
+			populate: [
+				{ path: "owner", select: "-email" },
+				{
+					path: "comments",
+					populate: { path: "owner", select: "-email" },
+				},
+			],
+		},
+	});
 
 	if (!foundComment) {
 		throw new AppError("Invalid ID!", 400);
