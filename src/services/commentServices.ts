@@ -1,6 +1,6 @@
 import Comment from "../models/Comment";
 import { CommentSchema } from "../models/types/commentTypes";
-import { DeleteMany, FindMany, FindOne } from "./types";
+import { DeleteMany, FindMany, FindOne, LikeOne, UpdateOne } from "./types";
 
 interface CreateCommentData {
 	body: string;
@@ -21,6 +21,38 @@ export async function findComment(args: FindOne<CommentSchema>) {
 		args.projection,
 		args.options
 	).exec();
+}
+
+export async function updateComment(args: UpdateOne<CommentSchema>) {
+	return await Comment.findOneAndUpdate(
+		args.filter,
+		args.update,
+		args.options
+	);
+}
+
+export async function updateCommentLikes(args: LikeOne<CommentSchema>) {
+	let update: UpdateOne<CommentSchema>["update"];
+
+	if (args.action === "like") {
+		update = {
+			$push: {
+				likes: args.item,
+			},
+		};
+	} else {
+		update = {
+			$pull: {
+				likes: args.item,
+			},
+		};
+	}
+
+	return await updateComment({
+		filter: args.filter,
+		update,
+		options: args.options,
+	});
 }
 
 export async function deleteComments(args: DeleteMany<CommentSchema>) {

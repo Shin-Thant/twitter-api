@@ -1,27 +1,20 @@
 import { Router } from "express";
 import {
-	addNewComment,
 	deleteComment,
 	getCommentById,
-	getTweetComments,
+	handleCommentLikes,
 	updateComment,
 } from "../controllers/commentController";
 import validateResource from "../middlewares/validateResource";
 import verifyCommentOwner from "../middlewares/verifyCommentOwner";
 import verifyJWT from "../middlewares/verifyJWT";
 import {
-	createCommentSchema,
 	deleteCommentSchema,
-	getCommentsSchema,
+	likeCommentSchema,
 	updateCommentSchema,
 } from "../validationSchemas/commentSchema";
 
 const router = Router({ mergeParams: true });
-
-router
-	.route("/")
-	.get(validateResource(getCommentsSchema), getTweetComments)
-	.post([verifyJWT, validateResource(createCommentSchema)], addNewComment);
 
 router
 	.route("/:commentId")
@@ -34,5 +27,11 @@ router
 		[verifyJWT, validateResource(deleteCommentSchema), verifyCommentOwner],
 		deleteComment
 	);
+
+router.put(
+	"/:commentId/likes",
+	[verifyJWT, validateResource(likeCommentSchema)],
+	handleCommentLikes
+);
 
 export default router;

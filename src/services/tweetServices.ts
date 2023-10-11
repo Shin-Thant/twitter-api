@@ -1,7 +1,13 @@
-import { FilterQuery, QueryOptions, Types, UpdateQuery } from "mongoose";
 import Tweet from "../models/Tweet";
 import { TweetSchema } from "../models/types/tweetTypes";
-import { DeleteOne, FindMany, FindOne, GetCount, UpdateOne } from "./types";
+import {
+	DeleteOne,
+	FindMany,
+	FindOne,
+	GetCount,
+	LikeOne,
+	UpdateOne,
+} from "./types";
 
 type PostTweetContent =
 	| { body: string; images?: string[] }
@@ -44,35 +50,27 @@ export async function updateTweet(args: UpdateOne<TweetSchema>) {
 	return await Tweet.findOneAndUpdate(args.filter, args.update, args.options);
 }
 
-type Filter = FilterQuery<TweetSchema>;
-type Update = UpdateQuery<TweetSchema>;
-type Options = QueryOptions<TweetSchema>;
-type PayloadOptions = {
-	action: "like" | "unlike";
-	item: Types.ObjectId;
-};
-export async function handleTweetLikes(
-	args: { filter: Filter; options?: Options } & PayloadOptions
-) {
-	const update: Update =
-		args.action === "like"
-			? {
-					$push: {
-						likes: args.item,
-					},
-					// eslint-disable-next-line no-mixed-spaces-and-tabs
-			  }
-			: {
-					$pull: {
-						likes: args.item,
-					},
-					// eslint-disable-next-line no-mixed-spaces-and-tabs
-			  };
+export async function handleTweetLikes(args: LikeOne<TweetSchema>) {
+	let update: UpdateOne<TweetSchema>["update"];
+
+	if (args.action === "like") {
+		update = {
+			$push: {
+				likes: args.item,
+			},
+		};
+	} else {
+		update = {
+			$pull: {
+				likes: args.item,
+			},
+		};
+	}
 
 	return await updateTweet({
 		filter: args.filter,
 		update,
-		options: args.options ?? { new: true },
+		options: args.options,
 	});
 }
 

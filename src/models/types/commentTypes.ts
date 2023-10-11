@@ -12,6 +12,7 @@ export type CommentSchema = {
 	owner: UserRef;
 	tweet: Types.ObjectId;
 	origin?: CommentRef;
+	likes: UserRef[];
 	comments?: CommentRef[];
 };
 
@@ -19,6 +20,7 @@ export interface LeanComment extends CommentSchema {
 	_id: Types.ObjectId;
 	creator: LeanUser | Types.ObjectId;
 	origin?: LeanComment | Types.ObjectId;
+	likes: (LeanUser | Types.ObjectId)[];
 	comments?: (LeanComment | Types.ObjectId)[];
 }
 

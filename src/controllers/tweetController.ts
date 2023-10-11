@@ -208,22 +208,12 @@ export const handleLikes = async (req: Request<TweetParams>, res: Response) => {
 
 	const isLiked = tweet.likes.includes(user._id);
 
-	let updatedTweet;
-	if (!isLiked) {
-		// add like
-		updatedTweet = await handleTweetLikes({
-			filter: { _id: tweetId },
-			action: "like",
-			item: user._id,
-		});
-	} else {
-		// remove like
-		updatedTweet = await handleTweetLikes({
-			filter: { _id: tweetId },
-			action: "unlike",
-			item: user._id,
-		});
-	}
+	const updatedTweet = await handleTweetLikes({
+		filter: { _id: tweetId },
+		action: isLiked ? "unlike" : "like",
+		item: user._id,
+		options: { new: true },
+	});
 
 	res.json(updatedTweet);
 };

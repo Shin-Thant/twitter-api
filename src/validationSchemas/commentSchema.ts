@@ -29,9 +29,9 @@ export const createCommentSchema = Joi.object<CreateCommentInput, true>({
 			.required()
 			.custom(objectIdValidator)
 			.messages({
-				"string.base": "Tweet ID must be string!",
-				"any.required": "Tweet ID is required!",
-				"any.custom": "Invalid tweet ID!",
+				"string.base": "Comment ID must be string!",
+				"any.required": "Comment ID is required!",
+				"any.custom": "Invalid comment ID!",
 			}),
 	}),
 	query: Joi.object({}),
@@ -58,9 +58,9 @@ export const updateCommentSchema = Joi.object<UpdateCommentInput, true>({
 			.required()
 			.custom(objectIdValidator)
 			.messages({
-				"string.base": "Tweet ID must be string!",
-				"any.required": "Tweet ID is required!",
-				"any.custom": "Invalid tweet ID!",
+				"string.base": "Comment ID must be string!",
+				"any.required": "Comment ID is required!",
+				"any.custom": "Invalid comment ID!",
 			}),
 	}),
 	query: Joi.object({}),
@@ -79,10 +79,13 @@ export const deleteCommentSchema = Joi.object<DeleteCommentInput, true>({
 			.required()
 			.custom(objectIdValidator)
 			.messages({
-				"string.base": "Tweet ID must be string!",
-				"any.required": "Tweet ID is required!",
-				"any.custom": "Invalid tweet ID!",
+				"string.base": "Comment ID must be string!",
+				"any.required": "Comment ID is required!",
+				"any.custom": "Invalid comment ID!",
 			}),
 	}),
 	query: Joi.object({}),
 });
+
+export type LikeCommentInput = DeleteCommentInput;
+export const likeCommentSchema = deleteCommentSchema;

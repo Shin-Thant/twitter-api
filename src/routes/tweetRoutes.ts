@@ -1,5 +1,9 @@
 import { Router } from "express";
 import {
+	addNewComment,
+	getTweetComments,
+} from "../controllers/commentController";
+import {
 	createTweetHandler,
 	deleteTweetHandler,
 	editTweetHandler,
@@ -15,11 +19,14 @@ import validateResource from "../middlewares/validateResource";
 import verifyJWT from "../middlewares/verifyJWT";
 import verifyTweetOwner from "../middlewares/verifyTweetOwner";
 import {
+	createCommentSchema,
+	getCommentsSchema,
+} from "../validationSchemas/commentSchema";
+import {
 	createTweetSchema,
 	editTweetSchema,
 	getTweetByIdSchema,
 } from "../validationSchemas/tweetSchema";
-import commentRoutes from "./commentRoutes";
 
 const router = Router();
 
@@ -59,6 +66,10 @@ router.route("/:tweetId/like").patch(verifyJWT, handleLikes);
 
 router.route("/:tweetId/share").post(verifyJWT, shareTweet);
 
-router.use("/:tweetId/comments", commentRoutes);
+// tweet's comment routes
+router
+	.route("/:tweetId/comments")
+	.get(validateResource(getCommentsSchema), getTweetComments)
+	.post([verifyJWT, validateResource(createCommentSchema)], addNewComment);
 
 export default router;

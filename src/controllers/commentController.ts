@@ -2,18 +2,21 @@ import { Request, Response } from "express";
 import AppError from "../config/AppError";
 import isObjectId from "../lib/isObjectId";
 import Comment from "../models/Comment";
-import {
-	CreateCommentInput,
-	UpdateCommentInput,
-} from "../validationSchemas/commentSchema";
+import { CommentDoc } from "../models/types/commentTypes";
+import { UserDoc } from "../models/types/userTypes";
 import {
 	createComment,
 	findComment,
 	findManyComments,
+	updateCommentLikes,
 } from "../services/commentServices";
 import { findTweet } from "../services/tweetServices";
+import {
+	CreateCommentInput,
+	LikeCommentInput,
+	UpdateCommentInput,
+} from "../validationSchemas/commentSchema";
 import { TweetParams } from "./tweetController";
-import { CommentDoc } from "../models/types/commentTypes";
 
 //* test route
 export const getAllComments = async (req: Request, res: Response) => {
@@ -114,6 +117,32 @@ export const getCommentById = async (
 		throw new AppError("Invalid ID!", 400);
 	}
 	res.json(foundComment);
+};
+
+export const handleCommentLikes = async (
+	req: Request<LikeCommentInput["params"]>,
+	res: Response
+) => {
+	const owner = req.user as UserDoc;
+	const { commentId } = req.params;
+
+	const foundComment = await findComment({
+		filter: { _id: commentId },
+	});
+	if (!foundComment) {
+		throw new AppError("Invalid comment ID!", 400);
+	}
+
+	const isLiked = foundComment.likes.includes(owner._id);
+
+	const updatedComment = await updateCommentLikes({
+		action: isLiked ? "unlike" : "like",
+		filter: { _id: commentId },
+		item: owner._id,
+		options: { new: true },
+	});
+
+	res.json(updatedComment);
 };
 
 export const updateComment = async (
