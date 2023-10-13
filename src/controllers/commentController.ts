@@ -7,7 +7,7 @@ import { UserDoc } from "../models/types/userTypes";
 import {
 	createComment,
 	findComment,
-	findManyComments,
+	findTweetComments,
 	updateCommentLikes,
 } from "../services/commentServices";
 import { findTweet } from "../services/tweetServices";
@@ -35,19 +35,8 @@ export const getTweetComments = async (
 		throw new AppError("Tweet ID is requried!", 400);
 	}
 
-	const comments = await findManyComments({
+	const comments = await findTweetComments({
 		filter: { tweet: tweetId, origin: { $exists: false } },
-		options: {
-			populate: [
-				{ path: "owner", select: "-email" },
-				{
-					path: "comments",
-					populate: { path: "owner", select: "-email" },
-				},
-			],
-			sort: "-createdAt",
-			lean: true,
-		},
 	});
 
 	res.json(comments);

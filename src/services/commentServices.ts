@@ -15,6 +15,36 @@ export async function findManyComments(args: FindMany<CommentSchema>) {
 	return await Comment.find(args.filter, args.projection, args.options);
 }
 
+export async function findTweetComments({
+	filter,
+}: {
+	filter: FindMany<CommentSchema>["filter"];
+}) {
+	return await findManyComments({
+		filter,
+		options: {
+			populate: [
+				{
+					path: "origin",
+					populate: { path: "owner", select: "-email" },
+				},
+				{ path: "owner", select: "-email" },
+				{
+					path: "comments",
+					populate: { path: "owner", select: "-email" },
+				},
+				{
+					path: "tweet",
+					select: "owner",
+					populate: { path: "owner", select: "username" },
+				},
+			],
+			sort: "-createdAt",
+			lean: true,
+		},
+	});
+}
+
 export async function findComment(args: FindOne<CommentSchema>) {
 	return await Comment.findOne(
 		args.filter,
