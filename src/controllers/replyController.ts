@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import AppError from "../config/AppError";
 import Comment from "../models/Comment";
 import { UserDoc } from "../models/types/userTypes";
-import { createReply } from "../services/commentServices";
+import { createReply, findComment } from "../services/commentServices";
 import { CreateReplyInput } from "../validationSchemas/commentSchema";
 
 export const replyCommentHandler = async (
@@ -28,5 +28,6 @@ export const replyCommentHandler = async (
 		throw new AppError("Something went wrong!", 500);
 	}
 
-	res.json(newReply);
+	const foundReply = await findComment({ filter: { _id: newReply._id } });
+	res.json(foundReply);
 };
