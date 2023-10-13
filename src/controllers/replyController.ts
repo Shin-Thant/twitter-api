@@ -1,43 +1,29 @@
 import { Request, Response } from "express";
 import AppError from "../config/AppError";
 import Comment from "../models/Comment";
-import { CommentParams } from "./commentController";
-import santitizeCommentData from "../lib/validateCommentCreation";
+import { UserDoc } from "../models/types/userTypes";
+import { createReply } from "../services/commentServices";
+import { CreateReplyInput } from "../validationSchemas/commentSchema";
 
-type NewReply = { body?: string };
-
-export const replyComment = async (
-	req: Request<CommentParams, object, NewReply>,
+export const replyCommentHandler = async (
+	req: Request<CreateReplyInput["params"], object, CreateReplyInput["body"]>,
 	res: Response
 ) => {
-	const { user: creator } = req;
+	const owner = req.user as UserDoc;
 	const { body } = req.body;
-	const { commentId: parentId } = req.params;
+	const { commentId: originCommentId } = req.params;
 
-	if (!creator) {
-		throw new AppError("Unauthorized!", 400);
-	}
-	if (!parentId || !body) {
-		throw new AppError("All fields are required!", 400);
-	}
-
-	const foundParent = await Comment.findById(parentId).exec();
-	if (!foundParent) {
+	const foundOrigin = await Comment.findById(originCommentId).exec();
+	if (!foundOrigin) {
 		throw new AppError("Parent comment not found!", 400);
 	}
 
-	const replyData = {
+	const newReply = await createReply({
 		body,
-		tweet: foundParent._id.toString(),
-		origin: parentId,
-		owner: creator._id.toString(),
-	};
-	const { value: data, error: inputErr } = santitizeCommentData(replyData);
-	if (inputErr) {
-		throw inputErr;
-	}
-
-	const newReply = await Comment.create(data);
+		origin: originCommentId,
+		owner: owner._id.toString(),
+		tweet: foundOrigin.tweet._id.toString(),
+	});
 	if (!newReply) {
 		throw new AppError("Something went wrong!", 500);
 	}

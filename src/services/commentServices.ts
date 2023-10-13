@@ -11,6 +11,13 @@ export async function createComment(data: CreateCommentData) {
 	return await Comment.create(data);
 }
 
+interface CreateReplyData extends CreateCommentData {
+	origin: string;
+}
+export async function createReply(data: CreateReplyData) {
+	return await Comment.create(data);
+}
+
 export async function findManyComments(args: FindMany<CommentSchema>) {
 	return await Comment.find(args.filter, args.projection, args.options);
 }

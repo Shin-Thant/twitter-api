@@ -37,6 +37,35 @@ export const createCommentSchema = Joi.object<CreateCommentInput, true>({
 	query: Joi.object({}),
 });
 
+export interface CreateReplyInput extends Dto {
+	body: {
+		body: string;
+	};
+	params: {
+		commentId: string;
+	};
+}
+export const createReplySchema = Joi.object<CreateReplyInput, true>({
+	body: Joi.object({
+		body: Joi.string().trim().required().messages({
+			"string.base": "Comment body must be string!",
+			"any.required": "Comment body is required!",
+		}),
+	}),
+	params: Joi.object({
+		commentId: Joi.string()
+			.trim()
+			.required()
+			.custom(objectIdValidator)
+			.messages({
+				"string.base": "Comment ID must be string!",
+				"any.required": "Comment ID is required!",
+				"any.custom": "Invalid comment ID!",
+			}),
+	}),
+	query: Joi.object({}),
+});
+
 export interface UpdateCommentInput extends Dto {
 	body: {
 		body: string;
