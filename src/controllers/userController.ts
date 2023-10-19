@@ -25,8 +25,8 @@ export const getMe = async (req: Request, res: Response) => {
 	if (!user) {
 		throw new AppError("No user!", 400);
 	}
-	await user.populate({ path: "following", select: "-following" });
-	await user.populate({ path: "followers", select: "-following" });
+	await user.populate({ path: "following" });
+	await user.populate({ path: "followers" });
 	res.json(user);
 };
 

@@ -59,7 +59,7 @@ tweetSchema.virtual("comments", {
 
 // middlewares
 // TODO: change this middleware into method
-tweetSchema.post("save", populateTweetAfterCreation);
+// tweetSchema.post("save", populateTweetAfterCreation);
 
 // query helpers
 tweetSchema.query.populateRelations = populateTweetRelations;

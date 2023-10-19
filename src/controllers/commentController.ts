@@ -13,6 +13,7 @@ import {
 import { findTweet } from "../services/tweetServices";
 import {
 	CreateCommentInput,
+	GetCommentByIdInput,
 	LikeCommentInput,
 	UpdateCommentInput,
 } from "../validationSchemas/commentSchema";
@@ -81,30 +82,18 @@ export const addNewComment = async (
 };
 
 export const getCommentById = async (
-	req: Request<{ commentId: string }>,
+	req: Request<GetCommentByIdInput["params"]>,
 	res: Response
 ) => {
 	const { commentId } = req.params;
-	if (!commentId) {
-		throw new AppError("Comment ID is required!", 400);
-	}
 
 	const foundComment = await findComment({
 		filter: { _id: commentId },
 		options: {
-			populate: [
-				{ path: "owner", select: "-email" },
-				{
-					path: "comments",
-					populate: { path: "owner", select: "-email" },
-				},
-			],
+			populate: { path: "owner", select: ["username", "name"] },
 		},
 	});
 
-	if (!foundComment) {
-		throw new AppError("Invalid ID!", 400);
-	}
 	res.json(foundComment);
 };
 

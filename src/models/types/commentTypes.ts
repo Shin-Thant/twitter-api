@@ -6,11 +6,12 @@ import {
 	Types,
 } from "mongoose";
 import { LeanUser, UserRef } from "./userTypes";
+import { TweetRef } from "./tweetTypes";
 
 export type CommentSchema = {
 	body: string;
 	owner: UserRef;
-	tweet: Types.ObjectId;
+	tweet: TweetRef;
 	origin?: CommentRef;
 	likes: UserRef[];
 	comments?: CommentRef[];

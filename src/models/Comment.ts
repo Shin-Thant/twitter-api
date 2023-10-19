@@ -52,7 +52,7 @@ const commentSchema = new Schema<
 commentSchema.virtual("comments", {
 	ref: "Comment",
 	localField: "_id",
-	foreignField: "parent",
+	foreignField: "origin",
 });
 
 // middlewares
@@ -61,7 +61,7 @@ commentSchema.pre(
 	{ document: true, query: false },
 	deleteAllNestedComments
 );
-commentSchema.post("save", populateCommentAfterCreation);
+// commentSchema.post("save", populateCommentAfterCreation);
 
 // query helpers
 commentSchema.query.populateRelations = populateCommentRelations;

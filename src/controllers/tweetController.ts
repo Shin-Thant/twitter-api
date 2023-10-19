@@ -90,12 +90,13 @@ export const getTweetById = async (
 		filter: { _id: tweetId },
 		options: {
 			populate: [
-				{ path: "owner" },
+				{ path: "owner", select: '-email' },
 				{
 					path: "comments",
 					populate: { path: "owner", select: "-email" },
 				},
-				{ path: "origin", populate: { path: "owner" } },
+				{ path: "origin", populate: { path: "owner", select: "-email" } },
+        { path: "shares", select: ["_id", "origin", "body", "type", "owner"] }
 			],
 		},
 	});

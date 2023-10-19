@@ -7,6 +7,27 @@ export type GetCommentsInput = GetTweetByIdInput;
 
 export const getCommentsSchema = getTweetByIdSchema;
 
+export interface GetCommentByIdInput extends Dto {
+	params: {
+		commentId: string;
+	};
+}
+export const getCommentByIdSchema = Joi.object<GetCommentByIdInput, true>({
+	body: Joi.object({}),
+	params: Joi.object({
+		commentId: Joi.string()
+			.trim()
+			.required()
+			.custom(objectIdValidator)
+			.messages({
+				"string.base": "Comment ID must be string!",
+				"any.required": "Comment ID is required!",
+				"any.custom": "Invalid comment ID!",
+			}),
+	}),
+	query: Joi.object({}),
+});
+
 export interface CreateCommentInput extends Dto {
 	body: {
 		body: string;
@@ -29,9 +50,9 @@ export const createCommentSchema = Joi.object<CreateCommentInput, true>({
 			.required()
 			.custom(objectIdValidator)
 			.messages({
-				"string.base": "Comment ID must be string!",
-				"any.required": "Comment ID is required!",
-				"any.custom": "Invalid comment ID!",
+				"string.base": "Tweet ID must be string!",
+				"any.required": "Tweet ID is required!",
+				"any.custom": "Invalid tweet ID!",
 			}),
 	}),
 	query: Joi.object({}),

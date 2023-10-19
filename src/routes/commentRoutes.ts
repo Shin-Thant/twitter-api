@@ -11,6 +11,7 @@ import verifyJWT from "../middlewares/verifyJWT";
 import {
 	createReplySchema,
 	deleteCommentSchema,
+	getCommentByIdSchema,
 	likeCommentSchema,
 	updateCommentSchema,
 } from "../validationSchemas/commentSchema";
@@ -20,7 +21,7 @@ const router = Router({ mergeParams: true });
 
 router
 	.route("/:commentId")
-	.get(getCommentById)
+	.get(validateResource(getCommentByIdSchema), getCommentById)
 	.put(
 		[verifyJWT, validateResource(updateCommentSchema), verifyCommentOwner],
 		updateComment
