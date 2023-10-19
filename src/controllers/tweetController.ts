@@ -19,7 +19,10 @@ import PaginationHelperImpl from "../util/paginationHelper";
 import {
 	CreateTweetInput,
 	EditTweetInput,
+	GetTweetByIdInput,
 	GetTweetsInput,
+	LikeTweetInput,
+	ShareTweetInput,
 } from "../validationSchemas/tweetSchema";
 
 const paginationHelper = new PaginationHelperImpl();
@@ -71,13 +74,10 @@ export const getTweets = async (
 };
 
 export const getTweetById = async (
-	req: Request<TweetParams>,
+	req: Request<GetTweetByIdInput["params"]>,
 	res: Response
 ) => {
 	const { tweetId } = req.params;
-	if (!tweetId) {
-		throw new AppError("All fields are requried!", 400);
-	}
 
 	const tweet = await findTweet({
 		filter: { _id: tweetId },
@@ -128,16 +128,12 @@ export const createTweetHandler = async (
 };
 
 export const shareTweet = async (
-	req: Request<TweetParams, object, CreateTweetInput["body"]>,
+	req: Request<ShareTweetInput["params"], object, ShareTweetInput["body"]>,
 	res: Response
 ) => {
-	const { user: owner } = req;
+	const owner = req.user as UserDoc;
 	const { tweetId } = req.params;
 	const { body } = req.body;
-
-	if (!tweetId || !owner) {
-		throw new AppError("All fields are required!", 400);
-	}
 
 	const originTweet = await findTweet({
 		filter: { _id: tweetId },
@@ -191,15 +187,12 @@ export const editTweetHandler = async (
 	res.json(updatedTweet);
 };
 
-export const handleLikes = async (req: Request<TweetParams>, res: Response) => {
-	const { user } = req;
+export const handleLikes = async (
+	req: Request<LikeTweetInput["params"]>,
+	res: Response
+) => {
+	const user = req.user as UserDoc;
 	const { tweetId } = req.params;
-	if (!user) {
-		throw new AppError("Unauthorized!", 400);
-	}
-	if (!tweetId) {
-		throw new AppError("Tweet ID required!", 400);
-	}
 
 	const tweet = await findTweet({ filter: { _id: tweetId } });
 	if (!tweet) {

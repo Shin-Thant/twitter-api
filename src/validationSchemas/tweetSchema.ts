@@ -2,6 +2,17 @@ import Joi from "joi";
 import { objectIdValidator } from "../util/validationHelpers";
 import { Dto } from "./types";
 
+export interface TweetIdParam {
+	tweetId: string;
+}
+export const tweetIdParamSchema = Joi.object<TweetIdParam, true>({
+	tweetId: Joi.string().trim().required().custom(objectIdValidator).messages({
+		"string.base": "Tweet ID must be string!",
+		"any.required": "Tweet ID is required!",
+		"any.custom": "Invalid tweet ID!",
+	}),
+});
+
 export interface GetTweetsInput extends Dto {
 	query: { currentPage: number; itemsPerPage: number };
 }
@@ -25,17 +36,7 @@ export interface GetTweetByIdInput extends Dto {
 }
 export const getTweetByIdSchema = Joi.object<GetTweetByIdInput, true>({
 	body: Joi.object({}),
-	params: Joi.object({
-		tweetId: Joi.string()
-			.trim()
-			.required()
-			.custom(objectIdValidator)
-			.messages({
-				"string.base": "Tweet ID must be string!",
-				"any.required": "Tweet ID is required!",
-				"any.custom": "Invalid tweet ID!",
-			}),
-	}),
+	params: tweetIdParamSchema,
 	query: Joi.object({}),
 });
 
@@ -50,12 +51,22 @@ export const createTweetSchema = Joi.object<CreateTweetInput, true>({
 			"string.base": "Tweet body must be string!",
 		}),
 	}),
-	query: Joi.object({}),
 	params: Joi.object({}),
+	query: Joi.object({}),
 });
 
-export type ShareTweetInput = CreateTweetInput;
-export const shareTweetSchema = createTweetSchema;
+export interface ShareTweetInput extends CreateTweetInput {
+	params: TweetIdParam;
+}
+export const shareTweetSchema = Joi.object<ShareTweetInput, true>({
+	body: Joi.object({
+		body: Joi.string().trim().optional().messages({
+			"string.base": "Tweet body must be string!",
+		}),
+	}),
+	params: tweetIdParamSchema,
+	query: Joi.object({}),
+});
 
 export interface EditTweetInput extends Dto {
 	body: {
@@ -71,11 +82,9 @@ export const editTweetSchema = Joi.object<EditTweetInput, true>({
 			"string.base": "Tweet body must be string!",
 		}),
 	}),
-	params: Joi.object<EditTweetInput["params"], true>({
-		tweetId: Joi.string().trim().required().messages({
-			"string.base": "Tweet ID must be string!",
-			"any.required": "Tweet ID is required!",
-		}),
-	}),
+	params: tweetIdParamSchema,
 	query: Joi.object({}),
 });
+
+export type LikeTweetInput = GetTweetByIdInput;
+export const likeTweetSchema = getTweetByIdSchema;

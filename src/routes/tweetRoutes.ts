@@ -27,6 +27,8 @@ import {
 	editTweetSchema,
 	getTweetByIdSchema,
 	getTweetsSchema,
+	likeTweetSchema,
+	shareTweetSchema,
 } from "../validationSchemas/tweetSchema";
 
 const router = Router();
@@ -63,9 +65,13 @@ router
 	)
 	.delete(verifyJWT, verifyTweetOwner, deleteTweetHandler);
 
-router.route("/:tweetId/like").patch(verifyJWT, handleLikes);
+router
+	.route("/:tweetId/like")
+	.patch([verifyJWT, validateResource(likeTweetSchema)], handleLikes);
 
-router.route("/:tweetId/share").post(verifyJWT, shareTweet);
+router
+	.route("/:tweetId/share")
+	.post([verifyJWT, validateResource(shareTweetSchema)], shareTweet);
 
 // tweet's comment routes
 router

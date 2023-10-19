@@ -1,30 +1,37 @@
 import Joi from "joi";
 import { objectIdValidator } from "../util/validationHelpers";
-import { GetTweetByIdInput, getTweetByIdSchema } from "./tweetSchema";
+import {
+	GetTweetByIdInput,
+	TweetIdParam,
+	getTweetByIdSchema,
+	tweetIdParamSchema,
+} from "./tweetSchema";
 import { Dto } from "./types";
 
-export type GetCommentsInput = GetTweetByIdInput;
+interface CommentIdParam {
+	commentId: string;
+}
+const commentIdParamSchema = Joi.object<CommentIdParam>({
+	commentId: Joi.string()
+		.trim()
+		.required()
+		.custom(objectIdValidator)
+		.messages({
+			"string.base": "Comment ID must be string!",
+			"any.required": "Comment ID is required!",
+			"any.custom": "Invalid comment ID!",
+		}),
+});
 
+export type GetCommentsInput = GetTweetByIdInput;
 export const getCommentsSchema = getTweetByIdSchema;
 
 export interface GetCommentByIdInput extends Dto {
-	params: {
-		commentId: string;
-	};
+	params: CommentIdParam;
 }
 export const getCommentByIdSchema = Joi.object<GetCommentByIdInput, true>({
 	body: Joi.object({}),
-	params: Joi.object({
-		commentId: Joi.string()
-			.trim()
-			.required()
-			.custom(objectIdValidator)
-			.messages({
-				"string.base": "Comment ID must be string!",
-				"any.required": "Comment ID is required!",
-				"any.custom": "Invalid comment ID!",
-			}),
-	}),
+	params: commentIdParamSchema,
 	query: Joi.object({}),
 });
 
@@ -32,9 +39,7 @@ export interface CreateCommentInput extends Dto {
 	body: {
 		body: string;
 	};
-	params: {
-		tweetId: string;
-	};
+	params: TweetIdParam;
 }
 
 export const createCommentSchema = Joi.object<CreateCommentInput, true>({
@@ -44,17 +49,7 @@ export const createCommentSchema = Joi.object<CreateCommentInput, true>({
 			"any.required": "Comment body is required!",
 		}),
 	}),
-	params: Joi.object({
-		tweetId: Joi.string()
-			.trim()
-			.required()
-			.custom(objectIdValidator)
-			.messages({
-				"string.base": "Tweet ID must be string!",
-				"any.required": "Tweet ID is required!",
-				"any.custom": "Invalid tweet ID!",
-			}),
-	}),
+	params: tweetIdParamSchema,
 	query: Joi.object({}),
 });
 
@@ -62,9 +57,7 @@ export interface CreateReplyInput extends Dto {
 	body: {
 		body: string;
 	};
-	params: {
-		commentId: string;
-	};
+	params: CommentIdParam;
 }
 export const createReplySchema = Joi.object<CreateReplyInput, true>({
 	body: Joi.object({
@@ -73,17 +66,7 @@ export const createReplySchema = Joi.object<CreateReplyInput, true>({
 			"any.required": "Comment body is required!",
 		}),
 	}),
-	params: Joi.object({
-		commentId: Joi.string()
-			.trim()
-			.required()
-			.custom(objectIdValidator)
-			.messages({
-				"string.base": "Comment ID must be string!",
-				"any.required": "Comment ID is required!",
-				"any.custom": "Invalid comment ID!",
-			}),
-	}),
+	params: commentIdParamSchema,
 	query: Joi.object({}),
 });
 
@@ -91,9 +74,7 @@ export interface UpdateCommentInput extends Dto {
 	body: {
 		body: string;
 	};
-	params: {
-		commentId: string;
-	};
+	params: CommentIdParam;
 }
 export const updateCommentSchema = Joi.object<UpdateCommentInput, true>({
 	body: Joi.object({
@@ -102,38 +83,16 @@ export const updateCommentSchema = Joi.object<UpdateCommentInput, true>({
 			"any.required": "Comment body is required!",
 		}),
 	}),
-	params: Joi.object({
-		commentId: Joi.string()
-			.trim()
-			.required()
-			.custom(objectIdValidator)
-			.messages({
-				"string.base": "Comment ID must be string!",
-				"any.required": "Comment ID is required!",
-				"any.custom": "Invalid comment ID!",
-			}),
-	}),
+	params: commentIdParamSchema,
 	query: Joi.object({}),
 });
 
 export interface DeleteCommentInput extends Dto {
-	params: {
-		commentId: string;
-	};
+	params: CommentIdParam;
 }
 export const deleteCommentSchema = Joi.object<DeleteCommentInput, true>({
 	body: Joi.object({}),
-	params: Joi.object({
-		commentId: Joi.string()
-			.trim()
-			.required()
-			.custom(objectIdValidator)
-			.messages({
-				"string.base": "Comment ID must be string!",
-				"any.required": "Comment ID is required!",
-				"any.custom": "Invalid comment ID!",
-			}),
-	}),
+	params: commentIdParamSchema,
 	query: Joi.object({}),
 });
 
