@@ -1,6 +1,5 @@
 import { Request, Response } from "express";
 import AppError from "../config/AppError";
-import isObjectId from "../lib/isObjectId";
 import Comment from "../models/Comment";
 import { CommentDoc } from "../models/types/commentTypes";
 import { UserDoc } from "../models/types/userTypes";
@@ -51,18 +50,12 @@ export const addNewComment = async (
 	>,
 	res: Response
 ) => {
-	const { user: owner } = req;
+	const owner = req.user as UserDoc;
 	const { body } = req.body;
 	const { tweetId } = req.params;
 
-	if (!body || !owner || !tweetId) {
-		throw new AppError("All fields are required!", 400);
-	}
-	if (!isObjectId(tweetId)) {
-		throw new AppError("Invalid Tweet ID!", 400);
-	}
 	const foundTweet = await findTweet({
-		filter: { _id: tweetId.toString() },
+		filter: { _id: tweetId },
 		options: { lean: true },
 	});
 	if (!foundTweet) {
@@ -70,6 +63,7 @@ export const addNewComment = async (
 	}
 
 	const newComment = await createComment({
+		type: "comment",
 		body,
 		owner: owner._id.toString(),
 		tweet: tweetId,

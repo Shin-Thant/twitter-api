@@ -17,6 +17,10 @@ const commentSchema = new Schema<
 	CommentQueryHelpers
 >(
 	{
+		type: {
+			type: String,
+			requried: [true, "Comment type is required!"],
+		},
 		body: {
 			type: String,
 			required: [true, "Comment body is required!"],

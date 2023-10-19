@@ -9,6 +9,7 @@ import { LeanUser, UserRef } from "./userTypes";
 import { TweetRef } from "./tweetTypes";
 
 export type CommentSchema = {
+	type: "post" | "share";
 	body: string;
 	owner: UserRef;
 	tweet: TweetRef;

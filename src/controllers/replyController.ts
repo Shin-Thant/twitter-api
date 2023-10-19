@@ -19,6 +19,7 @@ export const replyCommentHandler = async (
 	}
 
 	const newReply = await createReply({
+		type: "reply",
 		body,
 		origin: originCommentId,
 		owner: owner._id.toString(),

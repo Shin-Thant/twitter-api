@@ -3,6 +3,7 @@ import { CommentSchema } from "../models/types/commentTypes";
 import { DeleteMany, FindMany, FindOne, LikeOne, UpdateOne } from "./types";
 
 interface CreateCommentData {
+	type: "comment" | "reply";
 	body: string;
 	owner: string;
 	tweet: string;
@@ -12,6 +13,7 @@ export async function createComment(data: CreateCommentData) {
 }
 
 interface CreateReplyData extends CreateCommentData {
+	type: "reply";
 	origin: string;
 }
 export async function createReply(data: CreateReplyData) {
@@ -37,13 +39,13 @@ export async function findTweetComments({
 				},
 				{ path: "owner", select: "-email" },
 				{
-					path: "comments",
-					populate: { path: "owner", select: "-email" },
-				},
-				{
 					path: "tweet",
 					select: "owner",
 					populate: { path: "owner", select: "username" },
+				},
+				{
+					path: "comments",
+					populate: { path: "owner", select: "-email" },
 				},
 			],
 			sort: "-createdAt",
