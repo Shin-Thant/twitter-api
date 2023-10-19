@@ -26,6 +26,7 @@ import {
 	createTweetSchema,
 	editTweetSchema,
 	getTweetByIdSchema,
+	getTweetsSchema,
 } from "../validationSchemas/tweetSchema";
 
 const router = Router();
@@ -34,7 +35,7 @@ const router = Router();
 
 router
 	.route("/")
-	.get(getTweets)
+	.get([validateResource(getTweetsSchema)], getTweets)
 	.post(
 		[
 			verifyJWT,

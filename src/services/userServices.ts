@@ -1,5 +1,5 @@
 import User from "../models/User";
-import { UserSchema } from "../models/types/userTypes";
+import { UserDoc, UserSchema } from "../models/types/userTypes";
 import { RegisterInput } from "../validationSchemas/authSchema";
 import { FindMany, FindOne, GetCount } from "./types";
 
@@ -7,8 +7,8 @@ export async function createUser(input: RegisterInput) {
 	return User.create(input);
 }
 
-export async function findUser(args: FindOne<UserSchema>) {
-	return await User.findOne(
+export async function findUser<TResult = UserDoc>(args: FindOne<UserSchema>) {
+	return await User.findOne<TResult>(
 		args.filter,
 		args.projection,
 		args.options

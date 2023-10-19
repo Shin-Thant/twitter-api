@@ -3,10 +3,6 @@ import AppError from "../config/AppError";
 import PaginationImpl from "../lib/pagination";
 import { TweetDoc } from "../models/types/tweetTypes";
 import { UserDoc } from "../models/types/userTypes";
-import {
-	CreateTweetInput,
-	EditTweetInput,
-} from "../validationSchemas/tweetSchema";
 import { deleteComments } from "../services/commentServices";
 import { deleteManyImages } from "../services/imageServices";
 import {
@@ -18,32 +14,29 @@ import {
 	handleTweetLikes,
 	updateTweet,
 } from "../services/tweetServices";
-import { TypedRequestBody, TypedRequestQuery } from "../types/requestTypes";
-import { areValuesNumber } from "../util/areValuesNumber";
+import { TypedRequestBody } from "../types/requestTypes";
 import PaginationHelperImpl from "../util/paginationHelper";
+import {
+	CreateTweetInput,
+	EditTweetInput,
+	GetTweetsInput,
+} from "../validationSchemas/tweetSchema";
 
 const paginationHelper = new PaginationHelperImpl();
 
 export type TweetParams = { tweetId?: string };
 
-type TweetQueryString = { currentPage?: string; itemsPerPage?: string };
 export const getTweets = async (
-	req: TypedRequestQuery<TweetQueryString>,
+	req: Request<object, object, object, GetTweetsInput["query"]>,
 	res: Response
 ) => {
 	const { currentPage, itemsPerPage } = req.query;
-	if (!currentPage || !itemsPerPage) {
-		throw new AppError("All fields are requried!", 400);
-	}
-	if (!areValuesNumber(itemsPerPage, currentPage)) {
-		throw new AppError("Enter valid values!", 400);
-	}
 
 	const totalTweets = await getTweetCount({ filter: {} });
 
 	const pagination = new PaginationImpl({
-		itemsPerPage: parseInt(itemsPerPage),
-		currentPage: parseInt(currentPage),
+		itemsPerPage: itemsPerPage,
+		currentPage: currentPage,
 		totalDocs: totalTweets,
 		helper: paginationHelper,
 	});
@@ -90,13 +83,19 @@ export const getTweetById = async (
 		filter: { _id: tweetId },
 		options: {
 			populate: [
-				{ path: "owner", select: '-email' },
+				{ path: "owner", select: "-email" },
 				{
 					path: "comments",
 					populate: { path: "owner", select: "-email" },
 				},
-				{ path: "origin", populate: { path: "owner", select: "-email" } },
-        { path: "shares", select: ["_id", "origin", "body", "type", "owner"] }
+				{
+					path: "origin",
+					populate: { path: "owner", select: "-email" },
+				},
+				{
+					path: "shares",
+					select: ["_id", "origin", "body", "type", "owner"],
+				},
 			],
 		},
 	});

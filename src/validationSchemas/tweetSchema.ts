@@ -2,6 +2,24 @@ import Joi from "joi";
 import { objectIdValidator } from "../util/validationHelpers";
 import { Dto } from "./types";
 
+export interface GetTweetsInput extends Dto {
+	query: { currentPage: number; itemsPerPage: number };
+}
+export const getTweetsSchema = Joi.object<GetTweetsInput, true>({
+	body: Joi.object({}),
+	params: Joi.object({}),
+	query: Joi.object({
+		currentPage: Joi.number().required().messages({
+			"number.base": "Current page must be number!",
+			"any.required": "Current page is required!",
+		}),
+		itemsPerPage: Joi.number().required().messages({
+			"number.base": "Items per page must be number!",
+			"any.required": "Items per page is required!",
+		}),
+	}),
+});
+
 export interface GetTweetByIdInput extends Dto {
 	params: { tweetId: string };
 }

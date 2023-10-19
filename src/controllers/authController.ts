@@ -7,7 +7,7 @@ import {
 	setTokenCookie,
 } from "../lib/handleTokenCookie";
 import isObjectId from "../lib/isObjectId";
-import { UserDoc } from "../models/types/userTypes";
+import { UserDoc, UserSchema } from "../models/types/userTypes";
 import {
 	EmailVerifyInput,
 	RegisterInput,
@@ -37,6 +37,7 @@ import {
 import logger from "../util/logger";
 import { getClientURL } from "../config/clientURL";
 import { isAppError, isJwtTokenError } from "../util/errorHandlerHelpers";
+import { HydratedDocument } from "mongoose";
 
 export const handleRegister = async (
 	req: TypedRequestBody<RegisterInput>,
@@ -85,6 +86,9 @@ export const handleRegister = async (
 	res.status(201).json(user);
 };
 
+type FoundUserResult = HydratedDocument<
+	Pick<UserSchema, "name" | "email" | "emailVerified" | "password">
+>;
 type LoginReqBody = {
 	email?: string;
 	password?: string;
@@ -98,11 +102,12 @@ export const handleLogin = async (
 		throw new AppError("All fields are required!", 400);
 	}
 
-	const foundUser = await findUser({
+	const foundUser = await findUser<FoundUserResult>({
 		filter: { email },
 		projection: {
 			name: true,
 			email: true,
+			emailVerified: true,
 			password: true,
 		},
 		options: { lean: true },
