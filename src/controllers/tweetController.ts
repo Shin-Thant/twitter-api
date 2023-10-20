@@ -63,6 +63,9 @@ export const getTweets = async (
 						path: "owner",
 						select: "-email",
 					},
+					match: {
+						origin: { $exists: false },
+					},
 				},
 			],
 			limit: pagination.itemsPerPage * pagination.currentPage,
@@ -87,6 +90,9 @@ export const getTweetById = async (
 				{
 					path: "comments",
 					populate: { path: "owner", select: "-email" },
+					match: {
+						origin: { $exists: false },
+					},
 				},
 				{
 					path: "origin",
