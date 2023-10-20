@@ -11,7 +11,7 @@ import { Dto } from "./types";
 interface CommentIdParam {
 	commentId: string;
 }
-const commentIdParamSchema = Joi.object<CommentIdParam>({
+const commentIdParamSchema = Joi.object<CommentIdParam, true>({
 	commentId: Joi.string()
 		.trim()
 		.required()
@@ -57,7 +57,9 @@ export interface CreateReplyInput extends Dto {
 	body: {
 		body: string;
 	};
-	params: CommentIdParam;
+	params: {
+		commentId: string;
+	};
 }
 export const createReplySchema = Joi.object<CreateReplyInput, true>({
 	body: Joi.object({
@@ -74,7 +76,9 @@ export interface UpdateCommentInput extends Dto {
 	body: {
 		body: string;
 	};
-	params: CommentIdParam;
+	params: {
+		commentId: string;
+	};
 }
 export const updateCommentSchema = Joi.object<UpdateCommentInput, true>({
 	body: Joi.object({
@@ -88,7 +92,9 @@ export const updateCommentSchema = Joi.object<UpdateCommentInput, true>({
 });
 
 export interface DeleteCommentInput extends Dto {
-	params: CommentIdParam;
+	params: {
+		commentId: string;
+	};
 }
 export const deleteCommentSchema = Joi.object<DeleteCommentInput, true>({
 	body: Joi.object({}),
