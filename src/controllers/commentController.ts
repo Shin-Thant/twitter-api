@@ -6,13 +6,14 @@ import { UserDoc } from "../models/types/userTypes";
 import {
 	createComment,
 	findComment,
-	findTweetComments,
+	findManyComments,
 	updateCommentLikes,
 } from "../services/commentServices";
 import { findTweet } from "../services/tweetServices";
 import {
 	CreateCommentInput,
 	GetCommentByIdInput,
+	GetCommentReplies,
 	LikeCommentInput,
 	UpdateCommentInput,
 } from "../validationSchemas/commentSchema";
@@ -26,20 +27,73 @@ export const getAllComments = async (req: Request, res: Response) => {
 	res.json(comments);
 };
 
+const commentRelationPopulate = [
+	{
+		path: "origin",
+		populate: { path: "owner", select: "-email" },
+	},
+	{ path: "owner", select: "-email" },
+	{
+		path: "tweet",
+		select: "owner",
+		populate: { path: "owner", select: "username" },
+	},
+	{
+		path: "comments",
+		populate: [
+			{
+				path: "origin",
+				populate: { path: "owner", select: "-email" },
+			},
+			{ path: "owner", select: "-email" },
+			{
+				path: "tweet",
+				select: "owner",
+				populate: { path: "owner", select: "username" },
+			},
+			{
+				path: "comments",
+				select: ["type", "_id", "owner", "-origin"],
+				populate: {
+					path: "owner",
+					select: "-email",
+				},
+			},
+		],
+	},
+];
+
 export const getTweetComments = async (
 	req: Request<TweetParams>,
 	res: Response
 ) => {
 	const { tweetId } = req.params;
-	if (!tweetId) {
-		throw new AppError("Tweet ID is requried!", 400);
-	}
-
-	const comments = await findTweetComments({
+	const comments = await findManyComments({
 		filter: { tweet: tweetId, origin: { $exists: false } },
+		options: {
+			populate: commentRelationPopulate,
+			sort: "-createdAt",
+		},
 	});
 
 	res.json(comments);
+};
+
+export const getCommentReplies = async (
+	req: Request<GetCommentReplies["params"]>,
+	res: Response
+) => {
+	const { commentId: originId } = req.params;
+
+	const replies = await findManyComments({
+		filter: {
+			origin: originId,
+		},
+		options: {
+			populate: commentRelationPopulate,
+		},
+	});
+	res.json(replies);
 };
 
 export const addNewComment = async (

@@ -27,9 +27,22 @@ export type GetCommentsInput = GetTweetByIdInput;
 export const getCommentsSchema = getTweetByIdSchema;
 
 export interface GetCommentByIdInput extends Dto {
-	params: CommentIdParam;
+	params: {
+		commentId: string;
+	};
 }
 export const getCommentByIdSchema = Joi.object<GetCommentByIdInput, true>({
+	body: Joi.object({}),
+	params: commentIdParamSchema,
+	query: Joi.object({}),
+});
+
+export interface GetCommentReplies extends Dto {
+	params: {
+		commentId: string;
+	};
+}
+export const getCommentRepliesSchema = Joi.object<GetCommentReplies, true>({
 	body: Joi.object({}),
 	params: commentIdParamSchema,
 	query: Joi.object({}),

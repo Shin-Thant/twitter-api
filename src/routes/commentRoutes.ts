@@ -2,9 +2,11 @@ import { Router } from "express";
 import {
 	deleteComment,
 	getCommentById,
+	getCommentReplies,
 	handleCommentLikes,
 	updateComment,
 } from "../controllers/commentController";
+import { replyCommentHandler } from "../controllers/replyController";
 import validateResource from "../middlewares/validateResource";
 import verifyCommentOwner from "../middlewares/verifyCommentOwner";
 import verifyJWT from "../middlewares/verifyJWT";
@@ -12,10 +14,10 @@ import {
 	createReplySchema,
 	deleteCommentSchema,
 	getCommentByIdSchema,
+	getCommentRepliesSchema,
 	likeCommentSchema,
 	updateCommentSchema,
 } from "../validationSchemas/commentSchema";
-import { replyCommentHandler } from "../controllers/replyController";
 
 const router = Router({ mergeParams: true });
 
@@ -37,10 +39,9 @@ router.put(
 	handleCommentLikes
 );
 
-router.post(
-	"/:commentId/reply",
-	[verifyJWT, validateResource(createReplySchema)],
-	replyCommentHandler
-);
+router.route("/:commentId/replies").get(
+	validateResource(getCommentRepliesSchema),
+	getCommentReplies
+).post([verifyJWT, validateResource(createReplySchema)], replyCommentHandler);
 
 export default router;

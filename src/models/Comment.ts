@@ -60,15 +60,15 @@ commentSchema.virtual("comments", {
 });
 
 // middlewares
-commentSchema.pre(
-	"deleteOne",
-	{ document: true, query: false },
-	deleteAllNestedComments
-);
+// commentSchema.pre(
+// 	"deleteOne",
+// 	{ document: true, query: false },
+// 	deleteAllNestedComments
+// );
 // commentSchema.post("save", populateCommentAfterCreation);
 
 // query helpers
-commentSchema.query.populateRelations = populateCommentRelations;
+// commentSchema.query.populateRelations = populateCommentRelations;
 
 const Comment = model<CommentSchema, CommentModel>("Comment", commentSchema);
 export default Comment;
