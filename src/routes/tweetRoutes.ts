@@ -29,6 +29,7 @@ import {
 	likeTweetSchema,
 	shareTweetSchema,
 } from "../validationSchemas/tweetSchema";
+import { MULTIPLE_FILES } from "../config/imageUploadConfig";
 
 const router = Router();
 
@@ -41,7 +42,10 @@ router
 		[
 			verifyJWT,
 			validateResource(createTweetSchema),
-			uploadMany({ fieldName: "photos", maxFileCount: 4 }),
+			uploadMany({
+				fieldName: MULTIPLE_FILES.FIELD_NAME,
+				maxFileCount: MULTIPLE_FILES.TOTAL_COUNT,
+			}),
 			tweetBodyOrImage,
 		],
 		createTweetHandler
@@ -55,7 +59,10 @@ router
 			verifyJWT,
 			validateResource(editTweetSchema),
 			verifyTweetOwner,
-			uploadMany({ fieldName: "photos", maxFileCount: 4 }),
+			uploadMany({
+				fieldName: MULTIPLE_FILES.FIELD_NAME,
+				maxFileCount: MULTIPLE_FILES.TOTAL_COUNT,
+			}),
 			tweetBodyOrImage,
 		],
 		editTweetHandler
@@ -72,7 +79,10 @@ router
 		[
 			verifyJWT,
 			validateResource(shareTweetSchema),
-			uploadMany({ fieldName: "photos", maxFileCount: 4 }),
+			uploadMany({
+				fieldName: MULTIPLE_FILES.FIELD_NAME,
+				maxFileCount: MULTIPLE_FILES.TOTAL_COUNT,
+			}),
 			tweetBodyOrImage,
 		],
 		shareTweet
