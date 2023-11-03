@@ -4,7 +4,11 @@ import PaginationImpl from "../lib/pagination";
 import { TweetDoc } from "../models/types/tweetTypes";
 import { UserDoc } from "../models/types/userTypes";
 import { deleteComments } from "../services/commentServices";
-import { deleteManyImages } from "../services/imageServices";
+import {
+	deleteManyImages,
+	generateManyImageNames,
+	saveManyImages,
+} from "../services/imageServices";
 import {
 	createTweet,
 	deleteTweet,
@@ -24,6 +28,7 @@ import {
 	LikeTweetInput,
 	ShareTweetInput,
 } from "../validationSchemas/tweetSchema";
+import { FilesInRequest } from "../middlewares/tweetBodyOrImage";
 
 const paginationHelper = new PaginationHelperImpl();
 
@@ -118,16 +123,24 @@ export const createTweetHandler = async (
 ) => {
 	const { body } = req.body;
 	const owner = req.user as UserDoc;
-	const imageNames: string[] | undefined = res.locals.imageNames;
+	const files = req.files as FilesInRequest;
+	const imageNames: string[] = generateManyImageNames({
+		total: files?.length ?? 0,
+	});
 
 	const newTweet = await createTweet({
 		type: "post",
 		body: body,
 		owner: owner._id.toString(),
-		images: imageNames ?? [],
+		images: imageNames,
 	});
 	if (!newTweet) {
-		throw new AppError("Something went wrong!", 500);
+		throw new AppError("Internal Server Error", 500);
+	}
+
+	// save images
+	if (files?.length) {
+		await saveManyImages({ images: files, names: imageNames });
 	}
 
 	res.json(newTweet);

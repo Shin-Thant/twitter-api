@@ -6,7 +6,25 @@ import AppError from "../config/AppError";
 import logger from "../util/logger";
 
 const ALLOWED_TYPES = ["png", "jpg", "jpeg"] as const;
-type TYPE = (typeof ALLOWED_TYPES)[number];
+type Allowed_Type = (typeof ALLOWED_TYPES)[number];
+
+export async function saveManyImages({
+	images,
+	names,
+}: {
+	images: Express.Multer.File[];
+	names: string[];
+}) {
+	return await Promise.all(
+		images.map(async (image, index) => {
+			const imageInfo = await saveImage({
+				name: names[index],
+				image: image,
+			});
+			return `${name}.${imageInfo.format}`;
+		})
+	);
+}
 
 export async function saveImage({
 	name,
@@ -20,20 +38,20 @@ export async function saveImage({
 	}
 
 	const dest = getImagePath({
-		imageName: `${name}.${getExtensionTypeFor(image.mimetype)}`,
+		imageName: `${name}.${getExtensionFrom({ mimetype: image.mimetype })}`,
 	});
 	return await sharp(image.buffer).toFile(dest);
 }
 
-export function isValidImageType(mimetype: string): mimetype is TYPE {
-	const type = getExtensionTypeFor(mimetype);
+export function isValidImageType(mimetype: string): mimetype is Allowed_Type {
+	const type = getExtensionFrom({ mimetype });
 
 	return !!type && !!ALLOWED_TYPES.find((t) => t === type);
 }
 
 const SPLIT_CHAR = "/" as const;
 const TYPE_INDEX = 1 as const;
-const getExtensionTypeFor = (mimetype: string) => {
+const getExtensionFrom = ({ mimetype }: { mimetype: string }) => {
 	return mimetype.split(SPLIT_CHAR)[TYPE_INDEX];
 };
 
@@ -73,6 +91,14 @@ async function deleteImage({ path }: { path: string }) {
 
 export function getImagePath({ imageName }: { imageName: string }): string {
 	return path.join(__dirname, "..", "..", "public", "uploads", imageName);
+}
+
+export function generateManyImageNames({ total }: { total: number }): string[] {
+	const names: string[] = [];
+	for (let i = 0; i < total; i++) {
+		names.push(generateImageName());
+	}
+	return names;
 }
 
 // {random_alphanumerics}-{timestamp}

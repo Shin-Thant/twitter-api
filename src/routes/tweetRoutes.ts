@@ -44,7 +44,7 @@ router
 			validateResource(createTweetSchema),
 			uploadMany({ fieldName: "photos", maxFileCount: 4 }),
 			tweetBodyOrImage,
-			saveTweetImages,
+			// saveTweetImages,
 		],
 		createTweetHandler
 	);
@@ -59,7 +59,7 @@ router
 			verifyTweetOwner,
 			uploadMany({ fieldName: "photos", maxFileCount: 4 }),
 			tweetBodyOrImage,
-			saveTweetImages,
+			// saveTweetImages,
 		],
 		editTweetHandler
 	)
