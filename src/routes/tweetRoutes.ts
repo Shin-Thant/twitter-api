@@ -13,7 +13,6 @@ import {
 	shareTweet,
 } from "../controllers/tweetController";
 import { uploadMany } from "../middlewares/imageUpload";
-import { saveTweetImages } from "../middlewares/saveTweetImages";
 import { tweetBodyOrImage } from "../middlewares/tweetBodyOrImage";
 import validateResource from "../middlewares/validateResource";
 import verifyJWT from "../middlewares/verifyJWT";
@@ -44,7 +43,6 @@ router
 			validateResource(createTweetSchema),
 			uploadMany({ fieldName: "photos", maxFileCount: 4 }),
 			tweetBodyOrImage,
-			// saveTweetImages,
 		],
 		createTweetHandler
 	);
@@ -59,7 +57,6 @@ router
 			verifyTweetOwner,
 			uploadMany({ fieldName: "photos", maxFileCount: 4 }),
 			tweetBodyOrImage,
-			// saveTweetImages,
 		],
 		editTweetHandler
 	)

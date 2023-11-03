@@ -17,11 +17,10 @@ export async function saveManyImages({
 }) {
 	return await Promise.all(
 		images.map(async (image, index) => {
-			const imageInfo = await saveImage({
+			return await saveImage({
 				name: names[index],
 				image: image,
 			});
-			return `${name}.${imageInfo.format}`;
 		})
 	);
 }

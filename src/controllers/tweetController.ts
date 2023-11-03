@@ -192,16 +192,23 @@ export const editTweetHandler = async (
 ) => {
 	const { body } = req.body;
 	const tweet = req.tweet as TweetDoc;
-	const newImageNames: string[] | undefined = res.locals.imageNames;
+	const files = req.files as FilesInRequest;
+
 	const oldImageNames = [...tweet.images];
+	const newImageNames: string[] = generateManyImageNames({
+		total: files?.length ?? 0,
+	});
 
 	const updatedTweet = await updateTweet({
 		filter: { _id: tweet._id },
-		update: { body, images: newImageNames ?? [] },
+		update: { body, images: newImageNames },
 		options: { new: true },
 	});
 
 	await deleteManyImages({ imageNames: oldImageNames });
+	if (files?.length) {
+		await saveManyImages({ images: files, names: newImageNames });
+	}
 
 	res.json(updatedTweet);
 };
