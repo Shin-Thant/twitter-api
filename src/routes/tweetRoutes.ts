@@ -68,7 +68,15 @@ router
 
 router
 	.route("/:tweetId/share")
-	.post([verifyJWT, validateResource(shareTweetSchema)], shareTweet);
+	.post(
+		[
+			verifyJWT,
+			validateResource(shareTweetSchema),
+			uploadMany({ fieldName: "photos", maxFileCount: 4 }),
+			tweetBodyOrImage,
+		],
+		shareTweet
+	);
 
 // tweet's comment routes
 router

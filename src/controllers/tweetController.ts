@@ -153,6 +153,7 @@ export const shareTweet = async (
 	const owner = req.user as UserDoc;
 	const { tweetId } = req.params;
 	const { body } = req.body;
+	const files = req.files as FilesInRequest;
 
 	const originTweet = await findTweet({
 		filter: { _id: tweetId },
@@ -162,12 +163,16 @@ export const shareTweet = async (
 		throw new AppError("Invalid tweet ID!", 400);
 	}
 
+	const imageNames = generateManyImageNames({ total: files?.length ?? 0 });
+	console.log({ imageNames });
+
 	// create share tweet
 	const newSharedTweet = await createTweet({
 		type: "share",
 		body,
 		origin: tweetId,
 		owner: owner._id.toString(),
+		images: imageNames,
 	});
 	if (!newSharedTweet) {
 		throw new AppError("Some went wrong", 500);
@@ -182,6 +187,11 @@ export const shareTweet = async (
 			},
 		},
 	});
+
+	// save images
+	if (files?.length) {
+		await saveManyImages({ images: files, names: imageNames });
+	}
 
 	res.json(newSharedTweet);
 };

@@ -4,6 +4,7 @@ import path from "path";
 import {
 	checkImageExist,
 	deleteManyImages,
+	generateManyImageNames,
 	getImagePath,
 	isValidImageType,
 } from "../services/imageServices";
@@ -138,6 +139,15 @@ describe("Image Services", () => {
 						getImagePath({ imageName: name })
 					);
 				});
+			});
+		});
+	});
+
+	describe("generateManyImageNames", () => {
+		describe("given total 3", () => {
+			it("should return string array with 3 items", () => {
+				const result = generateManyImageNames({ total: 3 });
+				expect(result.length).toBe(3);
 			});
 		});
 	});

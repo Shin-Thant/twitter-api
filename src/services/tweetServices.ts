@@ -9,21 +9,22 @@ import {
 	UpdateOne,
 } from "./types";
 
-type PostTweetContent =
+type TweetContent =
 	| { body: string; images?: string[] }
 	| { body?: string; images: string[] }
 	| { body: string; images: string[] };
+
 export type CreateTweet = {
 	type: "post";
 	owner: string;
-} & PostTweetContent;
+} & TweetContent;
 
-export interface ShareTweet {
+export type ShareTweet = {
 	type: "share";
 	body?: string;
 	owner: string;
 	origin: string;
-}
+} & TweetContent;
 
 type NewTweet = CreateTweet | ShareTweet;
 export async function createTweet(input: NewTweet) {
