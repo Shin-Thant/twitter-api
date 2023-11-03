@@ -164,7 +164,10 @@ export const handleLogin = async (
 	const user = await findUser({
 		filter: { _id: foundUser._id },
 		options: {
-			populate: "followers",
+			populate: [
+				{ path: "followers", select: "-email" },
+				{ path: "following", select: "-email" },
+			],
 		},
 	});
 	res.json({ accessToken, user });
