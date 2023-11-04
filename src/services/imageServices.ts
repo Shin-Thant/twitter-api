@@ -36,9 +36,7 @@ export async function saveImage({
 		new AppError("Invalid image type", 401);
 	}
 
-	const dest = getImagePath({
-		imageName: `${name}.${getExtensionFrom({ mimetype: image.mimetype })}`,
-	});
+	const dest = getImagePath({ imageName: name });
 	return await sharp(image.buffer).toFile(dest);
 }
 
@@ -47,12 +45,6 @@ export function isValidImageType(mimetype: string): mimetype is Allowed_Type {
 
 	return !!type && !!ALLOWED_TYPES.find((t) => t === type);
 }
-
-const SPLIT_CHAR = "/" as const;
-const TYPE_INDEX = 1 as const;
-const getExtensionFrom = ({ mimetype }: { mimetype: string }) => {
-	return mimetype.split(SPLIT_CHAR)[TYPE_INDEX];
-};
 
 export async function deleteManyImages({
 	imageNames,
@@ -92,23 +84,33 @@ export function getImagePath({ imageName }: { imageName: string }): string {
 	return path.join(__dirname, "..", "..", "public", "uploads", imageName);
 }
 
-export function generateManyImageNames({ total }: { total: number }): string[] {
-	const names: string[] = [];
-	for (let i = 0; i < total; i++) {
-		names.push(generateImageName());
-	}
-	return names;
+export function generateManyImageNames({
+	images,
+}: {
+	images: Express.Multer.File[];
+}): string[] {
+	return images.reduce((acc, image) => {
+		acc.push(generateImageName({ mimetype: image.mimetype }));
+		return acc;
+	}, [] as string[]);
 }
 
 // {random_alphanumerics}-{timestamp}
 const BYTES_LENGTH = 16;
-const ENCODING = "hex";
-export function generateImageName() {
-	const randomAlphanumerics = crypto
-		.randomBytes(BYTES_LENGTH)
-		.toString(ENCODING);
-
+const ENCODING_TYPE = "hex";
+export function generateImageName({ mimetype }: { mimetype: string }) {
 	const timestamp = Date.now();
-
-	return `${randomAlphanumerics}-${timestamp}`;
+	return `${generateAlphanumerics()}-${timestamp}.${getExtensionFrom({
+		mimetype,
+	})}`;
 }
+
+function generateAlphanumerics() {
+	return crypto.randomBytes(BYTES_LENGTH).toString(ENCODING_TYPE);
+}
+
+const SPLIT_CHAR = "/" as const;
+const EXTENSION_TYPE_INDEX = 1 as const;
+const getExtensionFrom = ({ mimetype }: { mimetype: string }) => {
+	return mimetype.split(SPLIT_CHAR)[EXTENSION_TYPE_INDEX];
+};

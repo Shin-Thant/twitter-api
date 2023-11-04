@@ -146,7 +146,14 @@ describe("Image Services", () => {
 	describe("generateManyImageNames", () => {
 		describe("given total 3", () => {
 			it("should return string array with 3 items", () => {
-				const result = generateManyImageNames({ total: 3 });
+				const files = [
+					{ mimetype: "image/jpg" },
+					{ mimetype: "image/png" },
+					{ mimetype: "image/jpeg" },
+				];
+				const result = generateManyImageNames({
+					images: files as Express.Multer.File[],
+				});
 				expect(result.length).toBe(3);
 			});
 		});

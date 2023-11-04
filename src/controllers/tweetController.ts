@@ -125,7 +125,7 @@ export const createTweetHandler = async (
 	const owner = req.user as UserDoc;
 	const files = req.files as FilesInRequest;
 	const imageNames: string[] = generateManyImageNames({
-		total: files?.length ?? 0,
+		images: files ?? [],
 	});
 
 	const newTweet = await createTweet({
@@ -163,8 +163,7 @@ export const shareTweet = async (
 		throw new AppError("Invalid tweet ID!", 400);
 	}
 
-	const imageNames = generateManyImageNames({ total: files?.length ?? 0 });
-	console.log({ imageNames });
+	const imageNames = generateManyImageNames({ images: files ?? [] });
 
 	// create share tweet
 	const newSharedTweet = await createTweet({
@@ -206,7 +205,7 @@ export const editTweetHandler = async (
 
 	const oldImageNames = [...tweet.images];
 	const newImageNames: string[] = generateManyImageNames({
-		total: files?.length ?? 0,
+		images: files ?? [],
 	});
 
 	const updatedTweet = await updateTweet({
