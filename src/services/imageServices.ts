@@ -3,6 +3,7 @@ import fs from "fs/promises";
 import path from "path";
 import sharp from "sharp";
 import AppError from "../config/AppError";
+import { UploadedFile } from "../middlewares/tweetBodyOrImage";
 import logger from "../util/logger";
 
 const ALLOWED_TYPES = ["png", "jpg", "jpeg"] as const;
@@ -114,3 +115,56 @@ const EXTENSION_TYPE_INDEX = 1 as const;
 const getExtensionFrom = ({ mimetype }: { mimetype: string }) => {
 	return mimetype.split(SPLIT_CHAR)[EXTENSION_TYPE_INDEX];
 };
+
+export function getUpdatedImageNames({
+	uploadedImages,
+	oldImageNames,
+}: {
+	uploadedImages: UploadedFile[];
+	oldImageNames: string[];
+}): string[] {
+	return uploadedImages.map((uploadedImage) => {
+		if (oldImageNames.includes(uploadedImage.originalname)) {
+			return uploadedImage.originalname;
+		}
+		return generateImageName({
+			mimetype: uploadedImage.mimetype,
+		});
+	});
+}
+
+export function getNewImageNames({
+	updatedImageNames,
+	oldImageNames,
+}: {
+	updatedImageNames: string[];
+	oldImageNames: string[];
+}): string[] {
+	return updatedImageNames.filter(
+		(updatedImageName) => !oldImageNames.includes(updatedImageName)
+	);
+}
+
+export function getNewImages({
+	uploadedImages,
+	oldImageNames,
+}: {
+	uploadedImages: UploadedFile[];
+	oldImageNames: string[];
+}): UploadedFile[] {
+	return uploadedImages.filter(
+		(uploadedImage) => !oldImageNames.includes(uploadedImage.originalname)
+	);
+}
+
+export function getRemovedImageNames({
+	oldImageNames,
+	updatedImageNames,
+}: {
+	oldImageNames: string[];
+	updatedImageNames: string[];
+}): string[] {
+	return oldImageNames.filter(
+		(oldImageName) => !updatedImageNames.includes(oldImageName)
+	);
+}

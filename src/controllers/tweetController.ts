@@ -1,12 +1,17 @@
 import { Request, Response } from "express";
 import AppError from "../config/AppError";
 import PaginationImpl from "../lib/pagination";
+import { FilesInRequest } from "../middlewares/tweetBodyOrImage";
 import { TweetDoc } from "../models/types/tweetTypes";
 import { UserDoc } from "../models/types/userTypes";
 import { deleteComments } from "../services/commentServices";
 import {
 	deleteManyImages,
 	generateManyImageNames,
+	getNewImageNames,
+	getNewImages,
+	getRemovedImageNames,
+	getUpdatedImageNames,
 	saveManyImages,
 } from "../services/imageServices";
 import {
@@ -28,7 +33,6 @@ import {
 	LikeTweetInput,
 	ShareTweetInput,
 } from "../validationSchemas/tweetSchema";
-import { FilesInRequest } from "../middlewares/tweetBodyOrImage";
 
 const paginationHelper = new PaginationHelperImpl();
 
@@ -203,20 +207,41 @@ export const editTweetHandler = async (
 	const tweet = req.tweet as TweetDoc;
 	const files = req.files as FilesInRequest;
 
-	const oldImageNames = [...tweet.images];
-	const newImageNames: string[] = generateManyImageNames({
-		images: files ?? [],
+	const updatedImageNames = getUpdatedImageNames({
+		oldImageNames: tweet.images,
+		uploadedImages: !files?.length ? [] : files,
 	});
 
 	const updatedTweet = await updateTweet({
 		filter: { _id: tweet._id },
-		update: { body, images: newImageNames },
+		update: {
+			body,
+			images: updatedImageNames,
+		},
 		options: { new: true },
 	});
 
-	await deleteManyImages({ imageNames: oldImageNames });
-	if (files?.length) {
-		await saveManyImages({ images: files, names: newImageNames });
+	const newImages = getNewImages({
+		uploadedImages: !files?.length ? [] : files,
+		oldImageNames: tweet.images,
+	});
+	const newImageNames = getNewImageNames({
+		oldImageNames: tweet.images,
+		updatedImageNames,
+	});
+	if (newImages.length) {
+		await saveManyImages({ images: newImages, names: newImageNames });
+	}
+
+	const removedImageNames = getRemovedImageNames({
+		oldImageNames: tweet.images,
+		updatedImageNames,
+	});
+
+	console.log({ newImageNames, removedImageNames, updatedImageNames });
+
+	if (removedImageNames.length) {
+		await deleteManyImages({ imageNames: removedImageNames });
 	}
 
 	res.json(updatedTweet);

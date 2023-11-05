@@ -3,7 +3,8 @@ import { CreateTweetInput } from "../validationSchemas/tweetSchema";
 import { TypedRequestBody } from "../types/requestTypes";
 import AppError from "../config/AppError";
 
-export type FilesInRequest = Express.Multer.File[] | undefined;
+export type UploadedFile = Express.Multer.File;
+export type FilesInRequest = UploadedFile[] | undefined;
 
 export function tweetBodyOrImage(
 	req: TypedRequestBody<CreateTweetInput>,
