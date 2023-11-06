@@ -6,8 +6,10 @@ import {
 	deleteManyImages,
 	generateManyImageNames,
 	getImagePath,
+	getUpdatedImageNames,
 	isValidImageType,
 } from "../services/imageServices";
+import { UploadedFile } from "./../middlewares/tweetBodyOrImage";
 
 describe("Image Services", () => {
 	describe("isValidImageType", () => {
@@ -155,6 +157,193 @@ describe("Image Services", () => {
 					images: files as Express.Multer.File[],
 				});
 				expect(result.length).toBe(3);
+			});
+		});
+	});
+
+	describe("getUpdatedImageNames", () => {
+		describe("when uploaded images are all new", () => {
+			const oldImageNames = ["first.png", "second.jpg", "third.jpeg"];
+			const uploadedImages: {
+				originalname: string;
+				mimetype: string;
+			}[] = [
+				{ originalname: "new1.png", mimetype: "image/png" },
+				{ originalname: "new2.jpg", mimetype: "image/jpg" },
+				{ originalname: "new3.jpeg", mimetype: "image/jpeg" },
+			];
+
+			const result = getUpdatedImageNames({
+				uploadedImages: uploadedImages as UploadedFile[],
+				oldImageNames,
+			});
+
+			it("should return names array with the length of uploaded image count", () => {
+				expect(result.length).toBe(uploadedImages.length);
+			});
+
+			it("result should be new image names", () => {
+				result.forEach((updatedImageName) => {
+					expect(oldImageNames).not.toContain(updatedImageName);
+				});
+			});
+		});
+
+		describe("when user upload 2 out of 4 old images and 2 new images", () => {
+			const oldImageNames = [
+				"first.png",
+				"second.jpg",
+				"third.jpeg",
+				"fourth.png",
+			];
+			const uploadedImages: {
+				originalname: string;
+				mimetype: string;
+			}[] = [
+				{ originalname: "first.png", mimetype: "image/png" },
+				{ originalname: "second.jpg", mimetype: "image/jpg" },
+				{ originalname: "new3.jpeg", mimetype: "image/jpeg" },
+				{ originalname: "new4.png", mimetype: "image/png" },
+			];
+
+			const result = getUpdatedImageNames({
+				uploadedImages: uploadedImages as UploadedFile[],
+				oldImageNames,
+			});
+
+			it("should return names array with the length of uploaded image count", () => {
+				expect(result.length).toBe(uploadedImages.length);
+			});
+
+			it("result should contain 2 old images", () => {
+				expect(result).toContain(oldImageNames[0]);
+				expect(result).toContain(oldImageNames[1]);
+			});
+
+			it("result should contain 2 new images", () => {
+				const expectedDifferentImage = 2;
+				let differentImageNameCount = 0;
+				result.forEach((name) => {
+					if (!oldImageNames.includes(name)) {
+						differentImageNameCount++;
+					}
+				});
+				expect(differentImageNameCount).toBe(expectedDifferentImage);
+			});
+		});
+
+		describe("when user upload 2 old images and 1 new image", () => {
+			const oldImageNames = ["first.png", "second.jpg"];
+			const uploadedImages: {
+				originalname: string;
+				mimetype: string;
+			}[] = [
+				{ originalname: "first.png", mimetype: "image/png" },
+				{ originalname: "second.jpg", mimetype: "image/jpg" },
+				{ originalname: "new1.jpeg", mimetype: "image/jpeg" },
+			];
+
+			const result = getUpdatedImageNames({
+				uploadedImages: uploadedImages as UploadedFile[],
+				oldImageNames,
+			});
+
+			it("should return names array with the length of uploaded image count", () => {
+				expect(result.length).toBe(uploadedImages.length);
+			});
+
+			it("should contain 2 old images", () => {
+				expect(result).toContain(oldImageNames[0]);
+				expect(result).toContain(oldImageNames[1]);
+			});
+
+			it("should contain 1 new image", () => {
+				const expectedDifferentImage = 1;
+				let differentImageNameCount = 0;
+				result.forEach((name) => {
+					if (!oldImageNames.includes(name)) {
+						differentImageNameCount++;
+					}
+				});
+				expect(differentImageNameCount).toBe(expectedDifferentImage);
+			});
+		});
+
+		describe("when user upload old images", () => {
+			const oldImageNames = ["first.png", "second.jpg"];
+			const uploadedImages: {
+				originalname: string;
+				mimetype: string;
+			}[] = [
+				{ originalname: "first.png", mimetype: "image/png" },
+				{ originalname: "second.jpg", mimetype: "image/jpg" },
+			];
+
+			const result = getUpdatedImageNames({
+				uploadedImages: uploadedImages as UploadedFile[],
+				oldImageNames,
+			});
+
+			it("should return names array with the length of uploaded image count", () => {
+				expect(result.length).toBe(uploadedImages.length);
+			});
+
+			it("should contain 2 old images", () => {
+				expect(result).toContain(oldImageNames[0]);
+				expect(result).toContain(oldImageNames[1]);
+			});
+
+			it("should contain no new image", () => {
+				const expectedDifferentImage = 0;
+				let differentImageNameCount = 0;
+				result.forEach((name) => {
+					if (!oldImageNames.includes(name)) {
+						differentImageNameCount++;
+					}
+				});
+				expect(differentImageNameCount).toBe(expectedDifferentImage);
+			});
+		});
+
+		describe("when user upload no images but old images exist", () => {
+			const oldImageNames = ["first.png", "second.jpg"];
+			const uploadedImages: {
+				originalname: string;
+				mimetype: string;
+			}[] = [];
+
+			const result = getUpdatedImageNames({
+				uploadedImages: uploadedImages as UploadedFile[],
+				oldImageNames,
+			});
+
+			it("should return names array with the length of uploaded image count", () => {
+				expect(result.length).toBe(uploadedImages.length);
+			});
+
+			it("should return empty array", () => {
+				expect(result).toStrictEqual([]);
+			});
+		});
+
+		describe("when user upload no images and not old images exist", () => {
+			const oldImageNames: string[] = [];
+			const uploadedImages: {
+				originalname: string;
+				mimetype: string;
+			}[] = [];
+
+			const result = getUpdatedImageNames({
+				uploadedImages: uploadedImages as UploadedFile[],
+				oldImageNames,
+			});
+
+			it("should return names array with the length of uploaded image count", () => {
+				expect(result.length).toBe(uploadedImages.length);
+			});
+
+			it("should return empty array", () => {
+				expect(result).toStrictEqual([]);
 			});
 		});
 	});

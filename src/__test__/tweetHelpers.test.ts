@@ -46,66 +46,68 @@ describe("Tweet Helpers and Middlewares", () => {
 		// 			});
 		// 		});
 		// 	});
-		// 	describe("verifyTweetOwner", () => {
-		// 		describe("given random string as tweet id", () => {
-		// 			it("should return status 400 and AppError", async () => {
-		// 				const tweet = await getRandomTweet();
-		// 				const bearerToken = createBearerToken(
-		// 					tweet?.owner?._id?.toString() as string
-		// 				);
-		// 				const tweetId = "just_random_string";
-		// 				const url = `/api/v1/tweets/${tweetId}`;
-		// 				const { body } = await supertest(app)
-		// 					.delete(url)
-		// 					.set("Authorization", bearerToken)
-		// 					.expect(400);
-		// 				expect(body).toEqual({
-		// 					status: "fail",
-		// 					message: "Invalid ID!",
-		// 				});
-		// 			});
-		// 		});
-		// 		describe("given random tweet id", () => {
-		// 			it("should return status 400 and AppError", async () => {
-		// 				const tweet = await getRandomTweet();
-		// 				const bearerToken = createBearerToken(
-		// 					tweet?.owner?._id?.toString() as string
-		// 				);
-		// 				const tweetId = createObjectId();
-		// 				const url = `/api/v1/tweets/${tweetId}`;
-		// 				const { body } = await supertest(app)
-		// 					.delete(url)
-		// 					.set("Authorization", bearerToken)
-		// 					.expect(400);
-		// 				expect(body).toEqual({
-		// 					status: "fail",
-		// 					message: "Invalid ID!",
-		// 				});
-		// 			});
-		// 		});
-		// 		describe("given wrong id and owner", () => {
-		// 			it("should throw status 401 and AppError", async () => {
-		// 				const tweet = await getRandomTweet();
-		// 				const user = await getRandomUser({
-		// 					_id: {
-		// 						$ne: tweet?.owner,
-		// 					},
-		// 				});
-		// 				const bearerToken = createBearerToken(
-		// 					user?._id?.toString() as string
-		// 				);
-		// 				const url = `/api/v1/tweets/${tweet?._id.toString()}`;
-		// 				const { body } = await supertest(app)
-		// 					.delete(url)
-		// 					.set("Authorization", bearerToken)
-		// 					.expect(401);
-		// 				expect(body).toEqual({
-		// 					status: "fail",
-		// 					message: "Unauthorized!",
-		// 				});
-		// 			});
-		// 		});
-		// 	});
-		// });
+
+		describe("verifyTweetOwner", () => {
+			describe("given random string as tweet id", () => {
+				it("should return status 400 and AppError", async () => {
+					const tweet = await getRandomTweet();
+					const bearerToken = createBearerToken(
+						tweet?.owner?._id?.toString() as string
+					);
+					const tweetId = "just_random_string";
+					const url = `/api/v1/tweets/${tweetId}`;
+					const { body } = await supertest(app)
+						.delete(url)
+						.set("Authorization", bearerToken)
+						.expect(400);
+					expect(body).toEqual({
+						status: "fail",
+						message: "Invalid ID!",
+					});
+				});
+			});
+
+			describe("given random tweet id", () => {
+				it("should return status 400 and AppError", async () => {
+					const tweet = await getRandomTweet();
+					const bearerToken = createBearerToken(
+						tweet?.owner?._id?.toString() as string
+					);
+					const tweetId = createObjectId();
+					const url = `/api/v1/tweets/${tweetId}`;
+					const { body } = await supertest(app)
+						.delete(url)
+						.set("Authorization", bearerToken)
+						.expect(400);
+					expect(body).toEqual({
+						status: "fail",
+						message: "Invalid ID!",
+					});
+				});
+			});
+
+			describe("given wrong id and owner", () => {
+				it("should throw status 401 and AppError", async () => {
+					const tweet = await getRandomTweet();
+					const user = await getRandomUser({
+						_id: {
+							$ne: tweet?.owner,
+						},
+					});
+					const bearerToken = createBearerToken(
+						user?._id?.toString() as string
+					);
+					const url = `/api/v1/tweets/${tweet?._id.toString()}`;
+					const { body } = await supertest(app)
+						.delete(url)
+						.set("Authorization", bearerToken)
+						.expect(401);
+					expect(body).toEqual({
+						status: "fail",
+						message: "Unauthorized!",
+					});
+				});
+			});
+		});
 	});
 });
