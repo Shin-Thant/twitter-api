@@ -4,7 +4,7 @@ import PaginationImpl from "../lib/pagination";
 import { FilesInRequest } from "../middlewares/tweetBodyOrImage";
 import { TweetDoc } from "../models/types/tweetTypes";
 import { UserDoc } from "../models/types/userTypes";
-import { deleteComments } from "../services/commentServices";
+import { deleteManyComments } from "../services/commentServices";
 import {
 	deleteManyImages,
 	generateManyImageNames,
@@ -286,7 +286,7 @@ export const deleteTweetHandler = async (
 		await deleteManyImages({ imageNames: tweet.images });
 	}
 
-	await deleteComments({ filter: { tweet: tweet._id } });
+	await deleteManyComments({ filter: { tweet: tweet._id } });
 	if (tweet.type === "share" && tweet.origin) {
 		// remove one item from original tweet shares
 		await updateTweet({
