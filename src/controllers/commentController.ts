@@ -7,7 +7,7 @@ import {
 	createComment,
 	findComment,
 	findManyComments,
-	updateCommentLikes,
+	updateCommentLikes
 } from "../services/commentServices";
 import { findTweet } from "../services/tweetServices";
 import {
@@ -189,10 +189,7 @@ export const updateComment = async (
 };
 
 export const deleteComment = async (req: Request, res: Response) => {
-	const { comment } = req;
-	if (!comment) {
-		throw new AppError("Unauthorized!", 401);
-	}
+	const comment = req.comment as CommentDoc;
 
 	await comment.deleteOne();
 	res.json({ message: "Comment deleted successfully!" });

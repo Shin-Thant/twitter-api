@@ -1,14 +1,10 @@
 import { model, Schema } from "mongoose";
+import { deleteAllReplies } from "../services/commentServices";
 import {
 	CommentModel,
 	CommentQueryHelpers,
 	CommentSchema,
 } from "./types/commentTypes";
-import {
-	deleteAllNestedComments,
-	populateCommentAfterCreation,
-	populateCommentRelations,
-} from "../schemaHelpers/commentHelpers";
 
 const commentSchema = new Schema<
 	CommentSchema,
@@ -59,16 +55,14 @@ commentSchema.virtual("comments", {
 	foreignField: "origin",
 });
 
-// middlewares
-// commentSchema.pre(
-// 	"deleteOne",
-// 	{ document: true, query: false },
-// 	deleteAllNestedComments
-// );
-// commentSchema.post("save", populateCommentAfterCreation);
-
-// query helpers
-// commentSchema.query.populateRelations = populateCommentRelations;
+commentSchema.pre(
+	"deleteOne",
+	{ document: true, query: false },
+	function (next) {
+		deleteAllReplies({ originId: this._id.toString() });
+		next();
+	}
+);
 
 const Comment = model<CommentSchema, CommentModel>("Comment", commentSchema);
 export default Comment;

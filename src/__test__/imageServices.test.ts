@@ -146,7 +146,7 @@ describe("Image Services", () => {
 	});
 
 	describe("generateManyImageNames", () => {
-		describe("given total 3", () => {
+		describe("given 3 images", () => {
 			it("should return string array with 3 items", () => {
 				const files = [
 					{ mimetype: "image/jpg" },
@@ -346,5 +346,12 @@ describe("Image Services", () => {
 				expect(result).toStrictEqual([]);
 			});
 		});
+	});
+
+	describe("getNewImageNames", () => {
+		// when user upload all new images
+		// when user upload 2 out of 4 old images and 2 new images
+		// when user upload 2 out of 2 old images and 1 new image
+		// when user upload no images
 	});
 });

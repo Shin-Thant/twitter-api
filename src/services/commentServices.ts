@@ -1,6 +1,13 @@
 import Comment from "../models/Comment";
 import { CommentSchema } from "../models/types/commentTypes";
-import { DeleteMany, FindMany, FindOne, LikeOne, UpdateOne } from "./types";
+import {
+	DeleteMany,
+	DeleteOne,
+	FindMany,
+	FindOne,
+	LikeOne,
+	UpdateOne,
+} from "./types";
 
 interface CreateCommentData {
 	type: "comment" | "reply";
@@ -64,6 +71,20 @@ export async function updateCommentLikes(args: LikeOne<CommentSchema>) {
 	});
 }
 
-export async function deleteComments(args: DeleteMany<CommentSchema>) {
+export async function deleteComment(args: DeleteOne<CommentSchema>) {
+	return await Comment.findOneAndDelete(args.filter, args.options);
+}
+
+export async function deleteManyComments(args: DeleteMany<CommentSchema>) {
 	return await Comment.deleteMany(args.filter, args.options);
+}
+
+export async function deleteAllReplies({ originId }: { originId: string }) {
+	const replies = await findManyComments({ filter: { origin: originId } });
+
+	return await Promise.all(
+		replies.map(async (reply) => {
+			return await reply.deleteOne();
+		})
+	);
 }
