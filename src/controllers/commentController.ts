@@ -1,13 +1,12 @@
 import { Request, Response } from "express";
 import AppError from "../config/AppError";
-import Comment from "../models/Comment";
 import { CommentDoc } from "../models/types/commentTypes";
 import { UserDoc } from "../models/types/userTypes";
 import {
 	createComment,
 	findComment,
 	findManyComments,
-	updateCommentLikes
+	updateCommentLikes,
 } from "../services/commentServices";
 import { findTweet } from "../services/tweetServices";
 import {
@@ -18,14 +17,6 @@ import {
 	UpdateCommentInput,
 } from "../validationSchemas/commentSchema";
 import { TweetParams } from "./tweetController";
-
-//* test route
-export const getAllComments = async (req: Request, res: Response) => {
-	const comments = await Comment.find()
-		.populateRelations({ populateComments: true })
-		.lean();
-	res.json(comments);
-};
 
 const commentRelationPopulate = [
 	{

@@ -6,7 +6,7 @@ import {
 	handleCommentLikes,
 	updateComment,
 } from "../controllers/commentController";
-import { replyCommentHandler } from "../controllers/replyController";
+import { replyComment } from "../controllers/replyController";
 import validateResource from "../middlewares/validateResource";
 import verifyCommentOwner from "../middlewares/verifyCommentOwner";
 import verifyJWT from "../middlewares/verifyJWT";
@@ -39,9 +39,9 @@ router.put(
 	handleCommentLikes
 );
 
-router.route("/:commentId/replies").get(
-	validateResource(getCommentRepliesSchema),
-	getCommentReplies
-).post([verifyJWT, validateResource(createReplySchema)], replyCommentHandler);
+router
+	.route("/:commentId/replies")
+	.get(validateResource(getCommentRepliesSchema), getCommentReplies)
+	.post([verifyJWT, validateResource(createReplySchema)], replyComment);
 
 export default router;

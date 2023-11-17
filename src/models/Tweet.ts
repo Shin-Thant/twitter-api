@@ -1,8 +1,5 @@
 import { Schema, model } from "mongoose";
-import {
-	populateTweetAfterCreation,
-	populateTweetRelations,
-} from "../schemaHelpers/tweetHelpers";
+import { populateTweetRelations } from "../schemaHelpers/tweetHelpers";
 import { TweetModel, TweetQueryHelpers, TweetSchema } from "./types/tweetTypes";
 
 const tweetSchema = new Schema<

@@ -5,7 +5,7 @@ import { UserDoc } from "../models/types/userTypes";
 import { createReply, findComment } from "../services/commentServices";
 import { CreateReplyInput } from "../validationSchemas/commentSchema";
 
-export const replyCommentHandler = async (
+export const replyComment = async (
 	req: Request<CreateReplyInput["params"], object, CreateReplyInput["body"]>,
 	res: Response
 ) => {
