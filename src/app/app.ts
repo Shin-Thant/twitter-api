@@ -7,6 +7,7 @@ import "express-async-errors";
 import hpp from "hpp";
 import path from "path";
 import corsOptions from "../config/corsOptions";
+import accessLogging from "../middlewares/accessLogging";
 import errorHandler from "../middlewares/errorHandler";
 import authRoutes from "../routes/authRoutes";
 import commentRoutes from "../routes/commentRoutes";
@@ -22,6 +23,7 @@ app.use(hpp());
 app.use(cors(corsOptions));
 app.use(cookieParser());
 app.use(express.json());
+app.use(accessLogging);
 app.use(
 	"/api/v1/photos/",
 	express.static(path.join(__dirname, "..", "..", "public", "uploads"))
