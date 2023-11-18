@@ -5,6 +5,7 @@ import {
 	DeleteOne,
 	FindMany,
 	FindOne,
+	GetCount,
 	LikeOne,
 	UpdateOne,
 } from "./types";
@@ -87,4 +88,8 @@ export async function deleteAllReplies({ originId }: { originId: string }) {
 			return await reply.deleteOne();
 		})
 	);
+}
+
+export async function getCommentCount(args: GetCount<CommentSchema>) {
+	return await Comment.countDocuments(args.filter, args.options);
 }

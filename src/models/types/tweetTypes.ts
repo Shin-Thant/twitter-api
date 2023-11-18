@@ -24,6 +24,7 @@ export type TweetSchema = {
 	images: string[];
 	likes: UserRef[];
 	shares: SharedTweet[];
+	commentCount: number;
 	comments?: CommentRef[];
 };
 

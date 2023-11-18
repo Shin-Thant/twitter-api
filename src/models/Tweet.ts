@@ -39,6 +39,11 @@ const tweetSchema = new Schema<
 				ref: "Tweet",
 			},
 		],
+		commentCount: {
+			type: Number,
+			requried: true,
+			default: 0,
+		},
 	},
 	{
 		timestamps: true,

@@ -2,7 +2,8 @@ import { Request, Response } from "express";
 import AppError from "../config/AppError";
 import Comment from "../models/Comment";
 import { UserDoc } from "../models/types/userTypes";
-import { createReply, findComment } from "../services/commentServices";
+import { createReply } from "../services/commentServices";
+import { updateTweet } from "../services/tweetServices";
 import { CreateReplyInput } from "../validationSchemas/commentSchema";
 
 export const replyComment = async (
@@ -29,6 +30,10 @@ export const replyComment = async (
 		throw new AppError("Something went wrong!", 500);
 	}
 
-	const foundReply = await findComment({ filter: { _id: newReply._id } });
-	res.json(foundReply);
+	await updateTweet({
+		filter: { _id: foundOrigin.tweet._id },
+		update: { $inc: { commentCount: 1 } },
+	});
+
+	res.json(newReply);
 };

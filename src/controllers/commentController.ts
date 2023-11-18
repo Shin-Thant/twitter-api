@@ -6,9 +6,10 @@ import {
 	createComment,
 	findComment,
 	findManyComments,
+	getCommentCount,
 	updateCommentLikes,
 } from "../services/commentServices";
-import { findTweet } from "../services/tweetServices";
+import { findTweet, updateTweet } from "../services/tweetServices";
 import {
 	CreateCommentInput,
 	GetCommentByIdInput,
@@ -101,7 +102,6 @@ export const addNewComment = async (
 
 	const foundTweet = await findTweet({
 		filter: { _id: tweetId },
-		options: { lean: true },
 	});
 	if (!foundTweet) {
 		throw new AppError("Invalid Tweet ID!", 400);
@@ -116,6 +116,10 @@ export const addNewComment = async (
 	if (!newComment) {
 		throw new AppError("Something went wrong!", 500);
 	}
+
+	// update tweet's comment count
+	foundTweet.commentCount += 1;
+	await foundTweet.save();
 
 	res.json(newComment);
 };
@@ -183,5 +187,16 @@ export const deleteComment = async (req: Request, res: Response) => {
 	const comment = req.comment as CommentDoc;
 
 	await comment.deleteOne();
+
+	const totalComments = await getCommentCount({
+		filter: { tweet: comment.tweet },
+	});
+	console.log({ totalComments });
+
+	await updateTweet({
+		filter: { _id: comment.tweet },
+		update: { $set: { commentCount: totalComments } },
+	});
+
 	res.json({ message: "Comment deleted successfully!" });
 };
