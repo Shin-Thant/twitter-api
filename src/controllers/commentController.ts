@@ -6,7 +6,7 @@ import {
 	createComment,
 	findComment,
 	findManyComments,
-	updateCommentLikes
+	updateCommentLikes,
 } from "../services/commentServices";
 import { findTweet, updateTweet } from "../services/tweetServices";
 import {
