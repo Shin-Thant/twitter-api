@@ -63,6 +63,9 @@ commentSchema.pre(
 		const replies = await findManyComments({
 			filter: { origin: this._id },
 		});
+		if (!replies.length) {
+			return next();
+		}
 
 		// update tweet for current replies delete
 		await updateTweet({
