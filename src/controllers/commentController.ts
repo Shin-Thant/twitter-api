@@ -6,8 +6,7 @@ import {
 	createComment,
 	findComment,
 	findManyComments,
-	getCommentCount,
-	updateCommentLikes,
+	updateCommentLikes
 } from "../services/commentServices";
 import { findTweet, updateTweet } from "../services/tweetServices";
 import {
@@ -183,19 +182,15 @@ export const updateComment = async (
 	res.json(comment);
 };
 
-export const deleteComment = async (req: Request, res: Response) => {
+export const deleteCommentHandler = async (req: Request, res: Response) => {
 	const comment = req.comment as CommentDoc;
 
 	await comment.deleteOne();
 
-	const totalComments = await getCommentCount({
-		filter: { tweet: comment.tweet },
-	});
-	console.log({ totalComments });
-
+	// update tweet for current comment delete
 	await updateTweet({
 		filter: { _id: comment.tweet },
-		update: { $set: { commentCount: totalComments } },
+		update: { $inc: { commentCount: -1 } },
 	});
 
 	res.json({ message: "Comment deleted successfully!" });

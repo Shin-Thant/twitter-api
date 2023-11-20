@@ -1,5 +1,6 @@
 import { model, Schema } from "mongoose";
-import { deleteAllReplies } from "../services/commentServices";
+import { findManyComments } from "../services/commentServices";
+import { updateTweet } from "../services/tweetServices";
 import {
 	CommentModel,
 	CommentQueryHelpers,
@@ -58,8 +59,22 @@ commentSchema.virtual("comments", {
 commentSchema.pre(
 	"deleteOne",
 	{ document: true, query: false },
-	function (next) {
-		deleteAllReplies({ originId: this._id.toString() });
+	async function (next) {
+		const replies = await findManyComments({
+			filter: { origin: this._id },
+		});
+
+		// update tweet for current replies delete
+		await updateTweet({
+			filter: { _id: this.tweet },
+			update: { $inc: { commentCount: replies.length * -1 } },
+		});
+
+		await Promise.all(
+			replies.map(async (reply) => {
+				return await reply.deleteOne();
+			})
+		);
 		next();
 	}
 );

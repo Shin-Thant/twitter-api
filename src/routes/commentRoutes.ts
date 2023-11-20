@@ -1,6 +1,6 @@
 import { Router } from "express";
 import {
-	deleteComment,
+	deleteCommentHandler,
 	getCommentById,
 	getCommentReplies,
 	handleCommentLikes,
@@ -30,7 +30,7 @@ router
 	)
 	.delete(
 		[verifyJWT, validateResource(deleteCommentSchema), verifyCommentOwner],
-		deleteComment
+		deleteCommentHandler
 	);
 
 router.put(
