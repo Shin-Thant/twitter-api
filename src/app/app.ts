@@ -13,12 +13,14 @@ import authRoutes from "../routes/authRoutes";
 import commentRoutes from "../routes/commentRoutes";
 import tweetRoutes from "../routes/tweetRoutes";
 import userRoutes from "../routes/userRoutes";
+import compression from "compression";
 
 dotenv.config();
 const app = express();
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 // middlewares
+app.use(compression());
 app.use(hpp());
 app.use(cors(corsOptions));
 app.use(cookieParser());
