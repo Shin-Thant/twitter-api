@@ -1,11 +1,16 @@
 import { NextFunction, Request, Response } from "express";
-import logger from "../util/logger";
+import { LoggerService } from "../services/loggerService";
+import { LoggerProvider } from "../util/LoggerProvider";
+
+const loggerService = new LoggerService(
+	LoggerProvider.getInstance("AccessLogging")
+);
 
 export default function accessLogging(
 	req: Request,
 	_res: Response,
 	next: NextFunction
 ) {
-	logger.info(`method: "${req.method}"    url: "${req.url}"`);
+	loggerService.info(`method: "${req.method}"    url: "${req.url}"`);
 	next();
 }
