@@ -15,14 +15,16 @@ const PORT: number = 3500 || process.env.PORT;
 const server = app.listen(PORT, async () => {
 	logger.info(`Server listening on port ${PORT}!`);
 	await connectDB();
-});
 
-// process.on("SIGTERM", () => {
-// 	logger.debug('Graceful shutdown...')
-// 	server.close(() => {
-// 		logger.info("Server closed!");
-// 	});
-// });
+	if (process.env.NODE_ENV === "production") {
+		process.on("SIGTERM", () => {
+			logger.debug("Graceful shutdown...");
+			server.close(() => {
+				logger.info("Server closed!");
+			});
+		});
+	}
+});
 
 mongoose.connection.once("open", () => {
 	logger.info("Successfully connected to DB!");
