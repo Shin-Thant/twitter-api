@@ -15,7 +15,10 @@ import {
 	isMulterError,
 	isTokenExpiredError,
 } from "../util/errorHandlerHelpers";
-import logger from "../util/logger";
+import { LoggerService } from "../services/loggerService";
+import { LoggerProvider } from "../util/LoggerProvider";
+
+const logger = new LoggerService(LoggerProvider.getInstance("Error"));
 
 export type IncomingError =
 	| Error
@@ -32,7 +35,7 @@ const errorHandler = (
 	res: Response,
 	_next: NextFunction
 ) => {
-	logger.error(err, err.message);
+	logger.error({ msg: err.message, error: JSON.stringify(err) });
 
 	if (isCastError(err)) {
 		const responseBody = createErrorResponseBody({

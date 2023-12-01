@@ -4,7 +4,10 @@ import path from "path";
 import sharp from "sharp";
 import AppError from "../config/AppError";
 import { UploadedFile } from "../middlewares/tweetBodyOrImage";
-import logger from "../util/logger";
+import { LoggerService } from "./loggerService";
+import { LoggerProvider } from "../util/LoggerProvider";
+
+const logger = new LoggerService(LoggerProvider.getInstance("ImageService"));
 
 const ALLOWED_TYPES = ["png", "jpg", "jpeg"] as const;
 type Allowed_Type = (typeof ALLOWED_TYPES)[number];
@@ -71,8 +74,11 @@ export async function checkImageExist({
 		await fs.access(path, fs.constants.F_OK);
 		return true;
 	} catch (err) {
-		console.log({ err });
-		logger.error("Image exist check error!", path, err);
+		logger.error({
+			name: "Image exist check error!",
+			path,
+			err: JSON.stringify(err),
+		});
 		return false;
 	}
 }

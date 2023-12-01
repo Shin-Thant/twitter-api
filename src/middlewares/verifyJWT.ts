@@ -3,7 +3,10 @@ import AppError from "../config/AppError";
 import User from "../models/User";
 import { getSecretKeyFor, verifyJwtToken } from "../util/jwt";
 import { validateAccessTokenPayload } from "../util/jwtPayloadValidators";
-import logger from "../util/logger";
+import { LoggerService } from "../services/loggerService";
+import { LoggerProvider } from "../util/LoggerProvider";
+
+const logger = new LoggerService(LoggerProvider.getInstance("VerifyJWT"));
 
 export default async function verifyJWT(
 	req: Request,

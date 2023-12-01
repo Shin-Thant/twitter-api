@@ -7,9 +7,11 @@ process.on("uncaughtException", (e) => {
 import mongoose from "mongoose";
 import app from "./app/app";
 import { connectDB } from "./config/database";
-import logger from "./util/logger";
+import { LoggerService } from "./services/loggerService";
+import { LoggerProvider } from "./util/LoggerProvider";
 
 const PORT: number = 3500 || process.env.PORT;
+const logger = new LoggerService(LoggerProvider.getInstance("Server"));
 
 // start server
 const server = app.listen(PORT, async () => {
