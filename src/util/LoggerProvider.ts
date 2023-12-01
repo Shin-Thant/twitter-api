@@ -1,20 +1,16 @@
-import { Logger, createLogger, format, transports } from "winston";
+import { createLogger, format, transports } from "winston";
 
 export class LoggerProvider {
-	private static instance: Logger;
 	private constructor() {
 		// can't create via `new` keyword
 	}
 
-	static getInstance(label?: string) {
-		if (!this.instance) {
-			this.instance = createLogger({
-				level: "debug",
-				format: this.getFormat(label),
-				transports: [new transports.Console()],
-			});
-		}
-		return this.instance;
+	static getInstance(label: string) {
+		return createLogger({
+			level: "debug",
+			format: this.getFormat(label),
+			transports: [new transports.Console()],
+		});
 	}
 
 	private static getFormat(label?: string) {
