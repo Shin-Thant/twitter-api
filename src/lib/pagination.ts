@@ -1,3 +1,4 @@
+import { CommentSchema } from "../models/types/commentTypes";
 import { TweetSchema } from "../models/types/tweetTypes";
 import { UserSchema } from "../models/types/userTypes";
 import { PaginationHelper } from "../util/paginationHelper";
@@ -12,24 +13,13 @@ export interface PaginationResult<T> {
 	data: T;
 }
 
-interface IPagination {
-	currentPage: number;
-	totalPages: number;
-	itemsPerPage: number;
-	skip: number;
-
-	createPaginationResult<T extends (UserSchema | TweetSchema)[]>(
-		results: T
-	): PaginationResult<T>;
-}
-
 export type ConstructorParam = {
 	itemsPerPage: number;
 	currentPage: number;
 	totalDocs: number;
 	helper: PaginationHelper;
 };
-export default class PaginationImpl implements IPagination {
+export default class PaginationImpl {
 	public currentPage: number;
 	public totalPages: number;
 	public totalDocs: number;
@@ -48,16 +38,16 @@ export default class PaginationImpl implements IPagination {
 			this.totalDocs,
 			this.itemsPerPage
 		);
-		this.currentPage = helper.validateCurrentPageNumber(
+		this.currentPage = helper.validateCurrentPage(
 			currentPage,
 			this.totalPages
 		);
 		this.skip = (this.currentPage - 1) * this.itemsPerPage;
 	}
 
-	public createPaginationResult<T extends (UserSchema | TweetSchema)[]>(
-		result: T
-	): PaginationResult<T> {
+	public createPaginationResult<
+		T extends (UserSchema | TweetSchema | CommentSchema)[]
+	>(result: T): PaginationResult<T> {
 		return {
 			totalPages: this.totalPages,
 			totalDocs: this.totalDocs,

@@ -2,7 +2,7 @@ import AppError from "../config/AppError";
 
 export interface PaginationHelper {
 	validateItemsPerPage(itemsPerPage: number): number;
-	validateCurrentPageNumber(currentPage: number, totalPages: number): number;
+	validateCurrentPage(currentPage: number, totalPages: number): number;
 	calculateTotalPages(totalDocs: number, itemsPerPage: number): number;
 }
 
@@ -20,7 +20,7 @@ export default class PaginationHelperImpl implements PaginationHelper {
 		return itemsPerPage;
 	}
 
-	public validateCurrentPageNumber(
+	public validateCurrentPage(
 		currentPage: number,
 		totalPages: number
 	): number {
