@@ -53,6 +53,10 @@ export const getTweets = async (
 		helper: paginationHelper,
 	});
 
+	if (pagination.isCurrentPageExceeded()) {
+		return res.json(pagination.createPaginationResult([]));
+	}
+
 	const tweets = await findManyTweets({
 		filter: {},
 		options: {

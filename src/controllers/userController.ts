@@ -65,6 +65,10 @@ export const searchUsers = async (
 		helper: paginationHelper,
 	});
 
+	if (userPagination.isCurrentPageExceeded()) {
+		return res.json(userPagination.createPaginationResult([]));
+	}
+
 	const users = await findManyUsers({
 		filter: QUERY_FILTER,
 		projection: { following: false },

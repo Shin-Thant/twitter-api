@@ -38,11 +38,12 @@ export default class PaginationImpl {
 			this.totalDocs,
 			this.itemsPerPage
 		);
-		this.currentPage = helper.validateCurrentPage(
-			currentPage,
-			this.totalPages
-		);
+		this.currentPage = helper.validateCurrentPage(currentPage);
 		this.skip = (this.currentPage - 1) * this.itemsPerPage;
+	}
+
+	public isCurrentPageExceeded() {
+		return this.currentPage > this.totalPages;
 	}
 
 	public createPaginationResult<
