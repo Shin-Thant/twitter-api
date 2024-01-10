@@ -1,11 +1,12 @@
 import { Request, Response } from "express";
 import AppError from "../config/AppError";
-import { CommentDoc } from "../models/types/commentTypes";
+import { CommentDoc, CommentSchema } from "../models/types/commentTypes";
 import { UserDoc } from "../models/types/userTypes";
 import {
 	createComment,
 	findComment,
 	findManyComments,
+	getCommentCount,
 	updateCommentLikes,
 } from "../services/commentServices";
 import { findTweet, updateTweet } from "../services/tweetServices";
@@ -13,10 +14,14 @@ import {
 	CreateCommentInput,
 	GetCommentByIdInput,
 	GetCommentReplies,
+	GetCommentsInput,
 	LikeCommentInput,
 	UpdateCommentInput,
 } from "../validationSchemas/commentSchema";
-import { TweetParams } from "./tweetController";
+import PaginationImpl from "../lib/pagination";
+import PaginationHelperImpl from "../util/paginationHelper";
+
+const paginationHelper = new PaginationHelperImpl();
 
 const commentRelationPopulate = [
 	{
@@ -55,19 +60,41 @@ const commentRelationPopulate = [
 ];
 
 export const getTweetComments = async (
-	req: Request<TweetParams>,
+	req: Request<
+		GetCommentsInput["params"],
+		object,
+		object,
+		GetCommentsInput["query"]
+	>,
 	res: Response
 ) => {
 	const { tweetId } = req.params;
+
+	const totalComments = await getCommentCount({
+		filter: { tweet: tweetId, origin: { $exists: false } },
+	});
+	const pagination = new PaginationImpl({
+		itemsPerPage: req.query.itemsPerPage ?? 10,
+		currentPage: req.query.currentPage ?? 1,
+		helper: paginationHelper,
+		totalDocs: totalComments,
+	});
+
+	if (pagination.isCurrentPageExceeded()) {
+		return res.json(pagination.createPaginationResult([]));
+	}
+
 	const comments = await findManyComments({
 		filter: { tweet: tweetId, origin: { $exists: false } },
 		options: {
 			populate: commentRelationPopulate,
 			sort: "-createdAt",
+			limit: pagination.itemsPerPage,
+			skip: pagination.skip,
 		},
 	});
 
-	res.json(comments);
+	res.json(pagination.createPaginationResult<CommentSchema[]>(comments));
 };
 
 export const getCommentReplies = async (

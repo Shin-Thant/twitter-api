@@ -3,7 +3,6 @@ import { objectIdValidator } from "../util/validationHelpers";
 import {
 	GetTweetByIdInput,
 	TweetIdParam,
-	getTweetByIdSchema,
 	tweetIdParamSchema,
 } from "./tweetSchema";
 import { Dto } from "./types";
@@ -23,8 +22,28 @@ const commentIdParamSchema = Joi.object<CommentIdParam, true>({
 		}),
 });
 
-export type GetCommentsInput = GetTweetByIdInput;
-export const getCommentsSchema = getTweetByIdSchema;
+export interface GetCommentsInput extends GetTweetByIdInput {
+	query: {
+		currentPage?: number;
+		itemsPerPage?: number;
+		sortBy?: string;
+	};
+}
+export const getCommentsSchema = Joi.object<GetTweetByIdInput, true>({
+	body: Joi.object({}),
+	params: tweetIdParamSchema,
+	query: Joi.object({
+		currentPage: Joi.number().optional().min(1).messages({
+			"number.base": "Current page must be number!",
+			"any.min": "Current page must be at least 1!",
+		}),
+		itemsPerPage: Joi.number().optional().min(1).max(20).messages({
+			"number.base": "Current page must be number!",
+			"any.min": "Current page must be at least 1!",
+			"any.max": "Current page can't exceed more than 20!",
+		}),
+	}),
+});
 
 export interface GetCommentByIdInput extends Dto {
 	params: {

@@ -10,7 +10,6 @@ const verifyCommentOwner = async (
 ) => {
 	const { user: owner } = req;
 	const { commentId } = req.params;
-	console.log({ verifyCmtOwner: commentId });
 
 	if (!owner) {
 		throw new AppError("Unauthorized!", 401);
