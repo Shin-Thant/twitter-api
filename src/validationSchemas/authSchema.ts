@@ -74,3 +74,20 @@ export const emailVerifySchema = Joi.object<EmailVerifyInput, true>({
 	}),
 	query: Joi.object({}),
 });
+
+export interface ForgotPasswordInput extends Dto {
+	params: {
+		email: string;
+	};
+}
+export const forgotPasswordSchema = Joi.object<ForgotPasswordInput, true>({
+	body: Joi.object({}),
+	params: Joi.object<ForgotPasswordInput["params"], true>({
+		email: Joi.string().trim().email().required().messages({
+			"base.string": "Email must be string!",
+			"any.required": "Email is requried!",
+			"any.email": "Invalid email!",
+		}),
+	}),
+	query: Joi.object({}),
+});

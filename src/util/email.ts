@@ -2,11 +2,12 @@ import sgMail, { MailDataRequired } from "@sendgrid/mail";
 import { getEmailVerifyTemplate, getWelcomeTemplate } from "./templates";
 import { Request } from "express";
 
-type EmailType = "email_verify" | "welcome";
+type EmailType = "email_verify" | "welcome" | "reset_password";
 
 const EMAIL_SUBJECTS: Record<EmailType, string> = {
 	welcome: "Welcome from Twitter!",
 	email_verify: "Verify email!",
+	reset_password: "Reset Password!",
 };
 
 export async function sendWelcomeEmail({
@@ -45,6 +46,28 @@ export async function sendVerifyEmail({
 	});
 }
 
+export async function sendPasswordResetEmail({
+	to,
+	name,
+	expireTimeInMins,
+	passwordResetLink,
+}: {
+	to: string;
+	name: string;
+	expireTimeInMins: number;
+	passwordResetLink: string;
+}) {
+	return await sendEmail({
+		to,
+		subject: getSubjectFor("reset_password"),
+		template: `
+			<h1>Hi ${name}</h1>
+			<a href='${passwordResetLink}'>click this</a>
+			<p>This link will be expired in ${expireTimeInMins} minutes!</p>
+		`,
+	});
+}
+
 async function sendEmail({
 	to,
 	subject,
@@ -77,4 +100,16 @@ export function createEmailVerifyLink({
 	return `${req.protocol}://${req.get(
 		"host"
 	)}/api/v1/auth/verify-email/${token}`;
+}
+
+export function createPasswordResetLink({
+	req,
+	token,
+}: {
+	req: Request;
+	token: string;
+}) {
+	return `${req.protocol}://${req.get(
+		"host"
+	)}/api/v1/auth/reset-password/${token}`;
 }

@@ -1,6 +1,7 @@
 import { Router } from "express";
 import {
 	handleEmailVerfication,
+	handleForgotPassword,
 	handleLogin,
 	handleLogout,
 	handleRefreshToken,
@@ -12,6 +13,7 @@ import verifyJWT from "../middlewares/verifyJWT";
 import validateResource from "../middlewares/validateResource";
 import {
 	emailVerifySchema,
+	forgotPasswordSchema,
 	loginUserSchema,
 	registerUserSchema,
 } from "../validationSchemas/authSchema";
@@ -60,6 +62,12 @@ router.get(
 	"/refresh",
 	rateLimiter(10, REFRESH_REMEMBER_TIME_IN_MILLISECONDS),
 	handleRefreshToken
+);
+
+router.get(
+	"/forgot-password/:email",
+	[authRateLimiter(), validateResource(forgotPasswordSchema)],
+	handleForgotPassword
 );
 
 export default router;

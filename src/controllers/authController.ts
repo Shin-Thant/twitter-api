@@ -10,6 +10,7 @@ import isObjectId from "../lib/isObjectId";
 import { UserDoc, UserSchema } from "../models/types/userTypes";
 import {
 	EmailVerifyInput,
+	ForgotPasswordInput,
 	RegisterInput,
 } from "../validationSchemas/authSchema";
 import {
@@ -20,6 +21,8 @@ import {
 import { TypedRequestBody } from "../types/requestTypes";
 import {
 	createEmailVerifyLink,
+	createPasswordResetLink,
+	sendPasswordResetEmail,
 	sendVerifyEmail,
 	sendWelcomeEmail,
 } from "../util/email";
@@ -29,6 +32,7 @@ import {
 	getTokenExpireTime,
 	getEmailTokenExpireTimeNumber,
 	verifyJwtToken,
+	getPasswordResetTokenExpireTimeNumber,
 } from "../util/jwt";
 import {
 	validateEmailTokenPayload,
@@ -310,4 +314,39 @@ export const handleResendVerifyEmail = async (req: Request, res: Response) => {
 	});
 
 	res.json({ message: "Resent email successfully!" });
+};
+
+export const handleForgotPassword = async (
+	req: Request<ForgotPasswordInput["params"]>,
+	res: Response
+) => {
+	const email = req.params.email;
+	const foundUser = await findUser({
+		filter: { email },
+		options: { lean: true },
+	});
+
+	if (!foundUser) {
+		throw new AppError("Can't find account with this email!", 400);
+	}
+
+	const passwordResetToken = await createJwtToken({
+		payload: { id: foundUser._id },
+		secretKey: getSecretKeyFor("password_reset_token"),
+		options: {
+			expiresIn: getTokenExpireTime("password_reset_token"),
+		},
+	});
+
+	await sendPasswordResetEmail({
+		to: foundUser.email,
+		name: foundUser.name,
+		expireTimeInMins: getPasswordResetTokenExpireTimeNumber(),
+		passwordResetLink: createPasswordResetLink({
+			req,
+			token: passwordResetToken,
+		}),
+	});
+
+	res.json({ message: "Password reset email sent successfully!" });
 };

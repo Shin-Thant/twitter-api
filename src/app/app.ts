@@ -1,4 +1,5 @@
 import sgMail from "@sendgrid/mail";
+import compression from "compression";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import dotenv from "dotenv";
@@ -13,7 +14,6 @@ import authRoutes from "../routes/authRoutes";
 import commentRoutes from "../routes/commentRoutes";
 import tweetRoutes from "../routes/tweetRoutes";
 import userRoutes from "../routes/userRoutes";
-import compression from "compression";
 
 dotenv.config();
 const app = express();
