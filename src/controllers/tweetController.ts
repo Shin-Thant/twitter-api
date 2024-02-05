@@ -31,6 +31,7 @@ import {
 	GetTweetByIdInput,
 	GetTweetsInput,
 	LikeTweetInput,
+	RetweetSchema,
 	ShareTweetInput,
 } from "../validationSchemas/tweetSchema";
 
@@ -152,6 +153,32 @@ export const createTweetHandler = async (
 	}
 
 	res.json(newTweet);
+};
+
+export const retweet = async (
+	req: Request<RetweetSchema["params"]>,
+	res: Response
+) => {
+	const owner = req.user as UserDoc;
+	const { tweetId } = req.params;
+
+	const originTweet = await findTweet({
+		filter: { _id: tweetId },
+		options: { lean: true },
+	});
+	if (!originTweet) {
+		throw new AppError("Invalid tweet ID!", 400);
+	}
+
+	const newSharedTweet = await createTweet({
+		type: "share",
+		origin: tweetId,
+		owner: owner._id.toString(),
+	});
+	if (!newSharedTweet) {
+		throw new AppError("Something went wrong", 500);
+	}
+	res.json(newSharedTweet);
 };
 
 export const shareTweet = async (

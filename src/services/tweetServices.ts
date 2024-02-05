@@ -26,7 +26,13 @@ export type ShareTweet = {
 	origin: string;
 } & TweetContent;
 
-type NewTweet = CreateTweet | ShareTweet;
+export type Retweet = {
+	type: "share";
+	owner: string;
+	origin: string;
+};
+
+type NewTweet = CreateTweet | ShareTweet | Retweet;
 export async function createTweet(input: NewTweet) {
 	return Tweet.create(input);
 }
