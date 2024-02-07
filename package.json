@@ -15,6 +15,7 @@
 	"dependencies": {
 		"@sendgrid/mail": "^7.7.0",
 		"bcrypt": "^5.1.0",
+		"bufferutil": "^4.0.8",
 		"compression": "^1.7.4",
 		"cookie-parser": "^1.4.6",
 		"cors": "^2.8.5",
@@ -33,6 +34,8 @@
 		"pino": "^8.14.1",
 		"pino-pretty": "^10.0.0",
 		"sharp": "^0.32.5",
+		"socket.io": "^4.7.4",
+		"utf-8-validate": "^5.0.10",
 		"winston": "^3.11.0"
 	},
 	"devDependencies": {

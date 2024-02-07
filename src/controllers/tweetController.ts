@@ -33,6 +33,8 @@ import {
 	LikeTweetInput,
 	ShareTweetInput,
 } from "../validationSchemas/tweetSchema";
+import { io } from "../main";
+import { Noti, createNotification } from "../services/notificationService";
 
 const paginationHelper = new PaginationHelperImpl();
 
@@ -271,6 +273,16 @@ export const handleLikes = async (
 		item: user._id,
 		options: { new: true },
 	});
+
+	if (!isLiked && user._id.toString() !== tweet.owner._id.toString()) {
+		const noti = await createNotification({
+			recipientID: tweet.owner._id.toString(),
+			triggerUserID: user._id.toString(),
+			docID: tweetId,
+			type: Noti.LIKE_TWEET,
+		});
+		io.to(tweet.owner._id.toString()).emit("notify", noti);
+	}
 
 	res.json(updatedTweet);
 };

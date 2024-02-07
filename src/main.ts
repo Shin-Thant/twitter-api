@@ -4,17 +4,41 @@ process.on("uncaughtException", (e) => {
 	process.exit(1);
 });
 
+import { createServer } from "http";
 import mongoose from "mongoose";
 import app from "./app/app";
 import { connectDB } from "./config/database";
 import { LoggerService } from "./services/loggerService";
+import { CreateSocketServer } from "./socket";
 import { LoggerProvider } from "./util/LoggerProvider";
 
 const PORT: number = 3500 || process.env.PORT;
 const logger = new LoggerService(LoggerProvider.getInstance("Server"));
 
+const httpServer = createServer(app);
+export const io = CreateSocketServer(httpServer);
+
+io.use(async (socket, next) => {
+	const userID = socket.handshake.auth?.userID;
+	if (!userID || typeof userID !== "string") {
+		return next(new Error("No user id!"));
+	}
+	socket.data.userID = userID;
+	next();
+});
+
+io.on("connection", (socket) => {
+	logger.info(`New user joined: ${socket.data.userID}`);
+
+	socket.join(socket.data.userID);
+
+	socket.on("disconnect", () => {
+		logger.info(`User disconnected: ${socket.id}`);
+	});
+});
+
 // start server
-const server = app.listen(PORT, async () => {
+const server = httpServer.listen(PORT, async () => {
 	logger.info(`Server listening on port ${PORT}!`);
 	await connectDB();
 
