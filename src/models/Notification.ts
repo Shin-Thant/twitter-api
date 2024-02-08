@@ -6,6 +6,7 @@ export type NotificationSchema = {
 	isRead: boolean;
 	type: NotiType;
 	doc: Types.ObjectId;
+	message: string;
 };
 
 const notificationSchema = new Schema<NotificationSchema>(
@@ -37,6 +38,10 @@ const notificationSchema = new Schema<NotificationSchema>(
 				console.log(ref);
 				return ref;
 			},
+		},
+		message: {
+			type: String,
+			required: true,
 		},
 	},
 	{

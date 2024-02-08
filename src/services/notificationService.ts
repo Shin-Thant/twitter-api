@@ -17,6 +17,7 @@ interface INotificationInput {
 	triggerUserID: string;
 	type: NotiType;
 	docID: string;
+	message: string;
 }
 
 export async function createNotification(input: INotificationInput) {
@@ -25,6 +26,7 @@ export async function createNotification(input: INotificationInput) {
 		triggerBy: input.triggerUserID,
 		type: input.type,
 		doc: input.docID,
+		message: input.message,
 	});
 }
 

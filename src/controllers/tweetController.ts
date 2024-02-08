@@ -35,6 +35,8 @@ import {
 } from "../validationSchemas/tweetSchema";
 import { io } from "../main";
 import { Noti, createNotification } from "../services/notificationService";
+import { NotiMessage } from "../util/notiMessage";
+import { findUser } from "../services/userServices";
 
 const paginationHelper = new PaginationHelperImpl();
 
@@ -275,13 +277,20 @@ export const handleLikes = async (
 	});
 
 	if (!isLiked && user._id.toString() !== tweet.owner._id.toString()) {
-		const noti = await createNotification({
-			recipientID: tweet.owner._id.toString(),
-			triggerUserID: user._id.toString(),
-			docID: tweetId,
-			type: Noti.LIKE_TWEET,
+		const recipient = await findUser({
+			filter: { _id: tweet.owner._id },
+			projection: { name: true },
 		});
-		io.to(tweet.owner._id.toString()).emit("notify", noti);
+		if (recipient) {
+			const noti = await createNotification({
+				recipientID: tweet.owner._id.toString(),
+				triggerUserID: user._id.toString(),
+				docID: tweetId,
+				type: Noti.LIKE_TWEET,
+				message: NotiMessage.getLikeTweetMessage(recipient.name),
+			});
+			io.to(tweet.owner._id.toString()).emit("notify", noti);
+		}
 	}
 
 	res.json(updatedTweet);
