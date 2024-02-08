@@ -287,7 +287,7 @@ export const handleLikes = async (
 				triggerUserID: user._id.toString(),
 				docID: tweetId,
 				type: Noti.LIKE_TWEET,
-				message: NotiMessage.getLikeTweetMessage(recipient.name),
+				message: NotiMessage.getLikeTweetMessage(`@${user.name}`),
 			});
 			io.to(tweet.owner._id.toString()).emit("notify", noti);
 		}

@@ -1,14 +1,14 @@
 export class NotiMessage {
-	static getLikeTweetMessage(recipientName: string) {
-		return `${recipientName} liked your tweet.`;
+	static getLikeTweetMessage(triggerUserName: string) {
+		return `${triggerUserName} liked your tweet.`;
 	}
-	static getLikeCommentMessage(recipientName: string) {
-		return `${recipientName} liked your comment.`;
+	static getLikeCommentMessage(triggerUserName: string) {
+		return `${triggerUserName} liked your comment.`;
 	}
-	static getCommentMessage(recipientName: string) {
-		return `${recipientName} commented on your tweet.`;
+	static getCommentMessage(triggerUserName: string) {
+		return `${triggerUserName} commented on your tweet.`;
 	}
-	static getReplyMessage(recipientName: string) {
-		return `${recipientName} replied on your comment.`;
+	static getReplyMessage(triggerUserName: string) {
+		return `${triggerUserName} replied on your comment.`;
 	}
 }
