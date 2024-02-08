@@ -1,6 +1,14 @@
-import { Schema, model } from "mongoose";
+import { Schema, Types, model } from "mongoose";
 
-const notificationSchema = new Schema(
+export type NotificationSchema = {
+	recipient: Types.ObjectId;
+	triggerBy: Types.ObjectId;
+	isRead: boolean;
+	type: NotiType;
+	doc: Types.ObjectId;
+};
+
+const notificationSchema = new Schema<NotificationSchema>(
 	{
 		recipient: {
 			type: Schema.Types.ObjectId,
@@ -47,4 +55,5 @@ function getRefFrom(type: NotiType): NotiType {
 	return NOTI_TYPES[type];
 }
 
-export default model("Notification", notificationSchema);
+const Notification = model("Notification", notificationSchema);
+export default Notification;

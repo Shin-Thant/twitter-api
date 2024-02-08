@@ -1,3 +1,4 @@
+import { NotificationSchema } from "../models/Notification";
 import { CommentSchema } from "../models/types/commentTypes";
 import { TweetSchema } from "../models/types/tweetTypes";
 import { UserSchema } from "../models/types/userTypes";
@@ -47,7 +48,12 @@ export default class PaginationImpl {
 	}
 
 	public createPaginationResult<
-		T extends (UserSchema | TweetSchema | CommentSchema)[]
+		T extends (
+			| UserSchema
+			| TweetSchema
+			| CommentSchema
+			| NotificationSchema
+		)[]
 	>(result: T): PaginationResult<T> {
 		return {
 			totalPages: this.totalPages,

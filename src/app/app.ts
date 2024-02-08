@@ -12,6 +12,7 @@ import accessLogging from "../middlewares/accessLogging";
 import errorHandler from "../middlewares/errorHandler";
 import authRoutes from "../routes/authRoutes";
 import commentRoutes from "../routes/commentRoutes";
+import notiRoutes from "../routes/notiRoutes";
 import tweetRoutes from "../routes/tweetRoutes";
 import userRoutes from "../routes/userRoutes";
 
@@ -36,6 +37,7 @@ app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/users", userRoutes);
 app.use("/api/v1/tweets", tweetRoutes);
 app.use("/api/v1/comments", commentRoutes);
+app.use("/api/v1/notis", notiRoutes);
 
 // error handler middleware
 app.use(errorHandler);

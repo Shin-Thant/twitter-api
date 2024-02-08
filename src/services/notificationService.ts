@@ -1,4 +1,8 @@
-import Notification, { NotiType } from "../models/Notification";
+import Notification, {
+	NotiType,
+	NotificationSchema,
+} from "../models/Notification";
+import { FindMany, GetCount } from "./types";
 
 type NotiTypeKey = "LIKE_TWEET" | "LIKE_COMMENT" | "COMMENT" | "REPLY";
 export const Noti: Record<NotiTypeKey, NotiType> = {
@@ -22,4 +26,14 @@ export async function createNotification(input: INotificationInput) {
 		type: input.type,
 		doc: input.docID,
 	});
+}
+
+export async function findManyNotifications(
+	args: FindMany<NotificationSchema>
+) {
+	return await Notification.find(args.filter, args.projection, args.options);
+}
+
+export async function getNotiCount(args: GetCount<NotificationSchema>) {
+	return await Notification.countDocuments(args.filter, args.options);
 }
