@@ -282,21 +282,25 @@ export const handleLikes = async (
 			projection: { name: true },
 		});
 		if (recipient) {
-			const noti = await createNotification({
+			io.to(tweet.owner._id.toString()).emit("notify", {
+				recipient: tweet.owner._id.toString(),
+				doc: tweetId,
+				type: Noti.LIKE_TWEET,
+				message: NotiMessage.getLikeTweetMessage(`@${user.name}`),
+				isRead: false,
+				triggerBy: {
+					_id: user._id.toString(),
+					name: user.name,
+					username: user.name,
+					avatar: user.avatar,
+				},
+			});
+			await createNotification({
 				recipientID: tweet.owner._id.toString(),
 				triggerUserID: user._id.toString(),
 				docID: tweetId,
 				type: Noti.LIKE_TWEET,
 				message: NotiMessage.getLikeTweetMessage(`@${user.name}`),
-			});
-			io.to(tweet.owner._id.toString()).emit("notify", {
-				...noti,
-				triggerBy: {
-					_id: user._id,
-					name: user.name,
-					username: user.name,
-					avatar: user.avatar
-				}
 			});
 		}
 	}
