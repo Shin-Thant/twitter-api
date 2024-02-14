@@ -276,7 +276,8 @@ export const handleLikes = async (
 		options: { new: true },
 	});
 
-	if (!isLiked && user._id.toString() !== tweet.owner._id.toString()) {
+	const likeOwnTweet = user._id.toString() == tweet.owner._id.toString();
+	if (!isLiked && !likeOwnTweet) {
 		const recipient = await findUser({
 			filter: { _id: tweet.owner._id },
 			projection: { name: true },

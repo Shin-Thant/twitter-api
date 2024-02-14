@@ -20,6 +20,9 @@ import {
 } from "../validationSchemas/commentSchema";
 import PaginationImpl from "../lib/pagination";
 import PaginationHelperImpl from "../util/paginationHelper";
+import { io } from "../main";
+import { Noti, createNotification } from "../services/notificationService";
+import { NotiMessage } from "../util/notiMessage";
 
 const paginationHelper = new PaginationHelperImpl();
 
@@ -129,6 +132,7 @@ export const addNewComment = async (
 	const foundTweet = await findTweet({
 		filter: { _id: tweetId },
 	});
+
 	if (!foundTweet) {
 		throw new AppError("Invalid Tweet ID!", 400);
 	}
@@ -146,6 +150,30 @@ export const addNewComment = async (
 	// update tweet's comment count
 	foundTweet.commentCount += 1;
 	await foundTweet.save();
+
+	const commentOwnTweet = owner._id.toString() === foundTweet._id.toString();
+	if (!commentOwnTweet) {
+		io.to(foundTweet.owner._id.toString()).emit("notify", {
+			recipient: foundTweet.owner._id.toString(),
+			doc: tweetId,
+			type: Noti.COMMENT,
+			message: NotiMessage.getCommentMessage(`@${owner.name}`),
+			isRead: false,
+			triggerBy: {
+				_id: owner._id.toString(),
+				name: owner.name,
+				username: owner.name,
+				avatar: owner.avatar,
+			},
+		});
+		await createNotification({
+			docID: tweetId,
+			message: NotiMessage.getCommentMessage(`@${owner.name}`),
+			recipientID: foundTweet.owner._id.toString(),
+			triggerUserID: foundTweet.owner._id.toString(),
+			type: Noti.COMMENT,
+		});
+	}
 
 	res.json(newComment);
 };
