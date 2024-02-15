@@ -83,9 +83,9 @@ export const getTweetComments = async (
 		totalDocs: totalComments,
 	});
 
-	if (pagination.isCurrentPageExceeded()) {
-		return res.json(pagination.createPaginationResult([]));
-	}
+	// if (pagination.isCurrentPageExceeded()) {
+	// 	return res.json(pagination.createPaginationResult([]));
+	// }
 
 	const comments = await findManyComments({
 		filter: { tweet: tweetId, origin: { $exists: false } },
@@ -97,7 +97,8 @@ export const getTweetComments = async (
 		},
 	});
 
-	res.json(pagination.createPaginationResult<CommentSchema[]>(comments));
+	res.json(comments);
+	// res.json(pagination.createPaginationResult<CommentSchema[]>(comments));
 };
 
 export const getCommentReplies = async (
@@ -170,7 +171,7 @@ export const addNewComment = async (
 			docID: tweetId,
 			message: NotiMessage.getCommentMessage(`@${owner.name}`),
 			recipientID: foundTweet.owner._id.toString(),
-			triggerUserID: foundTweet.owner._id.toString(),
+			triggerUserID: owner._id.toString(),
 			type: Noti.COMMENT,
 		});
 	}
