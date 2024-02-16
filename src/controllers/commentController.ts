@@ -1,6 +1,8 @@
 import { Request, Response } from "express";
 import AppError from "../config/AppError";
-import { CommentDoc, CommentSchema } from "../models/types/commentTypes";
+import PaginationImpl from "../lib/pagination";
+import { io } from "../main";
+import { CommentDoc } from "../models/types/commentTypes";
 import { UserDoc } from "../models/types/userTypes";
 import {
 	createComment,
@@ -9,7 +11,10 @@ import {
 	getCommentCount,
 	updateCommentLikes,
 } from "../services/commentServices";
+import { Noti, createNotification } from "../services/notificationService";
 import { findTweet, updateTweet } from "../services/tweetServices";
+import { NotiMessage } from "../util/notiMessage";
+import PaginationHelperImpl from "../util/paginationHelper";
 import {
 	CreateCommentInput,
 	GetCommentByIdInput,
@@ -18,11 +23,6 @@ import {
 	LikeCommentInput,
 	UpdateCommentInput,
 } from "../validationSchemas/commentSchema";
-import PaginationImpl from "../lib/pagination";
-import PaginationHelperImpl from "../util/paginationHelper";
-import { io } from "../main";
-import { Noti, createNotification } from "../services/notificationService";
-import { NotiMessage } from "../util/notiMessage";
 
 const paginationHelper = new PaginationHelperImpl();
 

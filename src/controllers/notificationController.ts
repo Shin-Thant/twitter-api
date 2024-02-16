@@ -45,6 +45,9 @@ export const getNotification = async (
 					path: "triggerBy",
 					select: ["_id", "username", "name", "avatar"],
 				},
+				{
+					path: "doc",
+				},
 			],
 			sort: "-createdAt",
 		},

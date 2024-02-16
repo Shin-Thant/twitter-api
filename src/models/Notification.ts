@@ -1,5 +1,7 @@
 import { Schema, Types, model } from "mongoose";
 
+export type NotiType = "like:tweet" | "like:comment" | "comment" | "reply";
+
 export type NotificationSchema = {
 	recipient: Types.ObjectId;
 	triggerBy: Types.ObjectId;
@@ -33,11 +35,7 @@ const notificationSchema = new Schema<NotificationSchema>(
 		doc: {
 			type: Schema.Types.ObjectId,
 			required: true,
-			ref: function (this: { type: NotiType }) {
-				const ref = getRefFrom(this.type);
-				console.log(ref);
-				return ref;
-			},
+			ref: "Tweet",
 		},
 		message: {
 			type: String,
@@ -48,17 +46,6 @@ const notificationSchema = new Schema<NotificationSchema>(
 		timestamps: true,
 	}
 );
-
-export type NotiType = "like:tweet" | "like:comment" | "comment" | "reply";
-const NOTI_TYPES: Record<NotiType, NotiType> = {
-	"like:tweet": "like:tweet",
-	"like:comment": "like:comment",
-	comment: "comment",
-	reply: "reply",
-} as const;
-function getRefFrom(type: NotiType): NotiType {
-	return NOTI_TYPES[type];
-}
 
 const Notification = model("Notification", notificationSchema);
 export default Notification;
