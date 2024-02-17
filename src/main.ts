@@ -72,7 +72,7 @@ mongoose.connection.once("open", () => {
 });
 
 mongoose.connection.on("error", (err) => {
-	logger.error({"DatabaseError": err});
+	logger.error({ DatabaseError: err });
 	logger.info("Shutting down...");
 	server.close(() => {
 		logger.info("Server closed!");
@@ -90,8 +90,8 @@ mongoose.connection.on("disconnected", () => {
 
 process.on("unhandledRejection", (err) => {
 	logger.error({
-    "UnhandledRejection": err
-  });
+		UnhandledRejection: err,
+	});
 	logger.info("Shutting down...");
 	server.close(() => {
 		logger.info("Server closed!");

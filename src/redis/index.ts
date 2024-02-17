@@ -1,10 +1,15 @@
+import dotenv from "dotenv";
 import { createClient } from "redis";
+import logger from "../util/logger";
+
+dotenv.config();
 
 export const client = createClient({
-	url: process.env.REDIS_URL
+	url: process.env.REDIS_URL,
 });
 
 client.on("error", function (err) {
+	logger.error({ RredisError: err });
 	throw err;
 });
 
