@@ -23,6 +23,9 @@ import {
 	LikeCommentInput,
 	UpdateCommentInput,
 } from "../validationSchemas/commentSchema";
+import { getUserPrivateRoom } from "../redis";
+import logger from "../util/logger";
+import { Emit } from "../socket";
 
 const paginationHelper = new PaginationHelperImpl();
 
@@ -153,8 +156,9 @@ export const addNewComment = async (
 	await foundTweet.save();
 
 	const commentOwnTweet = owner._id.toString() === foundTweet._id.toString();
-	if (!commentOwnTweet) {
-		io.to(foundTweet.owner._id.toString()).emit("notify", {
+	const userRoom = await getUserPrivateRoom(owner._id.toString());
+	if (!commentOwnTweet && !!userRoom) {
+		io.to(userRoom).emit(Emit.NOTIFY, {
 			recipient: foundTweet.owner._id.toString(),
 			doc: tweetId,
 			type: Noti.COMMENT,
@@ -174,6 +178,11 @@ export const addNewComment = async (
 			triggerUserID: owner._id.toString(),
 			type: Noti.COMMENT,
 		});
+	} else {
+		logger.debug(
+			{ userRoom: userRoom },
+			"User private room is not present!"
+		);
 	}
 
 	res.json(newComment);

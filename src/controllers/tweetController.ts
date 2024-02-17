@@ -37,6 +37,9 @@ import { io } from "../main";
 import { Noti, createNotification } from "../services/notificationService";
 import { NotiMessage } from "../util/notiMessage";
 import { findUser } from "../services/userServices";
+import { getUserPrivateRoom } from "../redis";
+import logger from "../util/logger";
+import { Emit } from "../socket";
 
 const paginationHelper = new PaginationHelperImpl();
 
@@ -149,6 +152,9 @@ export const createTweetHandler = async (
 	if (!newTweet) {
 		throw new AppError("Internal Server Error", 500);
 	}
+
+	// notify followers
+	io.in(owner._id.toString()).emit(Emit.POST);
 
 	// save images
 	if (files?.length) {
@@ -282,8 +288,9 @@ export const handleLikes = async (
 			filter: { _id: tweet.owner._id },
 			projection: { name: true },
 		});
-		if (recipient) {
-			io.to(tweet.owner._id.toString()).emit("notify", {
+		const userRoom = await getUserPrivateRoom(user._id.toString());
+		if (recipient && !!userRoom) {
+			io.to(userRoom).emit(Emit.NOTIFY, {
 				recipient: tweet.owner._id.toString(),
 				doc: tweetId,
 				type: Noti.LIKE_TWEET,
@@ -303,6 +310,11 @@ export const handleLikes = async (
 				type: Noti.LIKE_TWEET,
 				message: NotiMessage.getLikeTweetMessage(`@${user.name}`),
 			});
+		} else {
+			logger.debug(
+				{ recipient, userRoom: userRoom },
+				"Recipient or user private room is not present!"
+			);
 		}
 	}
 

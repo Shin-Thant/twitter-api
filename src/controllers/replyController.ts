@@ -8,6 +8,9 @@ import { CreateReplyInput } from "../validationSchemas/commentSchema";
 import { io } from "../main";
 import { Noti, createNotification } from "../services/notificationService";
 import { NotiMessage } from "../util/notiMessage";
+import { getUserPrivateRoom } from "../redis";
+import logger from "../util/logger";
+import { Emit } from "../socket";
 
 export const replyComment = async (
 	req: Request<CreateReplyInput["params"], object, CreateReplyInput["body"]>,
@@ -40,8 +43,9 @@ export const replyComment = async (
 
 	const replyOwnComment =
 		owner._id.toString() === foundComment.owner._id.toString();
+	const userRoom = await getUserPrivateRoom(owner._id.toString());
 	if (!replyOwnComment) {
-		io.to(foundComment.owner._id.toString()).emit("notify", {
+		io.to(foundComment.owner._id.toString()).emit(Emit.NOTIFY, {
 			recipient: foundComment.owner._id.toString(),
 			doc: foundComment.tweet._id.toString(),
 			type: Noti.REPLY,
@@ -61,6 +65,11 @@ export const replyComment = async (
 			triggerUserID: owner._id.toString(),
 			type: Noti.COMMENT,
 		});
+	} else {
+		logger.debug(
+			{ userRoom: userRoom },
+			"User private room is not present!"
+		);
 	}
 
 	res.json(newReply);
