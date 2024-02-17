@@ -71,8 +71,8 @@ mongoose.connection.once("open", () => {
 	logger.info("Successfully connected to DB!");
 });
 
-mongoose.connection.on("error", () => {
-	logger.error("Database err!");
+mongoose.connection.on("error", (err) => {
+	logger.error({"DatabaseError": err});
 	logger.info("Shutting down...");
 	server.close(() => {
 		logger.info("Server closed!");
@@ -88,8 +88,10 @@ mongoose.connection.on("disconnected", () => {
 	});
 });
 
-process.on("unhandledRejection", () => {
-	logger.error("Unhandled Rejection!"); // production
+process.on("unhandledRejection", (err) => {
+	logger.error({
+    "UnhandledRejection": err
+  });
 	logger.info("Shutting down...");
 	server.close(() => {
 		logger.info("Server closed!");
