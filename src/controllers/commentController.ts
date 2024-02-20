@@ -158,7 +158,7 @@ export const addNewComment = async (
 	const commentOwnTweet = owner._id.toString() === foundTweet._id.toString();
 	const userRoom = await getUserPrivateRoom(owner._id.toString());
 	if (!commentOwnTweet && !!userRoom) {
-		io.to(userRoom).emit(Emit.NOTIFY, {
+		io.to(userRoom).emit(Emit.REACT, {
 			recipient: foundTweet.owner._id.toString(),
 			doc: tweetId,
 			type: Noti.COMMENT,

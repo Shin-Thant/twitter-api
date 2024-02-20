@@ -154,7 +154,11 @@ export const createTweetHandler = async (
 	}
 
 	// notify followers
-	io.in(owner._id.toString()).emit(Emit.POST);
+	io.to(owner._id.toString()).emit(Emit.NEW_POST, {
+		id: owner._id.toString(),
+		username: owner.username,
+		avatar: owner.avatar,
+	});
 
 	// save images
 	if (files?.length) {
@@ -290,7 +294,7 @@ export const handleLikes = async (
 		});
 		const userRoom = await getUserPrivateRoom(user._id.toString());
 		if (recipient && !!userRoom) {
-			io.to(userRoom).emit(Emit.NOTIFY, {
+			io.to(userRoom).emit(Emit.REACT, {
 				recipient: tweet.owner._id.toString(),
 				doc: tweetId,
 				type: Noti.LIKE_TWEET,

@@ -18,8 +18,12 @@ type noti = {
 
 type ListenEvents = object;
 type EmitEvents = {
-	notify(arg: noti): void;
-	"new-post": () => void;
+	react(arg: noti): void;
+	"new-post": (user: {
+		id: string;
+		username: string;
+		avatar?: string;
+	}) => void;
 };
 type ServerSideEvents = object;
 type SocketData = {
@@ -27,8 +31,8 @@ type SocketData = {
 };
 
 export const Emit = {
-	NOTIFY: "notify",
-	POST: "new-post",
+	REACT: "react",
+	NEW_POST: "new-post",
 } as const;
 
 export function CreateSocketServer(httpServer: HttpServer) {

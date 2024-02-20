@@ -45,7 +45,7 @@ export const replyComment = async (
 		owner._id.toString() === foundComment.owner._id.toString();
 	const userRoom = await getUserPrivateRoom(owner._id.toString());
 	if (!replyOwnComment) {
-		io.to(foundComment.owner._id.toString()).emit(Emit.NOTIFY, {
+		io.to(foundComment.owner._id.toString()).emit(Emit.REACT, {
 			recipient: foundComment.owner._id.toString(),
 			doc: foundComment.tweet._id.toString(),
 			type: Noti.REPLY,
