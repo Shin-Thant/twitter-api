@@ -10,6 +10,7 @@ import {
 	getTweetById,
 	getTweets,
 	handleLikes,
+	retweet,
 	shareTweet,
 } from "../controllers/tweetController";
 import { uploadMany } from "../middlewares/imageUpload";
@@ -27,6 +28,7 @@ import {
 	getTweetByIdSchema,
 	getTweetsSchema,
 	likeTweetSchema,
+	retweetSchema,
 	shareTweetSchema,
 } from "../validationSchemas/tweetSchema";
 import { MULTIPLE_FILES } from "../config/imageUploadConfig";
@@ -73,20 +75,24 @@ router
 	.route("/:tweetId/like")
 	.patch([verifyJWT, validateResource(likeTweetSchema)], handleLikes);
 
-router
-	.route("/:tweetId/share")
-	.post(
-		[
-			verifyJWT,
-			validateResource(shareTweetSchema),
-			uploadMany({
-				fieldName: MULTIPLE_FILES.FIELD_NAME,
-				maxFileCount: MULTIPLE_FILES.TOTAL_COUNT,
-			}),
-			tweetBodyOrImage,
-		],
-		shareTweet
-	);
+router.route("/:tweetId/share").post(
+	[
+		verifyJWT,
+		validateResource(shareTweetSchema),
+		uploadMany({
+			fieldName: MULTIPLE_FILES.FIELD_NAME,
+			maxFileCount: MULTIPLE_FILES.TOTAL_COUNT,
+		}),
+		tweetBodyOrImage,
+	],
+	shareTweet
+);
+
+router.post(
+	"/:tweetId/retweet",
+	[verifyJWT, validateResource(retweetSchema)],
+	retweet
+);
 
 // tweet's comment routes
 router

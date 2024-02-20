@@ -179,6 +179,7 @@ export const handleLogin = async (
 
 export const handleRefreshToken = async (req: Request, res: Response) => {
 	const cookies = req.cookies;
+  console.log(cookies)
 
 	if (!isValidCookie(cookies)) {
 		throw new AppError("Unauthorized!", 401);

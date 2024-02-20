@@ -56,7 +56,7 @@ export const createTweetSchema = Joi.object<CreateTweetInput, true>({
 });
 
 export interface ShareTweetInput extends CreateTweetInput {
-	params: TweetIdParam;
+	params: { tweetId: string };
 }
 export const shareTweetSchema = Joi.object<ShareTweetInput, true>({
 	body: Joi.object({
@@ -64,6 +64,15 @@ export const shareTweetSchema = Joi.object<ShareTweetInput, true>({
 			"string.base": "Tweet body must be string!",
 		}),
 	}),
+	params: tweetIdParamSchema,
+	query: Joi.object({}),
+});
+
+export interface RetweetSchema extends Dto {
+	params: { tweetId: string };
+}
+export const retweetSchema = Joi.object<RetweetSchema, true>({
+	body: Joi.object({}),
 	params: tweetIdParamSchema,
 	query: Joi.object({}),
 });
