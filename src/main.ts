@@ -45,11 +45,16 @@ io.on("connection", async (socket) => {
 		logger.info(`User disconnected: ${socket.id}`);
 	});
 
-	// connect to followed user room
-	user.following.forEach((followedUser) => {
-		logger.info(`User joined to ${followedUser} room.`);
-		socket.join((followedUser as unknown as Types.ObjectId).toString());
-	});
+	// Connect to followed user rooms in parallel
+	await Promise.all(
+		user.following.map(async (followedUser) => {
+			const followedUserRoom = (
+				followedUser as unknown as Types.ObjectId
+			).toString();
+			socket.join(followedUserRoom);
+			logger.info(`User joined ${followedUserRoom} room.`);
+		})
+	);
 });
 
 // start server
