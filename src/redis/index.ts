@@ -6,7 +6,7 @@ dotenv.config();
 
 export const client = createClient({
 	url: process.env.REDIS_URL,
-	pingInterval: 1000 * 60 * 30,
+	pingInterval: 1000 * 60 * 15,
 });
 
 client.on("connect", () => {
