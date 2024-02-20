@@ -6,6 +6,14 @@ dotenv.config();
 
 export const client = createClient({
 	url: process.env.REDIS_URL,
+	pingInterval: 1000 * 60 * 30,
+});
+
+client.on("connect", () => {
+	logger.info("Redis: initiating connection...");
+});
+client.on("ready", () => {
+	logger.info("Redis: ready");
 });
 
 client.on("error", function (err) {
