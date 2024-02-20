@@ -149,7 +149,7 @@ describe("Pagination when called", () => {
 						totalDocs: 100,
 						helper,
 					});
-					expect(pagination.currentPage).toBe(10);
+					expect(pagination.currentPage).toBe(11);
 				});
 			});
 
@@ -240,17 +240,17 @@ describe("Pagination when called", () => {
 				};
 
 				const pagination = new PaginationImpl(input);
-				expect(pagination.currentPage).toBe(4);
+				expect(pagination.currentPage).toBe(13);
 				expect(pagination.itemsPerPage).toBe(30);
 				expect(pagination.totalDocs).toBe(100);
 				expect(pagination.totalPages).toBe(4);
-				expect(pagination.skip).toBe(90);
+				expect(pagination.skip).toBe(360);
 				expect(pagination.createPaginationResult([])).toEqual({
 					totalPages: 4,
 					totalDocs: 100,
 					hasNextPage: false,
 					hasPrevPage: true,
-					currentPage: 4,
+					currentPage: 13,
 					itemsPerPage: 30,
 					data: [],
 				});

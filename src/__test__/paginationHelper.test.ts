@@ -33,10 +33,10 @@ describe("Pagination Helper", () => {
 		});
 	});
 
-	describe("validateCurrentPageNumber", () => {
+	describe("validateCurrentPage", () => {
 		describe("given less than 1", () => {
 			it("should return 1", () => {
-				const result = helper.validateCurrentPageNumber(0, 100);
+				const result = helper.validateCurrentPage(0);
 				expect(result).toBe(1);
 			});
 		});
@@ -44,7 +44,7 @@ describe("Pagination Helper", () => {
 		describe("given more than 1", () => {
 			it("should return same number", () => {
 				const PAGE_NO = 3;
-				const result = helper.validateCurrentPageNumber(PAGE_NO, 100);
+				const result = helper.validateCurrentPage(PAGE_NO);
 				expect(result).toBe(PAGE_NO);
 			});
 		});
