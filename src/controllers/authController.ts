@@ -275,8 +275,7 @@ export const handleEmailVerfication = async (
 		// redirect user to login
 		res.redirect(`${getClientURL()}/login`);
 	} catch (err) {
-		console.log(err);
-		logger.error("Email verification route error!", err);
+		logger.error({message: "Email verification route error!", error: err});
 
 		if (!(err instanceof Error)) {
 			return res.status(500).redirect(`${getClientURL()}/login`);
