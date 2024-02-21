@@ -5,13 +5,13 @@ process.on("uncaughtException", (e) => {
 });
 
 import { createServer } from "http";
-import mongoose, { Types } from "mongoose";
+import mongoose from "mongoose";
 import app from "./app/app";
 import { connectDB } from "./config/database";
-import User from "./models/User";
 import { connectRedis, setUserPrivateRoom } from "./redis";
-import { LoggerService } from "./services/loggerService";
 import { CreateSocketServer } from "./socket";
+import { joinFollowedUsersRooms } from "./socket/socketServices";
+import { LoggerService } from "./services/loggerService";
 import { LoggerProvider } from "./util/LoggerProvider";
 
 const PORT: number = 3500 || process.env.PORT;
@@ -31,30 +31,31 @@ io.use((socket, next) => {
 	next();
 });
 
-io.on("connection", async (socket) => {
-	const user = await User.findOne({ _id: socket.data.userID }).lean().exec();
-	if (!user) return;
+io.on("connection", (socket) => {
+	const userID = socket.data.userID;
 
-	const privateUserRoom = `${socket.data.userID}-${socket.id}`;
-	await setUserPrivateRoom(socket.data.userID, privateUserRoom);
+	const reactRoom = `${userID}-${socket.id}`;
+	socket.join(reactRoom);
+	logger.info(`User ${userID} joined ${reactRoom} room.`);
 
-	socket.join(privateUserRoom);
-	logger.info(`New user joined: ${socket.data.userID}`);
+	// set user private room
+	setUserPrivateRoom(userID, reactRoom).catch((e) => {
+		logger.error({
+			RedisError: {
+				SetDataError: e,
+			},
+		});
+	});
 
 	socket.on("disconnect", () => {
 		logger.info(`User disconnected: ${socket.id}`);
 	});
 
-	// Connect to followed user rooms in parallel
-	await Promise.all(
-		user.following.map(async (followedUser) => {
-			const followedUserRoom = (
-				followedUser as unknown as Types.ObjectId
-			).toString();
-			socket.join(followedUserRoom);
-			logger.info(`User joined ${followedUserRoom} room.`);
-		})
-	);
+	joinFollowedUsersRooms(userID, socket).catch((e: unknown) => {
+		logger.error({
+			JoinFollowedUsersRoomsError: e,
+		});
+	});
 });
 
 // start server

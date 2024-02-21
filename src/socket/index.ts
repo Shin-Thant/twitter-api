@@ -1,5 +1,5 @@
 import { Server as HttpServer } from "http";
-import { Server as SocketServer } from "socket.io";
+import { Socket, Server as SocketServer } from "socket.io";
 import { allowedOrigins } from "../config/corsOptions";
 
 type noti = {
@@ -34,6 +34,13 @@ export const Emit = {
 	REACT: "react",
 	NEW_POST: "new-post",
 } as const;
+
+export type AppSocket = Socket<
+	ListenEvents,
+	EmitEvents,
+	ServerSideEvents,
+	SocketData
+>;
 
 export function CreateSocketServer(httpServer: HttpServer) {
 	return new SocketServer<
