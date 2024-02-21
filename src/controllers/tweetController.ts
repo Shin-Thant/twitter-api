@@ -39,7 +39,7 @@ import { Noti, createNotification } from "../services/notificationService";
 import { NotiMessage } from "../util/notiMessage";
 import { findUser } from "../services/userServices";
 import { getUserPrivateRoom } from "../redis";
-import logger from "../util/logger";
+import { logger } from "../util/logger";
 import { Emit } from "../socket";
 
 const paginationHelper = new PaginationHelperImpl();
@@ -342,10 +342,10 @@ export const handleLikes = async (
 				message: NotiMessage.getLikeTweetMessage(`@${user.name}`),
 			});
 		} else {
-			logger.debug(
-				{ recipient, userRoom: userRoom },
-				"Recipient or user private room is not present!"
-			);
+			logger.debug({
+				message: "Recipient or user private room is not present!",
+				data: { recipient, userRoom: userRoom },
+			});
 		}
 	}
 

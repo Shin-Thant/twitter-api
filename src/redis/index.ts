@@ -1,6 +1,6 @@
 import dotenv from "dotenv";
 import { createClient } from "redis";
-import logger from "../util/logger";
+import { redisLogger as logger } from "../util/logger";
 
 dotenv.config();
 

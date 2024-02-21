@@ -24,7 +24,7 @@ import {
 	UpdateCommentInput,
 } from "../validationSchemas/commentSchema";
 import { getUserPrivateRoom } from "../redis";
-import logger from "../util/logger";
+import { logger } from "../util/logger";
 import { Emit } from "../socket";
 
 const paginationHelper = new PaginationHelperImpl();
@@ -179,10 +179,7 @@ export const addNewComment = async (
 			type: Noti.COMMENT,
 		});
 	} else {
-		logger.debug(
-			{ userRoom: userRoom },
-			"User private room is not present!"
-		);
+		logger.debug("User private room is not present!");
 	}
 
 	res.json(newComment);

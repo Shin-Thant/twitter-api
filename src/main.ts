@@ -11,11 +11,9 @@ import { connectDB } from "./config/database";
 import { connectRedis, setUserPrivateRoom } from "./redis";
 import { CreateSocketServer } from "./socket";
 import { joinFollowedUsersRooms } from "./socket/socketServices";
-import { LoggerService } from "./services/loggerService";
-import { LoggerProvider } from "./util/LoggerProvider";
+import { logger, socketLogger } from "./util/logger";
 
 const PORT: number = 3500 || process.env.PORT;
-const logger = new LoggerService(LoggerProvider.getInstance("Server"));
 
 const httpServer = createServer(app);
 export const io = CreateSocketServer(httpServer);
@@ -36,11 +34,11 @@ io.on("connection", (socket) => {
 
 	const reactRoom = `${userID}-${socket.id}`;
 	socket.join(reactRoom);
-	logger.info(`User ${userID} joined ${reactRoom} room.`);
+	socketLogger.info(`User ${userID} joined ${reactRoom} room.`);
 
 	// set user private room
 	setUserPrivateRoom(userID, reactRoom).catch((e) => {
-		logger.error({
+		socketLogger.error({
 			RedisError: {
 				SetDataError: e,
 			},
@@ -48,11 +46,11 @@ io.on("connection", (socket) => {
 	});
 
 	socket.on("disconnect", () => {
-		logger.info(`User disconnected: ${socket.id}`);
+		socketLogger.info(`User disconnected: ${socket.id}`);
 	});
 
 	joinFollowedUsersRooms(userID, socket).catch((e: unknown) => {
-		logger.error({
+		socketLogger.error({
 			JoinFollowedUsersRoomsError: e,
 		});
 	});

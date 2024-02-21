@@ -1,9 +1,12 @@
-import pino from "pino";
-import PinoPretty from "pino-pretty";
-import day from "dayjs";
+import { LoggerService } from "../services/loggerService";
+import { LoggerProvider } from "./LoggerProvider";
 
-const pretty = PinoPretty({
-	translateTime: day().format("YYYY-MM-DD HH:mm:ss"),
-});
-const logger = pino(pretty);
-export default logger;
+export const logger = new LoggerService(LoggerProvider.getInstance("Server"));
+
+export const socketLogger = new LoggerService(
+	LoggerProvider.getInstance("Socket")
+);
+
+export const redisLogger = new LoggerService(
+	LoggerProvider.getInstance("Redis")
+);

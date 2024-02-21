@@ -38,7 +38,7 @@ import {
 	validateEmailTokenPayload,
 	validateRefreshTokenPayload,
 } from "../util/jwtPayloadValidators";
-import logger from "../util/logger";
+import { logger } from "../util/logger";
 import { getClientURL } from "../config/clientURL";
 import { isAppError, isJwtTokenError } from "../util/errorHandlerHelpers";
 import { HydratedDocument } from "mongoose";
@@ -179,7 +179,7 @@ export const handleLogin = async (
 
 export const handleRefreshToken = async (req: Request, res: Response) => {
 	const cookies = req.cookies;
-  console.log(cookies)
+	console.log(cookies);
 
 	if (!isValidCookie(cookies)) {
 		throw new AppError("Unauthorized!", 401);

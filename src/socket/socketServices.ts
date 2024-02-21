@@ -1,6 +1,7 @@
 import { Types } from "mongoose";
 import { AppSocket } from ".";
 import User from "../models/User";
+import { socketLogger } from "../util/logger";
 
 export async function joinFollowedUsersRooms(
 	userId: string,
@@ -16,7 +17,7 @@ export async function joinFollowedUsersRooms(
 			).toString();
 
 			socket.join(followedUserRoom);
-			// socketLogger.info(`User joined to ${followedUserRoom} room.`);
+			socketLogger.info(`User joined to ${followedUserRoom} room.`);
 		})
 	);
 }
