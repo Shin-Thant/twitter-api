@@ -178,7 +178,7 @@ export const addNewComment = async (
 			triggerUserID: owner._id.toString(),
 			type: Noti.COMMENT,
 		});
-	} else {
+	} else if (!userRoom) {
 		logger.debug("User private room is not present!");
 	}
 
