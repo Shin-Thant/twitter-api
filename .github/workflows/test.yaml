@@ -1,0 +1,46 @@
+name: CI
+on:
+    push:
+        branches:
+            - main
+jobs:
+    test:
+        runs-on: ubuntu-latest
+        env:
+            DATABASE_URI: mongodb://root:example@localhost:27017
+            PORT: 3500
+            NODE_ENV: production
+            ACCESS_TOKEN_SECRET_KEY: secret
+            REFRESH_TOKEN_SECRET_KEY: secret
+            EMAIL_TOKEN_SECRET_KEY: secret
+            PASSWORD_RESET_TOKEN_SECRET_KEY: secret
+            SENDGRID_API_KEY: secret
+            REDIS_URL: redis://localhost:6379
+        services:
+            database:
+                image: mongo:latest
+                env:
+                    MONGO_INITDB_ROOT_USERNAME: root
+                    MONGO_INITDB_ROOT_PASSWORD: example
+                ports:
+                    - 27017:27017
+            redis:
+                image: redis:latest
+                options: >-
+                    --health-cmd "redis-cli ping"
+                    --health-interval 10s
+                    --health-timeout 5s
+                    --health-retries 5
+        strategy:
+            matrix:
+                node-version: ["14.x", "latest"]
+        steps:
+            - uses: actions/checkout@v4
+            - name: Setup Node.js
+              uses: actions/setup-node@v4 ${{ matrix.node-version }}
+              with:
+                  node-version: ${{ matrix.node-version }}
+            - name: Install Dependencies
+              run: npm ci
+            - name: Run Tests
+              run: npm test
