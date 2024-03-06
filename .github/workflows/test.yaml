@@ -36,8 +36,8 @@ jobs:
                 node-version: ["14.x", "latest"]
         steps:
             - uses: actions/checkout@v4
-            - name: Setup Node.js
-              uses: actions/setup-node@v4 ${{ matrix.node-version }}
+            - name: Setup Node.js ${{ matrix.node-version }}
+              uses: actions/setup-node@v4
               with:
                   node-version: ${{ matrix.node-version }}
             - name: Install Dependencies
