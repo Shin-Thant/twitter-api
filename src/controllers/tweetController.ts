@@ -34,13 +34,13 @@ import {
 	RetweetSchema,
 	ShareTweetInput,
 } from "../validationSchemas/tweetSchema";
-import { io } from "../main";
 import { Noti, createNotification } from "../services/notificationService";
 import { NotiMessage } from "../util/notiMessage";
 import { findUser } from "../services/userServices";
 import { getUserPrivateRoom } from "../redis";
 import { logger } from "../util/logger";
 import { Emit } from "../socket";
+import { io } from "../app/app";
 
 const paginationHelper = new PaginationHelperImpl();
 

@@ -2,15 +2,15 @@ import { Request, Response } from "express";
 import AppError from "../config/AppError";
 import Comment from "../models/Comment";
 import { UserDoc } from "../models/types/userTypes";
-import { createReply } from "../services/commentServices";
-import { updateTweet } from "../services/tweetServices";
-import { CreateReplyInput } from "../validationSchemas/commentSchema";
-import { io } from "../main";
-import { Noti, createNotification } from "../services/notificationService";
-import { NotiMessage } from "../util/notiMessage";
 import { getUserPrivateRoom } from "../redis";
-import { logger } from "../util/logger";
+import { createReply } from "../services/commentServices";
+import { Noti, createNotification } from "../services/notificationService";
+import { updateTweet } from "../services/tweetServices";
 import { Emit } from "../socket";
+import { logger } from "../util/logger";
+import { NotiMessage } from "../util/notiMessage";
+import { CreateReplyInput } from "../validationSchemas/commentSchema";
+import { io } from "../app/app";
 
 export const replyComment = async (
 	req: Request<CreateReplyInput["params"], object, CreateReplyInput["body"]>,

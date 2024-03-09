@@ -1,7 +1,6 @@
 import { Request, Response } from "express";
 import AppError from "../config/AppError";
 import PaginationImpl from "../lib/pagination";
-import { io } from "../main";
 import { CommentDoc } from "../models/types/commentTypes";
 import { UserDoc } from "../models/types/userTypes";
 import {
@@ -25,7 +24,8 @@ import {
 } from "../validationSchemas/commentSchema";
 import { getUserPrivateRoom } from "../redis";
 import { logger } from "../util/logger";
-import { Emit } from "../socket";
+import { Emit, SocketInstance } from "../socket";
+import { io } from "../app/app";
 
 const paginationHelper = new PaginationHelperImpl();
 

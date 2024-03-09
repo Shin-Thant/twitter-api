@@ -15,11 +15,13 @@ import commentRoutes from "../routes/commentRoutes";
 import notiRoutes from "../routes/notiRoutes";
 import tweetRoutes from "../routes/tweetRoutes";
 import userRoutes from "../routes/userRoutes";
-import { createServer } from "https";
+import { createServer } from "http";
+import { SocketInstance } from "../socket";
 
 dotenv.config();
 const app = express();
 const httpServer = createServer(app);
+export const io = SocketInstance.getInstance(httpServer);
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 // middlewares

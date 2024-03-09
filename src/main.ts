@@ -5,18 +5,16 @@ process.on("uncaughtException", (e) => {
 });
 
 import mongoose from "mongoose";
+import httpServer from "./app/app";
 import { connectDB } from "./config/database";
-import { connectRedis, setUserPrivateRoom } from "./redis";
-import { CreateSocketServer } from "./socket";
+import { setUserPrivateRoom } from "./redis";
+import { SocketInstance } from "./socket";
 import { joinFollowedUsersRooms } from "./socket/socketServices";
 import { logger, socketLogger } from "./util/logger";
-import httpServer from "./app/app";
 
 const PORT: number = 3500 || process.env.PORT;
 
-export const io = CreateSocketServer(httpServer);
-
-connectRedis();
+const io = SocketInstance.getInstance(httpServer);
 
 io.use((socket, next) => {
 	const userID = socket.handshake.auth?.userID;
