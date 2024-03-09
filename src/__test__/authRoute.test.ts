@@ -131,6 +131,8 @@ describe("/auth", () => {
 					password: "password123",
 				};
 
+				console.log("user", user);
+
 				const { body } = await supertest(app)
 					.post("/api/v1/auth/login")
 					.send(reqBody)
@@ -145,7 +147,7 @@ describe("/auth", () => {
 						email: user.email,
 						emailVerified: user.emailVerified,
 						avatar: user.avatar,
-						following: user.following,
+						following: user.following.map((f) => f.toString()),
 						counts: user.counts,
 						updatedAt: expect.any(String),
 						createdAt: expect.any(String),
