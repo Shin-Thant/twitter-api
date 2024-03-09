@@ -15,9 +15,11 @@ import commentRoutes from "../routes/commentRoutes";
 import notiRoutes from "../routes/notiRoutes";
 import tweetRoutes from "../routes/tweetRoutes";
 import userRoutes from "../routes/userRoutes";
+import { createServer } from "https";
 
 dotenv.config();
 const app = express();
+const httpServer = createServer(app);
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 // middlewares
@@ -42,4 +44,4 @@ app.use("/api/v1/notis", notiRoutes);
 // error handler middleware
 app.use(errorHandler);
 
-export default app;
+export default httpServer;

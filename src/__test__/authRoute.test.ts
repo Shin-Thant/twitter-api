@@ -1,9 +1,9 @@
 import supertest from "supertest";
-import app from "../app/app";
 import { NextFunction, Request, Response } from "express";
 import { connectDB, disconnectDB } from "../config/database";
 import User from "../models/User";
 import { LeanUser } from "../models/types/userTypes";
+import app from "../app/app";
 
 jest.mock("../lib/rateLimit", () => (_arg1: number, _arg2: number) => {
 	return (_req: Request, _res: Response, next: NextFunction) => {
@@ -146,7 +146,6 @@ describe("/auth", () => {
 						emailVerified: user.emailVerified,
 						avatar: user.avatar,
 						following: user.following,
-						followers: user.followers,
 						counts: user.counts,
 						updatedAt: expect.any(String),
 						createdAt: expect.any(String),

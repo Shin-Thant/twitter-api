@@ -4,18 +4,16 @@ process.on("uncaughtException", (e) => {
 	process.exit(1);
 });
 
-import { createServer } from "http";
 import mongoose from "mongoose";
-import app from "./app/app";
 import { connectDB } from "./config/database";
 import { connectRedis, setUserPrivateRoom } from "./redis";
 import { CreateSocketServer } from "./socket";
 import { joinFollowedUsersRooms } from "./socket/socketServices";
 import { logger, socketLogger } from "./util/logger";
+import httpServer from "./app/app";
 
 const PORT: number = 3500 || process.env.PORT;
 
-const httpServer = createServer(app);
 export const io = CreateSocketServer(httpServer);
 
 connectRedis();
@@ -85,6 +83,9 @@ mongoose.connection.on("error", (err) => {
 });
 mongoose.connection.on("disconnected", () => {
 	logger.error("Database disconnected!");
+	if (process.env.NODE_ENV !== "production") {
+		return;
+	}
 	logger.info("Shutting down...");
 	server.close(() => {
 		logger.info("Server closed!");

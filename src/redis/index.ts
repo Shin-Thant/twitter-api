@@ -17,7 +17,7 @@ client.on("ready", () => {
 });
 
 client.on("error", function (err) {
-	logger.error({ RredisError: err });
+	logger.error({ RredisError: JSON.stringify(err) });
 	throw err;
 });
 
